@@ -1,0 +1,362 @@
+html,
+body.start {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow: hidden;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.backdrop.active {
+  opacity: 1;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  height: 100%;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.greeting {
+  font-size: 1.05em;
+  color: var(--textDim);
+  letter-spacing: 0.01em;
+}
+
+.clock {
+  font-size: 4.2em;
+  font-weight: 250;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.24em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--textDim);
+  text-align: center;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 8px 0 16px;
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusLarge);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: var(--shadowSmall);
+  backdrop-filter: blur(var(--blur));
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.searchBox:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.searchIcon {
+  display: grid;
+  place-items: center;
+  color: var(--textDim);
+}
+
+.searchIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1em;
+  user-select: text;
+}
+
+.searchGo {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--onAccent);
+  cursor: default;
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+.searchGo:hover {
+  filter: brightness(1.08);
+}
+
+.searchGo:active {
+  transform: scale(0.94);
+}
+
+.searchGo svg {
+  width: 16px;
+  height: 16px;
+}
+
+.links {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+}
+
+.links[data-layout="grid"] {
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+}
+
+.links[data-layout="list"] {
+  grid-template-columns: 1fr;
+  gap: 4px;
+  max-width: 560px;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  color: var(--text);
+  text-decoration: none;
+  cursor: default;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+  backdrop-filter: blur(var(--blur));
+  overflow: hidden;
+}
+
+.link:hover {
+  background: var(--surface);
+  border-color: var(--borderSoft);
+  transform: translateY(-2px);
+}
+
+.links[data-layout="list"] .link {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+}
+
+.link:hover .linkIcon {
+  background: var(--accent);
+  color: var(--onAccent);
+}
+
+.linkIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceAlt);
+  color: var(--textDim);
+  font-weight: 600;
+  font-size: 1.05em;
+  text-transform: uppercase;
+  overflow: hidden;
+  flex: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.linkIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.linkLabel {
+  max-width: 100%;
+  font-size: 0.88em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.links[data-layout="list"] .linkLabel {
+  font-size: 0.95em;
+  flex: 1;
+}
+
+.foot {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.82em;
+  color: var(--textDim);
+}
+
+.foot button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  padding: 4px 8px;
+  border-radius: var(--radiusSmall);
+}
+
+.foot button:hover {
+  background: var(--surfaceAlt);
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- editor */
+
+.editSheet {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 45%);
+  z-index: 10;
+}
+
+.editSheet[hidden] {
+  display: none;
+}
+
+.editCard {
+  width: min(620px, calc(100vw - 40px));
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  box-shadow: var(--shadow);
+}
+
+.editCard h2 {
+  margin: 0 0 6px;
+  font-size: 1.1em;
+}
+
+.editHint {
+  margin: 0 0 16px;
+  color: var(--textDim);
+  font-size: 0.9em;
+}
+
+.listEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.listItem input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radiusSmall);
+  background: var(--bg);
+  outline: none;
+  user-select: text;
+}
+
+.listItem input:focus {
+  border-color: var(--accent);
+}
+
+.button {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceAlt);
+  color: var(--text);
+  cursor: default;
+}
+
+.button:hover {
+  background: var(--surfaceHover);
+}
+
+.button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--onAccent);
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: default;
+  flex: none;
+}
+
+.iconButton:hover {
+  background: var(--surfaceAlt);
+  color: var(--text);
+}
+
+.iconButton svg {
+  width: 15px;
+  height: 15px;
+}

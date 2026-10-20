@@ -1,0 +1,1 @@
+A calm reading mode that narrows the text column, calms animations and dims navigation until you point at it. Toggle it with the toolbar icon.

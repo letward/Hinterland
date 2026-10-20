@@ -1,0 +1,1 @@
+Hides headers, sidebars and footers on the page you are reading, and shows a slim bar with the page title instead. Toggle it with the toolbar icon.

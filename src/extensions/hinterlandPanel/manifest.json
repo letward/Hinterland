@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Hinterland Panel",
+  "version": "1.0.0",
+  "description": "Hides headers, sidebars and footers on the page you are reading, and shows a slim bar with the page title instead.",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_title": "Page panel"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

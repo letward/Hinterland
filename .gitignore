@@ -1,0 +1,17 @@
+node_modules/
+dist/
+out/
+release/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+build/icons/
+
+# App data (created at runtime, not in repo)
+settings.json
+extensions.json
+session.json
+.env

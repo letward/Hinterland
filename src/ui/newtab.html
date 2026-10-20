@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+  <head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hinterland</title>
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/newtab.css" />
+  </head>
+  <body class="start">
+    <div class="backdrop" id="backdrop"></div>
+    <main class="stage" id="stage">
+      <section class="hero">
+        <div class="greeting" id="greeting"></div>
+        <div class="clock" id="clock" hidden></div>
+        <form class="searchBox" id="searchBox">
+          <span class="searchIcon" id="searchIcon"></span>
+          <input
+            class="searchInput"
+            id="searchInput"
+            type="text"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder=""
+          />
+          <button class="searchGo" id="searchGo" type="submit"></button>
+        </form>
+      </section>
+
+      <section class="links" id="links" hidden></section>
+
+      <footer class="foot" id="foot"></footer>
+    </main>
+
+    <div class="editSheet" id="editSheet" hidden>
+      <div class="editCard">
+        <h2 id="editTitle"></h2>
+        <p class="editHint" id="editHint"></p>
+        <div class="listEditor" id="linkEditor"></div>
+        <div class="actionRow" style="margin-top: 14px">
+          <button class="button primary" id="linkAdd" type="button"></button>
+          <button class="button" id="linkClose" type="button"></button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/newtab.js"></script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "hinterland",
+  "productName": "Hinterland",
+  "version": "1.0.0",
+  "description": "Ein schneller, sicherer und frei anpassbarer Browser. A fast, secure and freely customisable browser.",
+  "main": "src/main/main.js",
+  "type": "module",
+  "author": "Hinterland",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "check": "node scripts/check.mjs",
+    "icons": "node scripts/makeicon.mjs",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "de.hinterland",
+    "productName": "Hinterland",
+    "win": {
+      "target": "nsis",
+      "icon": "build/icons/icon.png"
+    }
+  }
+}

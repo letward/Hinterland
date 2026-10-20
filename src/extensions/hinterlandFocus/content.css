@@ -1,0 +1,40 @@
+html[data-hinterland-focus="true"] body {
+  font-size: 17px !important;
+  line-height: 1.75 !important;
+  letter-spacing: 0.003em !important;
+}
+
+html[data-hinterland-focus="true"] p,
+html[data-hinterland-focus="true"] li,
+html[data-hinterland-focus="true"] article,
+html[data-hinterland-focus="true"] blockquote {
+  max-width: 42em;
+}
+
+html[data-hinterland-focus="true"] img,
+html[data-hinterland-focus="true"] video,
+html[data-hinterland-focus="true"] iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+html[data-hinterland-focus="true"] nav,
+html[data-hinterland-focus="true"] aside,
+html[data-hinterland-focus="true"] [role="navigation"],
+html[data-hinterland-focus="true"] [role="banner"],
+html[data-hinterland-focus="true"] [role="complementary"] {
+  opacity: 0.45;
+  transition: opacity 160ms ease;
+}
+
+html[data-hinterland-focus="true"] nav:hover,
+html[data-hinterland-focus="true"] aside:hover,
+html[data-hinterland-focus="true"] [role="navigation"]:hover,
+html[data-hinterland-focus="true"] [role="banner"]:hover,
+html[data-hinterland-focus="true"] [role="complementary"]:hover {
+  opacity: 1;
+}
+
+html[data-hinterland-focus="true"] * {
+  animation-play-state: paused !important;
+}

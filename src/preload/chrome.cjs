@@ -1,0 +1,141 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+const EVENTS = [
+  'tabs:sync',
+  'tab:update',
+  'tab:active',
+  'tab:found',
+  'tab:confirmClose',
+  'window:state',
+  'settings:changed',
+  'extensions:changed',
+  'download:new',
+  'download:progress',
+  'download:done',
+  'permission:request',
+  'toast',
+  'shortcut',
+];
+
+function listen(channel, handler) {
+  if (!EVENTS.includes(channel)) throw new Error(`unknownChannel:${channel}`);
+  const wrapped = (_event, payload) => handler(payload);
+  ipcRenderer.on(channel, wrapped);
+  return () => ipcRenderer.removeListener(channel, wrapped);
+}
+
+const api = {
+  events: { listen },
+
+  app: {
+    bootstrap: () => ipcRenderer.invoke('app:bootstrap'),
+    info: () => ipcRenderer.invoke('app:info'),
+    openFolder: (target) => ipcRenderer.invoke('app:openFolder', target),
+    revealFile: (path) => ipcRenderer.invoke('app:revealFile', path),
+  },
+
+  settings: {
+    get: (key) => ipcRenderer.invoke('settings:get', key),
+    set: (key, value) => ipcRenderer.invoke('settings:set', key, value),
+    merge: (patch) => ipcRenderer.invoke('settings:merge', patch),
+    reset: (key) => ipcRenderer.invoke('settings:reset', key),
+    resetAll: () => ipcRenderer.invoke('settings:resetAll'),
+    export: () => ipcRenderer.invoke('settings:export'),
+    import: (text) => ipcRenderer.invoke('settings:import', text),
+    saveFile: (name, content) => ipcRenderer.invoke('settings:saveFile', name, content),
+    loadFile: () => ipcRenderer.invoke('settings:loadFile'),
+    pickDirectory: (key) => ipcRenderer.invoke('settings:pickDirectory', key),
+    pickFile: () => ipcRenderer.invoke('settings:pickFile'),
+  },
+
+  layout: {
+    setChromeHeight: (height) => ipcRenderer.invoke('chrome:height', height),
+    setPopupBottom: (bottom) => ipcRenderer.invoke('chrome:popup', bottom),
+    setFullscreen: (enabled) => ipcRenderer.invoke('chrome:fullscreen', enabled),
+  },
+
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    fullscreen: () => ipcRenderer.invoke('window:fullscreen'),
+    close: () => ipcRenderer.invoke('window:close'),
+    state: () => ipcRenderer.invoke('window:state'),
+  },
+
+  tabs: {
+    create: (options) => ipcRenderer.invoke('tabs:create', options),
+    activate: (id) => ipcRenderer.invoke('tabs:activate', id),
+    close: (id) => ipcRenderer.invoke('tabs:close', id),
+    move: (id, index) => ipcRenderer.invoke('tabs:move', id, index),
+    pin: (id, pinned) => ipcRenderer.invoke('tabs:pin', id, pinned),
+    duplicate: (id) => ipcRenderer.invoke('tabs:duplicate', id),
+    cycle: (delta) => ipcRenderer.invoke('tabs:cycle', delta),
+    reopen: () => ipcRenderer.invoke('tabs:reopen'),
+    closeOthers: (id) => ipcRenderer.invoke('tabs:closeOthers', id),
+    closeAll: () => ipcRenderer.invoke('tabs:closeAll'),
+    snapshot: () => ipcRenderer.invoke('tabs:snapshot'),
+    confirmClose: (id, answer) => ipcRenderer.invoke('tab:confirmClose', id, answer),
+  },
+
+  tab: {
+    navigate: (id, input) => ipcRenderer.invoke('tab:navigate', id, input),
+    back: (id) => ipcRenderer.invoke('tab:back', id),
+    forward: (id) => ipcRenderer.invoke('tab:forward', id),
+    reload: (id, hard) => ipcRenderer.invoke('tab:reload', id, hard),
+    stop: (id) => ipcRenderer.invoke('tab:stop', id),
+    zoom: (id, factor) => ipcRenderer.invoke('tab:zoom', id, factor),
+    mute: (id, muted) => ipcRenderer.invoke('tab:mute', id, muted),
+    focus: (id) => ipcRenderer.invoke('tab:focus', id),
+    copyUrl: (id) => ipcRenderer.invoke('tab:copyUrl', id),
+    copyText: (text) => ipcRenderer.invoke('tab:copyText', text),
+    openExternal: (id) => ipcRenderer.invoke('tab:openExternal', id),
+    inspect: (id) => ipcRenderer.invoke('tab:inspect', id),
+    print: (id) => ipcRenderer.invoke('tab:print', id),
+    translate: (id) => ipcRenderer.invoke('tab:translate', id),
+    find: (id, query, options) => ipcRenderer.invoke('tab:find', id, query, options),
+    findNext: (id) => ipcRenderer.invoke('tab:findNext', id),
+    findStop: (id, keep) => ipcRenderer.invoke('tab:findStop', id, keep),
+  },
+
+  search: {
+    suggest: (query) => ipcRenderer.invoke('search:suggest', query),
+    resolve: (input) => ipcRenderer.invoke('search:resolve', input),
+    engines: () => ipcRenderer.invoke('search:engines'),
+  },
+
+  extensions: {
+    list: () => ipcRenderer.invoke('extensions:list'),
+    install: () => ipcRenderer.invoke('extensions:install'),
+    installPath: (path) => ipcRenderer.invoke('extensions:installPath', path),
+    uninstall: (id) => ipcRenderer.invoke('extensions:uninstall', id),
+    toggle: (id, enabled) => ipcRenderer.invoke('extensions:toggle', id, enabled),
+    reload: (id) => ipcRenderer.invoke('extensions:reload', id),
+    reveal: (id) => ipcRenderer.invoke('extensions:reveal', id),
+    info: (id) => ipcRenderer.invoke('extensions:info', id),
+    action: (id) => ipcRenderer.invoke('extensions:action', id),
+  },
+
+  history: {
+    search: (query) => ipcRenderer.invoke('history:search', query),
+    clear: () => ipcRenderer.invoke('history:clear'),
+    remove: (url) => ipcRenderer.invoke('history:remove', url),
+  },
+
+  data: {
+    clear: (options) => ipcRenderer.invoke('data:clear', options),
+  },
+
+  shell: {
+    open: (url) => ipcRenderer.invoke('shell:open', url),
+  },
+
+  permission: {
+    resolve: (id, answer) => ipcRenderer.invoke('permission:resolve', id, answer),
+  },
+
+  dialog: {
+    confirm: (options) => ipcRenderer.invoke('dialog:confirm', options),
+  },
+};
+
+contextBridge.exposeInMainWorld('hinterland', api);

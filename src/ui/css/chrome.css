@@ -1,0 +1,643 @@
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--borderSoft);
+}
+
+.titlebarGrip {
+  position: absolute;
+  inset: 0;
+  -webkit-app-region: drag;
+  z-index: 0;
+}
+
+html[data-compact="true"] .windowButtons {
+  display: none;
+}
+
+.windowButtons {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding-right: 4px;
+  z-index: 1;
+  flex: none;
+}
+
+.windowButton {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: pointer;
+  transition: background var(--anim), color var(--anim);
+  z-index: 2;
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.windowButton svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.3;
+}
+
+.windowButton:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.windowButtonDanger:hover {
+  background: #d8403a;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ tab strip */
+
+.tabstrip {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 4px 6px 0;
+  background: var(--bg);
+  min-height: calc(var(--tabHeight) + 4px);
+}
+
+html[data-tabbar="hidden"] .tabstrip {
+  display: none;
+}
+
+html[data-tabbar="hidden"] .windowButtons {
+  position: fixed;
+  top: 6px;
+  right: 6px;
+}
+
+html[data-tabbar="bottom"] .shell {
+  flex-direction: column-reverse;
+}
+
+html[data-tabbar="bottom"] .tabstrip {
+  align-items: flex-start;
+  padding: 0 6px 4px;
+  border-top: 1px solid var(--borderSoft);
+}
+
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1 1 var(--tabWidth, 210px);
+  min-width: var(--tabWidthMin, 62px);
+  max-width: var(--tabWidth, 210px);
+  height: var(--tabHeight);
+  padding: 0 8px 0 10px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--textDim);
+  cursor: default;
+  overflow: hidden;
+  transition: background var(--anim), color var(--anim), flex var(--anim);
+}
+
+.tab:hover {
+  background: var(--surfaceAlt);
+  color: var(--text);
+}
+
+.tabActive {
+  background: var(--surface);
+  border-color: var(--borderSoft);
+  color: var(--text);
+}
+
+.tabPrivate::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.75;
+}
+
+.tabPinned {
+  flex: 0 0 auto;
+  max-width: 190px;
+  min-width: 0;
+}
+
+.tabDragging {
+  opacity: 0.45;
+}
+
+.tabDropBefore::before,
+.tabDropAfter::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 12%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.tabDropBefore::before {
+  left: -2px;
+}
+
+.tabDropAfter::after {
+  right: -2px;
+}
+
+.tabFavicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+  flex: none;
+}
+
+.tabFaviconFallback {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--textDim);
+}
+
+.tabFaviconFallback svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tabTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.94em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabSound {
+  color: var(--textDim);
+  display: grid;
+  place-items: center;
+}
+
+.tabSound svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tabClose {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  opacity: 0;
+  flex: none;
+  transition: background var(--anim), opacity var(--anim);
+}
+
+.tabClose svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 1.9;
+}
+
+.tab:hover .tabClose {
+  opacity: 0.75;
+}
+
+.tabClose:hover {
+  background: var(--surfaceHover);
+  opacity: 1;
+}
+
+.tabActive .tabClose,
+.tabClose:hover,
+html[data-closeButton="always"] .tabClose {
+  opacity: 1;
+}
+
+.tabLoader {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.tabLoader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--accent);
+  animation: slide 1.1s linear infinite;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
+
+.tabAction {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: var(--tabHeight);
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: default;
+  flex: none;
+  transition: background var(--anim), color var(--anim);
+}
+
+.tabAction:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------------- toolbar */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  height: var(--toolbarHeight);
+  min-height: var(--toolbarHeight);
+  padding: 0 8px;
+  background: var(--surface);
+}
+
+.navGroup,
+.toolGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: var(--row);
+  height: var(--row);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: default;
+  transition: background var(--anim), color var(--anim), opacity var(--anim);
+}
+
+.iconButton:hover:not(:disabled) {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.iconButton:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.iconButton.active {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+}
+
+.iconButton.small {
+  width: 28px;
+  height: 28px;
+}
+
+.iconButton.small svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ------------------------------------------------------------------- extension toolbar */
+
+.extensionToolbar {
+  display: flex;
+  gap: 2px;
+  padding: 0 6px;
+  flex: none;
+  align-items: center;
+}
+
+.extensionButton {
+  display: grid;
+  place-items: center;
+  width: var(--row);
+  height: var(--row);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  transition: background var(--anim), color var(--anim);
+}
+
+.extensionButton:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.extensionButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.extensionButton:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.extensionBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.65em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------- omnibox */
+
+.omni {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--toolbarHeight) - 14px);
+  padding: 0 6px 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radiusLarge);
+  background: var(--surfaceAlt);
+  transition: background var(--anim), border-color var(--anim), box-shadow var(--anim);
+}
+
+.omni:hover {
+  background: var(--surfaceHover);
+}
+
+.omni:focus-within {
+  background: var(--bg);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.omniIcon,
+.findIcon {
+  display: grid;
+  place-items: center;
+  color: var(--textDim);
+  flex: none;
+}
+
+.omniIcon svg,
+.findIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.omniIcon.secure {
+  color: #46b980;
+}
+
+.omniInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  user-select: text;
+  text-overflow: ellipsis;
+}
+
+.omniInput::placeholder {
+  color: var(--textDim);
+}
+
+.omniClear,
+.omniStar {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--textDim);
+  cursor: default;
+  flex: none;
+  transition: background var(--anim), color var(--anim);
+}
+
+.omniClear svg,
+.omniStar svg {
+  width: 13px;
+  height: 13px;
+}
+
+.omniClear:hover,
+.omniStar:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.omniStar.on {
+  color: var(--accent);
+}
+
+.omniClear[hidden],
+.omniStar[hidden] {
+  display: none;
+}
+
+.omniProgress {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  opacity: 0;
+  transition: opacity var(--anim);
+}
+
+.omniProgress.active {
+  opacity: 1;
+}
+
+.omniProgress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  background: var(--accent);
+  animation: slide 1.1s linear infinite;
+}
+
+/* --------------------------------------------------------------------- find bar */
+
+.findBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 8px 0 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--borderSoft);
+}
+
+.findBar[hidden] {
+  display: none;
+}
+
+.findInput {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radiusSmall);
+  background: var(--bg);
+  outline: none;
+  user-select: text;
+}
+
+.findInput:focus {
+  border-color: var(--accent);
+}
+
+.findCount {
+  font-size: 0.86em;
+  color: var(--textDim);
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- download shelf */
+
+.downloadShelf {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--borderSoft);
+}
+
+.downloadShelf[hidden] {
+  display: none;
+}
+
+.downloadIcon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radiusSmall);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  flex: none;
+}
+
+.downloadMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.downloadName {
+  font-size: 0.92em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.downloadSub {
+  font-size: 0.8em;
+  color: var(--textDim);
+}
+
+.downloadBar {
+  height: 3px;
+  margin-top: 5px;
+  border-radius: 3px;
+  background: var(--surfaceAlt);
+  overflow: hidden;
+}
+
+.downloadBarFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 160ms linear;
+}

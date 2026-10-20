@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Hinterland Focus",
+  "version": "1.0.0",
+  "description": "Adds a quiet focus mode with a comfortable reading column.",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_title": "Focus mode"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}
