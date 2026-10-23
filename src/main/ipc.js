@@ -11,6 +11,8 @@ import { history } from './history.js';
 import { resolveTarget, suggestionList, activeEngines } from './navigation.js';
 import { isInternalUrl } from './protocol.js';
 import { openExternal, blockedSummary, handOffToSystem } from './security.js';
+import updater from 'electron-updater';
+const { autoUpdater } = updater;
 import { applySettings, clearBrowsingData, downloadDirectory } from './sessions.js';
 import { applyContentSettings } from './content.js';
 
@@ -214,27 +216,88 @@ export function installIpc() {
   handle('tabs:closeAll', () => tabs.closeAll());
 
   /* ------------------------------------------------------------- tab groups */
-  handle('tabs:groups', () => settings.value('tabs.groups'));
+  function sortedGroups() {
+    const groups = [...(settings.value('tabs.groups', []))];
+    return groups
+      .map((group, index) => ({ ...group, order: typeof group.order === 'number' ? group.order : index }))
+      .sort((a, b) => a.order - b.order);
+  }
+
+  function persistGroups(groups) {
+    const normalized = groups.map((group, index) => ({
+      id: group.id,
+      name: String(group.name || 'New group').trim().slice(0, 40) || 'New group',
+      color: /^#[0-9a-f]{6}$/i.test(group.color || '') ? group.color : '#4f7cff',
+      collapsed: Boolean(group.collapsed),
+      order: index,
+    }));
+    settings.set('tabs.groups', normalized);
+    surface.send('tabs:groups', normalized);
+    return normalized;
+  }
+
+  handle('tabs:groups', () => sortedGroups());
+
   handle('tabs:groupCreate', (group) => {
-    const groups = [...(settings.value('tabs.groups', []))];
+    const groups = sortedGroups();
     const id = group?.id ?? `g${Date.now().toString(36)}`;
-    groups.push({ id, name: group?.name || 'New group', color: group?.color || '#4f7cff', collapsed: false });
-    settings.set('tabs.groups', groups);
-    surface.send('tabs:groups', settings.value('tabs.groups'));
-    return settings.value('tabs.groups');
+    groups.push({
+      id,
+      name: group?.name || 'New group',
+      color: group?.color || '#4f7cff',
+      collapsed: false,
+    });
+    return persistGroups(groups);
   });
+
   handle('tabs:groupUpdate', (id, patch) => {
-    const groups = [...(settings.value('tabs.groups', []))];
+    const groups = sortedGroups();
     const idx = groups.findIndex((g) => g.id === id);
     if (idx === -1) return false;
-    groups[idx] = { ...groups[idx], ...patch };
-    settings.set('tabs.groups', groups);
-    surface.send('tabs:groups', settings.value('tabs.groups'));
+    if (patch && typeof patch === 'object') {
+      if (typeof patch.name === 'string') groups[idx].name = patch.name;
+      if (typeof patch.color === 'string') groups[idx].color = patch.color;
+      if (typeof patch.collapsed === 'boolean') groups[idx].collapsed = patch.collapsed;
+    }
+    persistGroups(groups);
     return true;
   });
+
+  handle('tabs:groupRename', (id, name) => {
+    const groups = sortedGroups();
+    const idx = groups.findIndex((g) => g.id === id);
+    if (idx === -1) return false;
+    const trimmed = String(name ?? '').trim().slice(0, 40);
+    if (!trimmed) return { ok: false, error: 'emptyName' };
+    groups[idx].name = trimmed;
+    persistGroups(groups);
+    return { ok: true, name: trimmed };
+  });
+
+  handle('tabs:groupRecolor', (id, color) => {
+    const groups = sortedGroups();
+    const idx = groups.findIndex((g) => g.id === id);
+    if (idx === -1) return false;
+    if (!/^#[0-9a-f]{6}$/i.test(String(color || ''))) return { ok: false, error: 'invalidColor' };
+    groups[idx].color = color;
+    persistGroups(groups);
+    return { ok: true, color };
+  });
+
+  handle('tabs:groupReorder', (id, targetIndex) => {
+    const groups = sortedGroups();
+    const idx = groups.findIndex((g) => g.id === id);
+    if (idx === -1) return false;
+    const [moved] = groups.splice(idx, 1);
+    const clamped = Math.max(0, Math.min(Number(targetIndex) || 0, groups.length));
+    groups.splice(clamped, 0, moved);
+    persistGroups(groups);
+    return true;
+  });
+
   handle('tabs:groupDelete', (id) => {
-    const groups = [...(settings.value('tabs.groups', []))].filter((g) => g.id !== id);
-    settings.set('tabs.groups', groups);
+    const groups = sortedGroups().filter((g) => g.id !== id);
+    persistGroups(groups);
     for (const tab of tabs.list) {
       if (tab.groupId === id) {
         tab.groupId = null;
@@ -242,19 +305,42 @@ export function installIpc() {
       }
     }
     tabs.scheduleSave();
-    surface.send('tabs:groups', settings.value('tabs.groups'));
     return true;
   });
-  handle('tabs:setGroup', (tabId, groupId) => {
+
+  handle('tabs:setGroup', (tabId, groupId, index = null) => {
     const tab = tabs.byId(tabId);
     if (!tab) return false;
-    // Resolve a group name to its id when needed.
-    const groups = settings.value('tabs.groups', []);
+    const groups = sortedGroups();
     const match = groups.find((g) => g.id === groupId || g.name === groupId);
     tab.groupId = match ? match.id : (groupId ?? null);
     tabs.scheduleSave();
     surface.send('tab:update', tab.snapshot());
     return true;
+  });
+
+  handle('tabs:groupMoveTab', (tabId, groupId, index = null) => {
+    const tab = tabs.byId(tabId);
+    if (!tab) return false;
+    const groups = sortedGroups();
+    const match = groupId ? groups.find((g) => g.id === groupId || g.name === groupId) : null;
+    tab.groupId = match ? match.id : (groupId ?? null);
+    tabs.scheduleSave();
+    surface.send('tab:update', tab.snapshot());
+    surface.send('tabs:sync', tabs.snapshot());
+    return true;
+  });
+
+  handle('app:checkForUpdates', () => {
+    try {
+      if (!app.isPackaged) return { ok: false, error: 'notPackaged' };
+      autoUpdater.checkForUpdates().catch((error) => {
+        console.warn('[Hinterland] Update check failed.', error?.message ?? error);
+      });
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: error?.message ?? 'unknown' };
+    }
   });
   handle('tabs:snapshot', () => tabs.snapshot());
 

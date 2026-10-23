@@ -78,6 +78,7 @@
     "resetZoom": "Reset zoom",
     "insecure": "This connection is not secure",
     "manageExtensions": "Manage extensions",
+    "checkForUpdates": "Check for updates",
     "group": "Groups",
     "groupNew": "New group",
     "groupNamePrompt": "Group name",
@@ -87,6 +88,8 @@
     "groupSetNone": "Not in a group",
     "groupSetPrompt": "Enter group ID or name:",
     "groupRemove": "Remove from group",
+    "groupRecolor": "Change colour",
+    "groupColorPrompt": "Colour (hex):",
     "groupExpand": "Expand group",
     "groupCollapse": "Collapse group",
     "groupDelete": "Delete group"
@@ -202,7 +205,9 @@
   "toast": {
     "noSearchEngine": "No search engine is configured. Add one in the settings.",
     "noTranslator": "No translation service is configured.",
-    "dataCleared": "Browsing data cleared"
+    "dataCleared": "Browsing data cleared",
+    "checkingUpdates": "Checking for updates...",
+    "updateCheckFailed": "Update check failed"
   },
   "greeting": {
     "morning": "Good morning",

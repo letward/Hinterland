@@ -51,6 +51,15 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'shortcuts' } })),
         }),
         row({
+          iconName: 'refresh',
+          title: t('menu.checkForUpdates'),
+          onSelect: async () => {
+            const result = await api().app.checkForUpdates();
+            if (result?.ok) toast(t('toast.checkingUpdates'), 'info');
+            else toast(t('toast.updateCheckFailed'), 'warning');
+          },
+        }),
+        row({
           iconName: 'gear',
           title: t('menu.settings'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:opensettings', {})),

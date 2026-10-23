@@ -2,6 +2,8 @@ import { el, clear } from './util.js';
 import { icon } from './icons.js';
 import { get } from './store.js';
 import { t } from './i18n.js';
+
+const GROUP_COLORS = ['#4f7cff', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4', '#ec4899', '#64748b'];
 import { prettyUrl } from './util.js';
 
 const api = () => window.hinterland;
@@ -31,6 +33,23 @@ function buildGroupHeader(group, tabsInGroup) {
   const node = el('div', {
     class: `groupHeader${group.collapsed ? ' groupCollapsed' : ''}`,
     'data-group': group.id,
+    draggable: 'true',
+  });
+
+  const colorDot = groupColorDot(group);
+  colorDot.style.cursor = 'pointer';
+  colorDot.title = t('menu.groupRecolor') || 'Change colour';
+  colorDot.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const currentIndex = GROUP_COLORS.indexOf(group.color);
+    const next = GROUP_COLORS[(currentIndex + 1) % GROUP_COLORS.length];
+    api().tabs.groupRecolor(group.id, next);
+  });
+  colorDot.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const value = prompt(t('menu.groupColorPrompt') || 'Colour (hex):', group.color);
+    if (value) api().tabs.groupRecolor(group.id, value.trim());
   });
 
   const toggle = el('button', {
@@ -45,10 +64,31 @@ function buildGroupHeader(group, tabsInGroup) {
     api().tabs.groupUpdate(group.id, { collapsed: !group.collapsed });
   });
 
+  const title = el('span', { class: 'groupTitle', text: group.name });
+  title.style.cursor = 'text';
+  title.addEventListener('dblclick', (event) => {
+    event.stopPropagation();
+    const input = el('input', { class: 'groupTitleInput', type: 'text', value: group.name });
+    input.style.width = '120px';
+    title.replaceWith(input);
+    input.focus();
+    input.select();
+    const commit = () => {
+      const value = input.value;
+      api().tabs.groupRename(group.id, value).then(() => {});
+      input.replaceWith(title);
+    };
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); commit(); }
+      if (event.key === 'Escape') { input.replaceWith(title); }
+    });
+    input.addEventListener('blur', commit);
+  });
+
   node.append(
-    groupColorDot(group),
+    colorDot,
     toggle,
-    el('span', { class: 'groupTitle', text: group.name }),
+    title,
     el('span', { class: 'groupCount', text: String(tabsInGroup.length) }),
     el('button', {
       class: 'groupClose',
@@ -62,6 +102,42 @@ function buildGroupHeader(group, tabsInGroup) {
   node.querySelector('.groupClose').addEventListener('click', (event) => {
     event.stopPropagation();
     api().tabs.groupDelete(group.id);
+  });
+
+  // Drag to reorder groups
+  node.addEventListener('dragstart', (event) => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/group', group.id);
+    node.classList.add('groupDragging');
+  });
+  node.addEventListener('dragend', () => node.classList.remove('groupDragging'));
+  node.addEventListener('dragover', (event) => {
+    if (event.dataTransfer.types.includes('text/group')) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      node.classList.add('groupDropTarget');
+    } else if (event.dataTransfer.types.includes('text/plain')) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      node.classList.add('groupDropTarget');
+    }
+  });
+  node.addEventListener('dragleave', () => node.classList.remove('groupDropTarget'));
+  node.addEventListener('drop', (event) => {
+    event.preventDefault();
+    node.classList.remove('groupDropTarget');
+    const draggedGroup = event.dataTransfer.getData('text/group');
+    if (draggedGroup && draggedGroup !== group.id) {
+      const groups = state.groups ?? [];
+      const from = groups.findIndex((g) => g.id === draggedGroup);
+      const to = groups.findIndex((g) => g.id === group.id);
+      if (from !== -1 && to !== -1) api().tabs.groupReorder(draggedGroup, to);
+      return;
+    }
+    const draggedTab = event.dataTransfer.getData('text/plain');
+    if (draggedTab) {
+      api().tabs.groupMoveTab(draggedTab, group.id, tabsInGroup.length);
+    }
   });
 
   return node;
