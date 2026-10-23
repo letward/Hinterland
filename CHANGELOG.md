@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-23
+
+### Fixed
+- Auto-updater import (`electron-updater` is CommonJS) that crashed the main process on startup.
+- `state.groups` not iterable crash in the tab bar.
+- Missing `tabs:groups` channel in the chrome preload.
+
 ## [1.1.1] - 2026-10-23
 
 ### Added
