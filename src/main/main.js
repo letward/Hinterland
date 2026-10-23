@@ -1,5 +1,6 @@
 import { app, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import updater from 'electron-updater';
+const { autoUpdater } = updater;
 import { NEW_TAB_URL } from './constants.js';
 import { settings } from './settings.js';
 import { history } from './history.js';

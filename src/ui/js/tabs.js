@@ -68,7 +68,7 @@ function buildGroupHeader(group, tabsInGroup) {
 }
 
 function buildTab(tab) {
-  const group = state.groups.find((g) => g.id === tab.groupId);
+  const group = (state.groups ?? []).find((g) => g.id === tab.groupId);
   const node = el('div', {
     class: `tab${tab.id === state.activeId ? ' tabActive' : ''}${tab.privateMode ? ' tabPrivate' : ''}${tab.pinned ? ' tabPinned' : ''}${group ? ` groupTab group-${group.id.replace(/[^a-z0-9]/gi, '')}` : ''}`,
     role: 'tab',
@@ -158,7 +158,10 @@ function buildTab(tab) {
 }
 
 export function renderTabs(snapshot) {
-  state = snapshot ?? state;
+  if (snapshot) {
+    state = { ...state, ...snapshot, groups: Array.isArray(snapshot.groups) ? snapshot.groups : (state.groups ?? []) };
+  }
+  if (!state.groups) state.groups = [];
   if (!container) return;
   clear(container);
 

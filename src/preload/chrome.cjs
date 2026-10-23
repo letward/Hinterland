@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 const EVENTS = [
   'tabs:sync',
+  'tabs:groups',
   'tab:update',
   'tab:active',
   'tab:found',
