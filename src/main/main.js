@@ -1,4 +1,5 @@
 import { app, dialog } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import { NEW_TAB_URL } from './constants.js';
 import { settings } from './settings.js';
 import { history } from './history.js';
@@ -96,6 +97,7 @@ async function start() {
 
   surface.create();
   createStartupTabs();
+  setupAutoUpdater();
 }
 
 function wireSettings() {
@@ -164,6 +166,41 @@ function createStartupTabs() {
 
   const requested = process.argv.find((argument) => /^https?:\/\//i.test(argument));
   if (requested) tabs.create({ url: requested, background: true });
+}
+
+function setupAutoUpdater() {
+  if (!app.isPackaged) return;
+  try {
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
+
+    autoUpdater.on('update-available', (info) => {
+      surface.send('toast', { message: `Update ${info.version} available, downloading...`, kind: 'info' });
+    });
+
+    autoUpdater.on('update-downloaded', (info) => {
+      surface.send('toast', { message: `Update ${info.version} ready. Restart to apply.`, kind: 'success' });
+      dialog
+        .showMessageBox(surface.window ?? undefined, {
+          type: 'info',
+          title: app.getName(),
+          message: `Version ${info.version} has been downloaded.`,
+          detail: 'It will be installed when you close Hinterland.',
+          buttons: ['OK'],
+        })
+        .catch(() => {});
+    });
+
+    autoUpdater.on('error', (error) => {
+      console.warn('[Hinterland] Auto-update error.', error?.message ?? error);
+    });
+
+    autoUpdater.checkForUpdates().catch((error) => {
+      console.warn('[Hinterland] Update check failed.', error?.message ?? error);
+    });
+  } catch (error) {
+    console.warn('[Hinterland] Auto-updater could not be initialised.', error?.message ?? error);
+  }
 }
 
 process.on('uncaughtException', (error) => {

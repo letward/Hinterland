@@ -18,6 +18,9 @@
     "icons": "node scripts/makeicon.mjs",
     "dist": "electron-builder"
   },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
   "devDependencies": {
     "electron": "^44.9.0",
     "electron-builder": "^25.1.8"
@@ -25,6 +28,12 @@
   "build": {
     "appId": "de.hinterland",
     "productName": "Hinterland",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "publish": {
+      "provider": "github",
+      "owner": "letward",
+      "repo": "Hinterland"
+    },
     "win": {
       "target": "nsis",
       "icon": "build/icons/icon.png"
