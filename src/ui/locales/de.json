@@ -78,6 +78,7 @@
     "resetZoom": "Zoom zurücksetzen",
     "insecure": "Diese Verbindung ist nicht sicher",
     "manageExtensions": "Erweiterungen verwalten",
+    "checkForUpdates": "Nach Updates suchen",
     "group": "Gruppen",
     "groupNew": "Neue Gruppe",
     "groupNamePrompt": "Gruppenname",
@@ -87,6 +88,8 @@
     "groupSetNone": "Nicht in einer Gruppe",
     "groupSetPrompt": "Gruppen-ID oder -Name eingeben:",
     "groupRemove": "Aus Gruppe entfernen",
+    "groupRecolor": "Farbe ändern",
+    "groupColorPrompt": "Farbe (hex):",
     "groupExpand": "Gruppe ausklappen",
     "groupCollapse": "Gruppe einklappen",
     "groupDelete": "Gruppe löschen"
@@ -202,7 +205,9 @@
   "toast": {
     "noSearchEngine": "Es ist keine Suchmaschine eingerichtet. Füge eine in den Einstellungen hinzu.",
     "noTranslator": "Es ist kein Übersetzungsdienst eingerichtet.",
-    "dataCleared": "Browserdaten gelöscht"
+    "dataCleared": "Browserdaten gelöscht",
+    "checkingUpdates": "Suche nach Updates...",
+    "updateCheckFailed": "Update-Suche fehlgeschlagen"
   },
   "greeting": {
     "morning": "Guten Morgen",

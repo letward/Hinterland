@@ -176,18 +176,29 @@ function setupAutoUpdater() {
     autoUpdater.autoInstallOnAppQuit = true;
 
     autoUpdater.on('update-available', (info) => {
+      surface.send('update:available', { version: info.version });
       surface.send('toast', { message: `Update ${info.version} available, downloading...`, kind: 'info' });
     });
 
+    autoUpdater.on('download-progress', (progress) => {
+      surface.send('update:progress', { percent: Math.round(progress.percent || 0) });
+    });
+
     autoUpdater.on('update-downloaded', (info) => {
+      surface.send('update:downloaded', { version: info.version });
       surface.send('toast', { message: `Update ${info.version} ready. Restart to apply.`, kind: 'success' });
       dialog
         .showMessageBox(surface.window ?? undefined, {
-          type: 'info',
+          type: 'question',
           title: app.getName(),
           message: `Version ${info.version} has been downloaded.`,
-          detail: 'It will be installed when you close Hinterland.',
-          buttons: ['OK'],
+          detail: 'Restart now to install the update, or it will be installed when you close Hinterland.',
+          buttons: ['Restart now', 'Later'],
+          defaultId: 0,
+          cancelId: 1,
+        })
+        .then((result) => {
+          if (result.response === 0) autoUpdater.quitAndInstall();
         })
         .catch(() => {});
     });

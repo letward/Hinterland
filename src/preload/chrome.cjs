@@ -16,6 +16,9 @@ const EVENTS = [
   'permission:request',
   'toast',
   'shortcut',
+  'update:available',
+  'update:progress',
+  'update:downloaded',
 ];
 
 function listen(channel, handler) {
@@ -31,6 +34,7 @@ const api = {
   app: {
     bootstrap: () => ipcRenderer.invoke('app:bootstrap'),
     info: () => ipcRenderer.invoke('app:info'),
+    checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates'),
     openFolder: (target) => ipcRenderer.invoke('app:openFolder', target),
     revealFile: (path) => ipcRenderer.invoke('app:revealFile', path),
   },
@@ -78,8 +82,12 @@ const api = {
     groups: () => ipcRenderer.invoke('tabs:groups'),
     groupCreate: (group) => ipcRenderer.invoke('tabs:groupCreate', group),
     groupUpdate: (id, patch) => ipcRenderer.invoke('tabs:groupUpdate', id, patch),
+    groupRename: (id, name) => ipcRenderer.invoke('tabs:groupRename', id, name),
+    groupRecolor: (id, color) => ipcRenderer.invoke('tabs:groupRecolor', id, color),
+    groupReorder: (id, index) => ipcRenderer.invoke('tabs:groupReorder', id, index),
     groupDelete: (id) => ipcRenderer.invoke('tabs:groupDelete', id),
     setGroup: (tabId, groupId) => ipcRenderer.invoke('tabs:setGroup', tabId, groupId),
+    groupMoveTab: (tabId, groupId, index) => ipcRenderer.invoke('tabs:groupMoveTab', tabId, groupId, index),
   },
 
   tab: {
