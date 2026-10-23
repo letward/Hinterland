@@ -212,6 +212,50 @@ export function installIpc() {
     return tabs.snapshot();
   });
   handle('tabs:closeAll', () => tabs.closeAll());
+
+  /* ------------------------------------------------------------- tab groups */
+  handle('tabs:groups', () => settings.value('tabs.groups'));
+  handle('tabs:groupCreate', (group) => {
+    const groups = [...(settings.value('tabs.groups', []))];
+    const id = group?.id ?? `g${Date.now().toString(36)}`;
+    groups.push({ id, name: group?.name || 'New group', color: group?.color || '#4f7cff', collapsed: false });
+    settings.set('tabs.groups', groups);
+    surface.send('tabs:groups', settings.value('tabs.groups'));
+    return settings.value('tabs.groups');
+  });
+  handle('tabs:groupUpdate', (id, patch) => {
+    const groups = [...(settings.value('tabs.groups', []))];
+    const idx = groups.findIndex((g) => g.id === id);
+    if (idx === -1) return false;
+    groups[idx] = { ...groups[idx], ...patch };
+    settings.set('tabs.groups', groups);
+    surface.send('tabs:groups', settings.value('tabs.groups'));
+    return true;
+  });
+  handle('tabs:groupDelete', (id) => {
+    const groups = [...(settings.value('tabs.groups', []))].filter((g) => g.id !== id);
+    settings.set('tabs.groups', groups);
+    for (const tab of tabs.list) {
+      if (tab.groupId === id) {
+        tab.groupId = null;
+        surface.send('tab:update', tab.snapshot());
+      }
+    }
+    tabs.scheduleSave();
+    surface.send('tabs:groups', settings.value('tabs.groups'));
+    return true;
+  });
+  handle('tabs:setGroup', (tabId, groupId) => {
+    const tab = tabs.byId(tabId);
+    if (!tab) return false;
+    // Resolve a group name to its id when needed.
+    const groups = settings.value('tabs.groups', []);
+    const match = groups.find((g) => g.id === groupId || g.name === groupId);
+    tab.groupId = match ? match.id : (groupId ?? null);
+    tabs.scheduleSave();
+    surface.send('tab:update', tab.snapshot());
+    return true;
+  });
   handle('tabs:snapshot', () => tabs.snapshot());
 
   /* ----------------------------------------------------------- tab actions */
@@ -259,7 +303,7 @@ export function installIpc() {
   handle('tab:zoom', (id, factor) => {
     const tab = activeTab(id);
     if (!tab) return false;
-    const steps = Math.max(-3, Math.min(5, Math.round(factor * 10) / 10));
+    const steps = Math.max(-3, Math.min(5, Math.round(Math.log(Number(factor) || 1) / Math.log(1.1))));
     tab.zoom = Math.pow(1.1, steps);
     tab.contents.setZoomFactor(tab.zoom);
     surface.send('tab:update', { ...tab.snapshot(), id: tab.id });

@@ -73,8 +73,12 @@ const api = {
     reopen: () => ipcRenderer.invoke('tabs:reopen'),
     closeOthers: (id) => ipcRenderer.invoke('tabs:closeOthers', id),
     closeAll: () => ipcRenderer.invoke('tabs:closeAll'),
-    snapshot: () => ipcRenderer.invoke('tabs:snapshot'),
     confirmClose: (id, answer) => ipcRenderer.invoke('tab:confirmClose', id, answer),
+    groups: () => ipcRenderer.invoke('tabs:groups'),
+    groupCreate: (group) => ipcRenderer.invoke('tabs:groupCreate', group),
+    groupUpdate: (id, patch) => ipcRenderer.invoke('tabs:groupUpdate', id, patch),
+    groupDelete: (id) => ipcRenderer.invoke('tabs:groupDelete', id),
+    setGroup: (tabId, groupId) => ipcRenderer.invoke('tabs:setGroup', tabId, groupId),
   },
 
   tab: {

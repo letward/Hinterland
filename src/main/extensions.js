@@ -1,5 +1,6 @@
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, statSync } from 'node:fs';
 import { join, dirname, basename, isAbsolute } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { app, shell, BrowserWindow } from 'electron';
 import { defaultSession } from './sessions.js';
 import { settings } from './settings.js';
@@ -188,7 +189,9 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     if (!tab) return false;
     const popup = action.default_popup;
     if (popup) {
-      const popupUrl = new URL(popup, `file://${entry.path}/`).toString();
+      const base = pathToFileURL(entry.path).href;
+      const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+      const popupUrl = new URL(popup, baseWithSlash).toString();
       const win = new BrowserWindow({
         width: 350,
         height: 450,

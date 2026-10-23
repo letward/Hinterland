@@ -4,6 +4,7 @@ import { app } from 'electron';
 import { PARTITION, PRIVATE_PARTITION } from './constants.js';
 import { settings } from './settings.js';
 import { availableLanguages, systemLanguage } from './i18n.js';
+import { history } from './history.js';
 
 let privateSession = null;
 
@@ -80,7 +81,10 @@ export async function clearBrowsingData({ cache = false, cookies = false, storag
   if (cache) tasks.push(ses.clearCache());
   if (cookies) tasks.push(ses.clearStorageData({ storages: ['cookies', 'filesystem'] }));
   if (storage) tasks.push(ses.clearStorageData({ storages: ALL_STORAGES }));
-  if (history) tasks.push(ses.clearHistory());
+  if (history) {
+    tasks.push(ses.clearHistory());
+    try { history.clear(); } catch {}
+  }
   await Promise.all(tasks);
 }
 

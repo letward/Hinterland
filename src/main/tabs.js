@@ -35,8 +35,8 @@ export class TabManager extends EventEmitter {
     return this.tabs.findIndex((tab) => tab.id === id);
   }
 
-  create({ url = NEW_TAB_URL, background = false, privateMode = false, pinned = false, openerId = null, title = '' } = {}) {
-    const tab = new Tab({ url, privateMode, pinned, openerId, title });
+  create({ url = NEW_TAB_URL, background = false, privateMode = false, pinned = false, groupId = null, openerId = null, title = '' } = {}) {
+    const tab = new Tab({ url, privateMode, pinned, groupId, openerId, title });
     this.tabs.push(tab);
 
     tab.on('update', () => {
@@ -216,7 +216,7 @@ export class TabManager extends EventEmitter {
     if (!entries.length) return false;
     for (const entry of entries.slice(0, 60)) {
       if (!entry?.url) continue;
-      this.create({ url: entry.url, background: true, pinned: entry.pinned, title: entry.title });
+      this.create({ url: entry.url, background: true, pinned: entry.pinned, groupId: entry.groupId ?? null, title: entry.title });
     }
     if (saved?.activeId && this.byId(saved.activeId)) this.activate(saved.activeId);
     return this.tabs.length > 0;

@@ -28,6 +28,8 @@ const PANELS = {
 };
 
 let activeTabSnapshot = null;
+let lastTabsSnapshot = null;
+let stateGroups = [];
 
 async function boot() {
   const data = await api().app.bootstrap();
@@ -185,12 +187,21 @@ async function renderExtensions() {
 function wireEvents() {
   const listen = api().events.listen;
 
-  listen('tabs:sync', (payload) => {
+  listen('tabs:sync', async (payload) => {
+    lastTabsSnapshot = payload;
     renderTabs(payload);
     const active = payload.tabs.find((entry) => entry.id === payload.activeId) ?? payload.tabs[0] ?? null;
     activeTabSnapshot = active;
     setActive(payload.activeId);
     syncToolbar();
+    try {
+      const groups = await api().tabs.groups();
+      stateGroups = groups ?? [];
+      lastTabsSnapshot = { ...payload, groups: stateGroups };
+      renderTabs(lastTabsSnapshot);
+    } catch {
+      /* groups not ready yet */
+    }
   });
 
   listen('tab:update', (snapshot) => {
@@ -210,6 +221,11 @@ function wireEvents() {
   listen('tab:found', (payload) => applyFindResult(payload));
 
   listen('extensions:changed', () => renderExtensions());
+
+  listen('tabs:groups', (groups) => {
+    stateGroups = groups ?? [];
+    if (lastTabsSnapshot) renderTabs({ ...lastTabsSnapshot, groups: stateGroups });
+  });
 
   listen('window:state', (state) => {
     if (!state) return;

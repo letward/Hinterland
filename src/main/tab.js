@@ -50,6 +50,7 @@ export class Tab {
     this.canGoBack = false;
     this.canGoForward = false;
     this.openerId = options.openerId ?? null;
+    this.groupId = options.groupId ?? null;
     this.createdAt = Date.now();
     this.error = null;
     this.unresponsive = false;
@@ -189,6 +190,7 @@ export class Tab {
       muted: this.muted,
       pinned: this.pinned,
       privateMode: this.privateMode,
+      groupId: this.groupId,
       zoom: this.zoom,
       canGoBack: this.canGoBack,
       canGoForward: this.canGoForward,
@@ -198,7 +200,7 @@ export class Tab {
   }
 
   persist() {
-    return { url: this.url, title: this.title, pinned: this.pinned, privateMode: this.privateMode };
+    return { url: this.url, title: this.title, pinned: this.pinned, privateMode: this.privateMode, groupId: this.groupId };
   }
 
   loadUrl(url) {

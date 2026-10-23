@@ -77,7 +77,19 @@
     "zoomOut": "Zoom out",
     "resetZoom": "Reset zoom",
     "insecure": "This connection is not secure",
-    "manageExtensions": "Manage extensions"
+    "manageExtensions": "Manage extensions",
+    "group": "Groups",
+    "groupNew": "New group",
+    "groupNamePrompt": "Group name",
+    "groupCreated": "Group created",
+    "groupSet": "Add to group",
+    "groupSetCurrent": "Currently assigned",
+    "groupSetNone": "Not in a group",
+    "groupSetPrompt": "Enter group ID or name:",
+    "groupRemove": "Remove from group",
+    "groupExpand": "Expand group",
+    "groupCollapse": "Collapse group",
+    "groupDelete": "Delete group"
   },
   "find": {
     "placeholder": "Find on page"
@@ -173,8 +185,6 @@
     "allowFirst": "Enable developer mode first, in the extension settings.",
     "allowUnpacked": "Allow folders",
     "manage": "Manage extensions",
-    "hint": "An extension folder needs a manifest.json. Only unpacked folders are supported, and everything runs with a strict policy."
-  },
     "hint": "An extension folder needs a manifest.json. Only unpacked folders are supported, and everything runs with a strict policy."
   },
   "about": {
@@ -372,7 +382,11 @@
       "restoreClosed": "Remember closed tabs",
       "restoreClosedDesc": "Allows reopening a tab you just closed.",
       "maxUndo": "Closed tabs to remember",
-      "maxUndoDesc": "How many closed tabs can be reopened."
+      "maxUndoDesc": "How many closed tabs can be reopened.",
+      "groups": "Tab groups",
+      "ungrouped": "Ungrouped",
+      "groupsDesc": "Organise tabs into collapsible groups.",
+      "groupItem": "Group"
     },
     "newtab": {
       "layout": "Link layout",

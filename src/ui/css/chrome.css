@@ -304,6 +304,107 @@ html[data-closeButton="always"] .tabClose {
   color: var(--text);
 }
 
+/* ------------------------------------------------------------------- tab groups */
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 0;
+  height: var(--tabHeight);
+  background: var(--bg);
+}
+
+.groupHeader.groupCollapsed {
+  cursor: pointer;
+}
+
+.groupColorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.groupHeader .groupToggle {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  cursor: pointer;
+  flex: none;
+}
+
+.groupHeader .groupToggle:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.groupHeader .groupToggle svg {
+  width: 10px;
+  height: 10px;
+}
+
+.groupTitle {
+  font-size: 0.86em;
+  font-weight: 600;
+  color: var(--textDim);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.groupCount {
+  font-size: 0.72em;
+  color: var(--textDim);
+  flex: none;
+}
+
+.groupClose {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--textDim);
+  cursor: pointer;
+  flex: none;
+  opacity: 0;
+}
+
+.groupHeader:hover .groupClose {
+  opacity: 1;
+}
+
+.groupClose:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.groupClose svg {
+  width: 10px;
+  height: 10px;
+}
+
+.tab.groupTab {
+  border-left: 3px solid transparent;
+  margin-left: -3px;
+}
+
+.tab.groupTab:hover {
+  background: var(--surfaceAlt);
+}
+
 /* --------------------------------------------------------------------- toolbar */
 
 .toolbar {

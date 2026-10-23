@@ -292,6 +292,14 @@ export const SCHEMA = [
     step: 1,
   }),
 
+  option('tabs.groups', 'list', [], {
+    labelKey: 'settings.tabs.groups',
+    descKey: 'settings.tabs.groupsDesc',
+    section: 'tabs',
+    itemSchema: { id: 'text', name: 'text', color: 'text', collapsed: 'bool' },
+    itemLabelKey: 'settings.tabs.groupItem',
+  }),
+
   /* ------------------------------------------------------------- new tab page */
   option('start.layout', 'select', 'grid', {
     labelKey: 'settings.newtab.layout',
