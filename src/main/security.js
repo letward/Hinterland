@@ -80,7 +80,7 @@ export function upgradeToSecure(raw) {
     if (NEVER_UPGRADE.has(host)) return raw;
     const httpsFirst = settings.value('privacy.httpsFirst');
     if (!settings.value('privacy.httpsOnly') && !httpsFirst) return raw;
-    if (settings.value('privacy.httpsOnly')) {
+    if (settings.value('privacy.httpsOnly') || settings.value('privacy.httpsFirst')) {
       url.protocol = 'https:';
       return url.toString();
     }

@@ -96,6 +96,37 @@ export function openTabMenu(tab, x, y) {
           title: tab.pinned ? t('menu.unpin') : t('menu.pin'),
           onSelect: () => api().tabs.pin(tab.id, !tab.pinned),
         }),
+        separator(),
+        section('menu.group'),
+        row({
+          iconName: 'layers',
+          title: t('menu.groupNew'),
+          onSelect: async () => {
+            const name = prompt(t('menu.groupNamePrompt'), '');
+            if (!name) return;
+            const result = await api().tabs.groupCreate({ name, color: '#4f7cff' });
+            if (result) toast(t('menu.groupCreated'), 'success');
+          },
+        }),
+        row({
+          iconName: 'tag',
+          title: t('menu.groupSet'),
+          subtitle: tab.groupId ? t('menu.groupSetCurrent') : t('menu.groupSetNone'),
+          onSelect: async () => {
+            const groups = await api().tabs.groups();
+            const names = groups.map((g) => `${g.name} (${g.id})`).join('\n');
+            const choice = prompt(`${t('menu.groupSetPrompt')}\n\n${names}`, '');
+            if (!choice) return;
+            await api().tabs.setGroup(tab.id, choice);
+          },
+        }),
+        row({
+          iconName: 'close',
+          title: t('menu.groupRemove'),
+          onSelect: async () => {
+            await api().tabs.setGroup(tab.id, null);
+          },
+        }),
         row({
           iconName: tab.muted ? 'volumeOff' : 'volume',
           title: tab.muted ? t('menu.unmute') : t('menu.mute'),

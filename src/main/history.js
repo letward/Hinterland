@@ -26,8 +26,10 @@ export class HistoryStore {
     if (typeof url !== 'string' || url.length < 4) return;
     if (url.startsWith('about:') || url.startsWith('hinterland://')) return;
     const now = Date.now();
+    const existing = this.entries.find((entry) => entry.url === url);
+    const visits = existing ? (Number(existing.visits) || 0) + 1 : 1;
     this.entries = this.entries.filter((entry) => entry.url !== url);
-    this.entries.unshift({ url, title: title || '', time: now, visits: 1 });
+    this.entries.unshift({ url, title: title || existing?.title || '', time: now, visits });
     if (this.entries.length > LIMIT) this.entries.length = LIMIT;
     this.schedule();
   }
