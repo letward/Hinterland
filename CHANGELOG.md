@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-23
+
+### Added
+- In-app auto-update checks against GitHub Releases (electron-updater).
+- GitHub Actions release workflow for Windows builds.
+
+### Changed
+- Build artifact naming uses hyphens for reliable auto-update downloads.
+
 ## [1.1.0] - 2026-10-23
 
 ### Added
