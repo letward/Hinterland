@@ -15,3 +15,7 @@ settings.json
 extensions.json
 session.json
 .env
+
+# Python
+__pycache__/
+*.pyc

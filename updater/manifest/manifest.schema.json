@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hinterland Update Manifest",
+  "type": "object",
+  "required": ["version", "platform", "architecture", "files", "signature", "trustAnchor"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantische Versionsnummer des Updates"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["win32", "darwin", "linux"],
+      "description": "Unterstützte Plattform"
+    },
+    "architecture": {
+      "type": "string",
+      "enum": ["x64", "ia32", "arm64"],
+      "description": "Unterstützte Architektur"
+    },
+    "releaseDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Veröffentlichungsdatum des Updates"
+    },
+    "minVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Mindestversion des installierten Browsers für dieses Update"
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Ablaufzeit des Manifests (nach dieser Zeit nicht mehr vertrauen)"
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["url", "sha512", "size"],
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "sha512": { "type": "string", "pattern": "^[0-9a-f]{128}$" },
+          "size": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "keyId", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "enum": ["ed25519"] },
+        "keyId": { "type": "string", "description": "Identifikator des öffentlichen Vertrauensankers" },
+        "value": { "type": "string", "description": "Base64-kodierte Signatur des Manifests" }
+      }
+    },
+    "trustAnchor": {
+      "type": "object",
+      "required": ["keyId", "algorithm", "publicKey"],
+      "properties": {
+        "keyId": { "type": "string" },
+        "algorithm": { "type": "string", "enum": ["ed25519"] },
+        "publicKey": { "type": "string", "description": "Base64-kodierter öffentlicher Schlüssel, unabhängig vom Manifest gespeichert" }
+      }
+    },
+    "rollbackProtection": {
+      "type": "object",
+      "properties": {
+        "preventDowngrade": { "type": "boolean" },
+        "previousVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

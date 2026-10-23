@@ -5,9 +5,49 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.2.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write   # für OIDC / Attestations (falls später genutzt)
 
 jobs:
+  idempotency-check:
+    name: Check for duplicate release
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if release already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          if gh release view "$TAG" --json tagName --jq '.tagName' 2>/dev/null | grep -q "^$TAG$"; then
+            echo "Release $TAG existiert bereits. Veröffentlichung abgebrochen (Idempotenz)." >> $GITHUB_STEP_SUMMARY
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
   build-windows:
+    name: Build Windows Installer
+    needs: idempotency-check
+    if: needs.idempotency-check.outputs.skip == 'false'
     runs-on: windows-latest
     permissions:
       contents: write
@@ -24,19 +64,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run checks
+      - name: Run static checks
         run: npm run check
 
-      - name: Build and publish
+      - name: Build Windows Installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --publish always --win nsis
+        run: |
+          npx electron-builder --win nsis --publish onTagOnly
 
-      - name: Upload artifacts
+      - name: Verify artefacts exist
+        run: |
+          ls -la dist/*.exe dist/*.blockmap dist/latest.yml
+
+      - name: Upload build artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: hinterland-windows
+          name: hinterland-windows-${{ github.run_id }}
           path: |
             dist/*.exe
             dist/*.blockmap
             dist/latest.yml
+          retention-days: 7
