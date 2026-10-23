@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-23
+
+### Added
+- Inline rename for tab groups (double-click title).
+- Color picker for groups (palette + custom hex).
+- Drag-and-drop tabs between groups and group reordering.
+- Group context menu actions.
+- In-app update prompt with "Restart now / Later" and progress.
+- Manual "Check for updates" in the main menu.
+- Keyboard and ARIA support for group headers.
+
+### Changed
+- Persisted group order, colors, and collapsed state.
+- Settings list editor improvements for groups.
+
 ## [1.1.2] - 2026-10-23
 
 ### Fixed
