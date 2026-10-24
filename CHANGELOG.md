@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-24
+
+### Added
+- Quick Command Palette (`Ctrl+Shift+P` / `F1`) for rapid access to browser actions, navigation, dev tools, and active tab switching.
+- Interactive tab audio indicator with direct click-to-mute on audible tabs.
+- "Close tabs to the right" action in the tab context menu.
+- Tabstrip context menu on empty tabstrip area (New tab, Reopen closed tab).
+- "Reopen closed tab" action in tab context menu and keyboard shortcut (`Ctrl+Shift+T`).
+- Omnibox zoom badge indicator with one-click reset to 100% when page zoom is modified.
+- Full English and German localization for all new actions and command palette strings.
+
 ## [1.3.1] - 2026-10-24
 
 ### Fixed
