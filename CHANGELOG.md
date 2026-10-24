@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-24
+
+### Added
+- Quick-access Bookmarks Bar (`Ctrl+Shift+B`) below the address bar with favicon/icon display, open in current/new/private tab, copy link, and direct bookmark removal.
+- Distraction-free Reader Mode (`Ctrl+Alt+R`) with automatic article extraction, reading time estimate, theme-aware styling, and dedicated omnibox toggle button.
+- Native HTML5 tab drag-and-drop reordering with visual drop indicators and support for dragging tabs into tab groups.
+- "Mute other tabs" action in tab context menu and Command Palette to silence noisy background tabs.
+- "Reload all tabs" and "Close all tabs" actions in tab context menu, tabstrip context menu, and Command Palette.
+- Symmetrical English and German localizations for all new features and settings.
+
+### Fixed
+- Fixed disabled tab drag-and-drop by setting `draggable: 'true'` on tab elements.
+- Fixed `ReferenceError: toast is not defined` when checking for updates or creating tab groups from menus.
+
 ## [1.5.0] - 2026-10-24
 
 ### Added
