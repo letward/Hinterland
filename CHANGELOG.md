@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-24
+
+### Added
+- Python agent orchestrator with state machine, task model, policy engine, and audit log.
+- Updater client with Ed25519 signature verification, trust anchor, hash validation, downgrade protection, and expiry.
+- Automated CI/CD pipelines: PR checks, CodeQL security scanning, and Dependabot.
+- Security and operations documentation (threat model, release policy, incident response, architecture).
+
+### Changed
+- Release workflow hardened with idempotency check and minimal permissions.
+
 ## [1.2.0] - 2026-10-23
 
 ### Added
