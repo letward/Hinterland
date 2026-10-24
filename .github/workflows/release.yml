@@ -71,11 +71,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx electron-builder --win nsis --publish onTag
+          npx electron-builder --win nsis --publish always
 
       - name: Verify artefacts exist
         run: |
-          ls -la dist/*.exe dist/*.blockmap dist/latest.yml
+          Get-ChildItem dist/*.exe, dist/*.blockmap, dist/latest.yml
 
       - name: Upload build artefacts
         uses: actions/upload-artifact@v4
