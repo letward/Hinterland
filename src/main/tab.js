@@ -57,6 +57,9 @@ export class Tab {
     this.unresponsive = false;
     this.attached = false;
     this.readerActive = false;
+    this.sleeping = false;
+    this.sleepingUrl = null;
+    this.sleepingTitle = null;
     this.events = new EventEmitter();
     this.events.setMaxListeners(20);
 
@@ -84,6 +87,7 @@ export class Tab {
 
     contents.on('did-start-navigation', (_event, url, _inPlace, isMainFrame) => {
       if (!isMainFrame) return;
+      if (this.sleeping) return;
       this.loading = true;
       this.readerActive = false;
       this.url = url;
@@ -91,6 +95,7 @@ export class Tab {
     });
 
     contents.on('did-navigate', (_event, url) => {
+      if (this.sleeping) return;
       this.url = url;
       this.canGoBack = contents.navigationHistory.canGoBack();
       this.canGoForward = contents.navigationHistory.canGoForward();
@@ -99,6 +104,7 @@ export class Tab {
 
     contents.on('did-navigate-in-page', (_event, url, isMainFrame) => {
       if (!isMainFrame) return;
+      if (this.sleeping) return;
       this.url = url;
       this.canGoBack = contents.navigationHistory.canGoBack();
       this.canGoForward = contents.navigationHistory.canGoForward();
@@ -106,11 +112,13 @@ export class Tab {
     });
 
     contents.on('page-title-updated', (_event, title) => {
+      if (this.sleeping) return;
       this.title = title;
       refresh();
     });
 
     contents.on('page-favicon-updated', (_event, favicons) => {
+      if (this.sleeping) return;
       this.favicon = favicons?.[0] ?? '';
       refresh();
     });
@@ -202,13 +210,41 @@ export class Tab {
       canGoBack: this.canGoBack,
       canGoForward: this.canGoForward,
       readerActive: this.readerActive,
+      sleeping: this.sleeping,
       error: this.error,
       unresponsive: this.unresponsive,
     };
   }
 
   persist() {
-    return { url: this.url, title: this.title, pinned: this.pinned, privateMode: this.privateMode, groupId: this.groupId };
+    return {
+      url: this.sleepingUrl || this.url,
+      title: this.sleepingTitle || this.title,
+      pinned: this.pinned,
+      privateMode: this.privateMode,
+      groupId: this.groupId,
+    };
+  }
+
+  sleep() {
+    if (this.sleeping || this.url === 'about:blank' || this.url.startsWith('hinterland://')) return false;
+    this.sleeping = true;
+    this.sleepingUrl = this.url;
+    this.sleepingTitle = this.title;
+    this.contents.stop();
+    this.contents.loadURL('about:blank').catch(() => {});
+    this.events.emit('update');
+    return true;
+  }
+
+  wake() {
+    if (!this.sleeping) return false;
+    this.sleeping = false;
+    const target = this.sleepingUrl || this.url;
+    this.sleepingUrl = null;
+    this.sleepingTitle = null;
+    this.loadUrl(target);
+    return true;
   }
 
   loadUrl(url) {

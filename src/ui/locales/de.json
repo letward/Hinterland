@@ -107,7 +107,14 @@
     "groupColorPrompt": "Farbe (hex):",
     "groupExpand": "Gruppe ausklappen",
     "groupCollapse": "Gruppe einklappen",
-    "groupDelete": "Gruppe löschen"
+    "groupDelete": "Gruppe löschen",
+    "copyMarkdown": "Als Markdown kopieren",
+    "saveAsPdf": "Als PDF speichern…",
+    "sleepTab": "Tab schlafen legen",
+    "wakeTab": "Tab aufwecken",
+    "sleepOtherTabs": "Andere Tabs schlafen legen",
+    "pasteAndGo": "Einfügen und öffnen",
+    "translatePage": "Seite übersetzen"
   },
   "find": {
     "placeholder": "In Seite suchen"
@@ -147,7 +154,11 @@
     "noPage": "Diese Seite kann nicht gespeichert werden.",
     "addCurrent": "Aktuelle Seite hinzufügen",
     "added": "Lesezeichen gespeichert",
-    "removed": "Lesezeichen entfernt"
+    "removed": "Lesezeichen entfernt",
+    "exportHtml": "Lesezeichen exportieren (HTML)",
+    "importHtml": "Lesezeichen importieren (HTML)",
+    "sort": "Nach Name sortieren (A-Z)",
+    "noMatch": "Keine Lesezeichen entsprechen Ihrer Suche."
   },
   "history": {
     "title": "Verlauf",
@@ -208,6 +219,9 @@
       "muteTab": "Tab stummschalten/aktivieren",
       "readerMode": "Leseansicht umschalten",
       "pinTab": "Tab anheften oder lösen",
+      "sleepTab": "Tab schlafen legen oder aufwecken",
+      "saveAsPdf": "Seite als PDF speichern",
+      "copyMarkdown": "Seite als Markdown kopieren",
       "reopen": "Geschlossenen Tab öffnen"
     }
   },
@@ -254,7 +268,12 @@
     "linkCopied": "Link in die Zwischenablage kopiert",
     "bookmarksBarShown": "Lesezeichenleiste eingeblendet",
     "bookmarksBarHidden": "Lesezeichenleiste ausgeblendet",
-    "siteDataCleared": "Cookies und Websitedaten für diese Domain wurden gelöscht"
+    "siteDataCleared": "Cookies und Websitedaten für diese Domain wurden gelöscht",
+    "copiedMarkdown": "Markdown-Link in die Zwischenablage kopiert",
+    "pdfSaved": "Seite als PDF gespeichert",
+    "pdfFailed": "PDF konnte nicht erstellt werden",
+    "bookmarksExported": "Lesezeichen erfolgreich exportiert",
+    "bookmarksImported": "Lesezeichen erfolgreich importiert"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -608,7 +627,14 @@
     "reload": "Neu laden",
     "viewSource": "Seitenquelltext anzeigen",
     "print": "Drucken…",
-    "inspect": "Element untersuchen"
+    "inspect": "Element untersuchen",
+    "copyLinkMarkdown": "Link als Markdown kopieren",
+    "copyPageMarkdown": "Seite als Markdown kopieren",
+    "saveAsPdf": "Seite als PDF speichern…",
+    "translateSelection": "„{query}“ übersetzen"
+  },
+  "tab": {
+    "sleepingTooltip": "Schläft zur Speichereinsparung – zum Aufwecken klicken"
   },
   "siteInfo": {
     "connectionSecure": "Verbindung ist sicher",

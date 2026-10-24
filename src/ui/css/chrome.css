@@ -153,6 +153,30 @@ html[data-tabbar="bottom"] .tabstrip {
   min-width: 0;
 }
 
+.tabSleeping {
+  opacity: 0.72;
+}
+
+.tabSleeping .tabTitle {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.tabSleepingBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--textDim);
+}
+
+.tabSleepingBadge svg {
+  width: 11px;
+  height: 11px;
+}
+
 .tabDragging {
   opacity: 0.45;
 }

@@ -105,6 +105,16 @@ export function openTabMenu(tab, x, y) {
           onSelect: () => api().tab.copyUrl(tab.id),
         }),
         row({
+          iconName: 'copy',
+          title: t('menu.copyMarkdown'),
+          onSelect: () => api().tab.copyMarkdown(tab.id),
+        }),
+        row({
+          iconName: 'print',
+          title: t('menu.saveAsPdf'),
+          onSelect: () => api().tab.savePdf(tab.id),
+        }),
+        row({
           iconName: tab.privateMode ? 'shield' : 'globe',
           title: t('menu.openExternal'),
           onSelect: () => api().tab.openExternal(tab.id),
@@ -158,6 +168,16 @@ export function openTabMenu(tab, x, y) {
           onSelect: async () => {
             await api().tabs.setGroup(tab.id, null);
           },
+        }),
+        row({
+          iconName: 'moon',
+          title: tab.sleeping ? t('menu.wakeTab') : t('menu.sleepTab'),
+          onSelect: () => (tab.sleeping ? api().tab.wake(tab.id) : api().tab.sleep(tab.id)),
+        }),
+        row({
+          iconName: 'moon',
+          title: t('menu.sleepOtherTabs'),
+          onSelect: () => api().tabs.sleepOthers(tab.id),
         }),
         row({
           iconName: tab.muted ? 'volumeOff' : 'volume',
@@ -217,9 +237,24 @@ export function openOmniMenu() {
       card.append(
         section('menu.page'),
         row({
+          iconName: 'external',
+          title: t('menu.pasteAndGo'),
+          onSelect: async () => {
+            const text = await api().app.getClipboardText();
+            if (text && text.trim()) {
+              api().tab.navigate(tab?.id, text.trim());
+            }
+          },
+        }),
+        row({
           iconName: 'copy',
           title: t('menu.copyLink'),
           onSelect: () => api().tab.copyUrl(tab?.id),
+        }),
+        row({
+          iconName: 'copy',
+          title: t('menu.copyMarkdown'),
+          onSelect: () => api().tab.copyMarkdown(tab?.id),
         }),
         row({
           iconName: 'bookmark',
@@ -247,6 +282,11 @@ export function openOmniMenu() {
           iconName: 'print',
           title: t('menu.print'),
           onSelect: () => api().tab.print(tab?.id),
+        }),
+        row({
+          iconName: 'print',
+          title: t('menu.saveAsPdf'),
+          onSelect: () => api().tab.savePdf(tab?.id),
         }),
         row({
           iconName: 'zoomIn',

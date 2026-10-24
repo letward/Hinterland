@@ -290,28 +290,49 @@ function bookmarksPage() {
       container.append(head(t('bookmarks.title'), t('bookmarks.description')));
 
       const list = el('div', { class: 'card' });
+      let currentFilter = '';
+
       const save = async (items) => {
         await api().settings.set('data.bookmarks', items);
-        paint();
+        paint(currentFilter);
       };
 
-      const paint = () => {
+      const paint = (filter = '') => {
+        currentFilter = (filter || '').toLowerCase().trim();
         const items = get('data.bookmarks', []) ?? [];
         clear(list);
         if (!items.length) {
           list.append(el('div', { class: 'empty', text: t('bookmarks.empty') }));
           return;
         }
-        items.forEach((item, index) => {
+
+        const filtered = items.filter((item) => {
+          if (!currentFilter) return true;
+          const title = (item.title || '').toLowerCase();
+          const url = (item.url || '').toLowerCase();
+          return title.includes(currentFilter) || url.includes(currentFilter);
+        });
+
+        if (!filtered.length) {
+          list.append(el('div', { class: 'empty', text: t('bookmarks.noMatch') }));
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const originalIndex = items.indexOf(item);
           const title = el('input', { class: 'textInput', type: 'text', value: item.title ?? '' });
           const url = el('input', { class: 'textInput', type: 'text', value: item.url ?? '' });
           title.addEventListener('change', () => {
-            items[index].title = title.value;
-            save(items);
+            if (originalIndex >= 0) {
+              items[originalIndex].title = title.value;
+              save(items);
+            }
           });
           url.addEventListener('change', () => {
-            items[index].url = url.value;
-            save(items);
+            if (originalIndex >= 0) {
+              items[originalIndex].url = url.value;
+              save(items);
+            }
           });
           list.append(
             el('div', { class: 'option' }, [
@@ -319,8 +340,10 @@ function bookmarksPage() {
               el('div', { class: 'optionControl' }, [
                 el('button', { class: 'iconButton small', type: 'button', html: icon('external'), title: t('action.open'), onclick: () => api().tabs.create({ url: item.url }) }),
                 el('button', { class: 'iconButton small', type: 'button', html: icon('trash'), title: t('action.remove'), onclick: () => {
-                  items.splice(index, 1);
-                  save(items);
+                  if (originalIndex >= 0) {
+                    items.splice(originalIndex, 1);
+                    save(items);
+                  }
                 } }),
               ]),
             ]),
@@ -328,23 +351,38 @@ function bookmarksPage() {
         });
       };
 
-      container.append(
-        el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
-          el('button', { class: 'button', type: 'button', onclick: async () => {
-            const tab = currentTab();
-            const url = tab?.url ?? '';
-            if (!url || url.startsWith('hinterland://')) {
-              toast(t('bookmarks.noPage'), 'warning');
-              return;
-            }
-            const items = [...(get('data.bookmarks', []) ?? [])];
-            items.push({ title: tab.title || url, url });
-            await save(items);
-          } }, [el('span', { html: icon('plus') }), ` ${t('bookmarks.addCurrent')}`]),
-        ]),
-        list,
-      );
+      const { field } = searchBox((value) => paint(value));
 
+      const actions = el('div', { class: 'actionRow', style: { marginBottom: '14px', flexWrap: 'wrap', gap: '8px' } }, [
+        el('button', { class: 'button primary', type: 'button', onclick: async () => {
+          const tab = currentTab();
+          const url = tab?.url ?? '';
+          if (!url || url.startsWith('hinterland://')) {
+            toast(t('bookmarks.noPage'), 'warning');
+            return;
+          }
+          const items = [...(get('data.bookmarks', []) ?? [])];
+          items.push({ title: tab.title || url, url });
+          await save(items);
+        } }, [el('span', { html: icon('plus') }), ` ${t('bookmarks.addCurrent')}`]),
+        el('button', { class: 'button', type: 'button', onclick: async () => {
+          const items = get('data.bookmarks', []) ?? [];
+          await api().bookmarks.exportHtml(items);
+        } }, [el('span', { html: icon('download') }), ` ${t('bookmarks.exportHtml')}`]),
+        el('button', { class: 'button', type: 'button', onclick: async () => {
+          const result = await api().bookmarks.importHtml();
+          if (result?.ok && typeof result.count === 'number') {
+            paint(currentFilter);
+          }
+        } }, [el('span', { html: icon('upload') }), ` ${t('bookmarks.importHtml')}`]),
+        el('button', { class: 'button', type: 'button', onclick: async () => {
+          const items = [...(get('data.bookmarks', []) ?? [])];
+          items.sort((a, b) => (a.title || a.url || '').localeCompare(b.title || b.url || ''));
+          await save(items);
+        } }, [el('span', { html: icon('list') }), ` ${t('bookmarks.sort')}`]),
+      ]);
+
+      container.append(actions, field, list);
       paint();
       return container;
     },
@@ -439,6 +477,7 @@ function shortcutsPage() {
             { labelKey: 'menu.duplicate', combo: 'Ctrl+Shift+D' },
             { labelKey: 'shortcuts.action.muteTab', combo: 'Ctrl+M' },
             { labelKey: 'shortcuts.action.pinTab', combo: 'Alt+P' },
+            { labelKey: 'shortcuts.action.sleepTab', combo: 'Alt+S' },
             { labelKey: 'menu.reopenClosed', combo: 'Ctrl+Shift+T' },
             { labelKey: 'shortcuts.action.nextTab', combo: 'Ctrl+Tab' },
             { labelKey: 'shortcuts.action.previousTab', combo: 'Ctrl+Shift+Tab' },
@@ -460,6 +499,8 @@ function shortcutsPage() {
           titleKey: 'shortcuts.groupView',
           items: [
             { labelKey: 'shortcuts.action.readerMode', combo: 'Ctrl+Alt+R' },
+            { labelKey: 'shortcuts.action.saveAsPdf', combo: 'Ctrl+Shift+E' },
+            { labelKey: 'shortcuts.action.copyMarkdown', combo: 'Ctrl+Shift+C' },
             { labelKey: 'menu.find', combo: 'Ctrl+F' },
             { labelKey: 'menu.zoomIn', combo: 'Ctrl+=' },
             { labelKey: 'menu.zoomOut', combo: 'Ctrl+-' },

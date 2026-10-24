@@ -146,7 +146,7 @@ function buildGroupHeader(group, tabsInGroup) {
 function buildTab(tab) {
   const group = (state.groups ?? []).find((g) => g.id === tab.groupId);
   const node = el('div', {
-    class: `tab${tab.id === state.activeId ? ' tabActive' : ''}${tab.privateMode ? ' tabPrivate' : ''}${tab.pinned ? ' tabPinned' : ''}${group ? ` groupTab group-${group.id.replace(/[^a-z0-9]/gi, '')}` : ''}`,
+    class: `tab${tab.id === state.activeId ? ' tabActive' : ''}${tab.privateMode ? ' tabPrivate' : ''}${tab.pinned ? ' tabPinned' : ''}${tab.sleeping ? ' tabSleeping' : ''}${group ? ` groupTab group-${group.id.replace(/[^a-z0-9]/gi, '')}` : ''}`,
     role: 'tab',
     'data-id': tab.id,
     'data-group': tab.groupId ?? '',
@@ -158,6 +158,16 @@ function buildTab(tab) {
   if (tab.pinned) node.append(el('span', { class: 'tabFaviconFallback', html: icon('pin') }));
   if (group) node.append(groupColorDot(group));
   node.append(el('span', { class: 'tabTitle', text: tab.title || prettyUrl(tab.url) }));
+
+  if (tab.sleeping) {
+    const sleepBadge = el('span', {
+      class: 'tabSleepingBadge',
+      html: icon('moon'),
+      title: t('tab.sleepingTooltip'),
+      'aria-label': t('tab.sleepingTooltip'),
+    });
+    node.append(sleepBadge);
+  }
 
   if (tab.audible) {
     const soundBtn = el('button', {
@@ -191,6 +201,7 @@ function buildTab(tab) {
     }
     if (event.button !== 0) return;
     if (event.target.closest('.tabClose, .groupClose, .groupToggle, .tabSound')) return;
+    if (tab.sleeping) api().tab.wake(tab.id);
     if (state.activeId === tab.id) return;
     api().tabs.activate(tab.id);
   });

@@ -1,5 +1,6 @@
 import { ipcMain, dialog, shell, app, clipboard, BrowserWindow } from 'electron';
 import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { NEW_TAB_URL, DEFAULT_SHORTCUTS } from './constants.js';
 import { settings } from './settings.js';
 import { exportSchema } from './schema.js';
@@ -78,6 +79,8 @@ export function installIpc() {
     shell.showItemInFolder(path);
     return true;
   });
+
+  handle('app:getClipboardText', () => clipboard.readText());
 
   /* ------------------------------------------------------------- settings */
   handle('settings:get', (key) => (key ? settings.value(key) : settings.all()));
@@ -230,6 +233,7 @@ export function installIpc() {
     }
     return true;
   });
+  handle('tabs:sleepOthers', (id) => tabs.sleepOthers(id));
   handle('tabs:reloadAll', () => {
     for (const tab of tabs.list) {
       tab.contents.reload();
@@ -469,6 +473,22 @@ export function installIpc() {
     return true;
   });
 
+  handle('tab:copyMarkdown', (id) => {
+    const tab = activeTab(id);
+    if (!tab) return false;
+    const title = (tab.title || tab.url || '').trim();
+    clipboard.writeText(`[${title}](${tab.url})`);
+    surface.send('toast', { message: 'toast.copiedMarkdown', kind: 'info' });
+    return true;
+  });
+
+  handle('tab:copyLinkMarkdown', (_event, { text, url }) => {
+    const label = (text || url || '').trim();
+    clipboard.writeText(`[${label}](${url})`);
+    surface.send('toast', { message: 'toast.copiedMarkdown', kind: 'info' });
+    return true;
+  });
+
   handle('tab:copyText', (text) => {
     clipboard.writeText(String(text ?? ''));
     return true;
@@ -494,11 +514,42 @@ export function installIpc() {
     return true;
   });
 
+  handle('tab:savePdf', async (id) => {
+    const tab = activeTab(id);
+    if (!tab) return { ok: false, error: 'noTab' };
+    const rawTitle = (tab.title || 'page').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 60) || 'page';
+    const defaultPath = join(downloadDirectory(), `${rawTitle}.pdf`);
+    const result = await dialog.showSaveDialog(chromeWindow(), {
+      title: 'Hinterland',
+      defaultPath,
+      filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+    try {
+      const data = await tab.contents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4',
+      });
+      await writeFile(result.filePath, data);
+      surface.send('toast', { message: 'toast.pdfSaved', kind: 'success' });
+      return { ok: true, path: result.filePath };
+    } catch (error) {
+      console.warn('[Hinterland] PDF generation failed:', error?.message ?? error);
+      surface.send('toast', { message: 'toast.pdfFailed', kind: 'error' });
+      return { ok: false, error: error?.message };
+    }
+  });
+
+  handle('tab:sleep', (id) => tabs.sleep(id));
+  handle('tab:wake', (id) => tabs.wake(id));
+
   handle('tab:translate', (id) => {
     const tab = activeTab(id);
     if (!tab || isInternalUrl(tab.url)) return false;
-    surface.send('toast', { message: 'toast.noTranslator', kind: 'info' });
-    return false;
+    const lang = resolveLanguage(settings.value('general.language')) || 'en';
+    const targetUrl = `https://translate.google.com/translate?sl=auto&tl=${lang}&u=${encodeURIComponent(tab.url)}`;
+    tabs.create({ url: targetUrl, background: false });
+    return true;
   });
 
   handle('tab:find', (id, query, { forward = true, caseSensitive = false, wholeWord = false, regex = false } = {}) => {
@@ -601,6 +652,85 @@ handle('tab:confirmClose', (id, answer) => {
   });
   handle('site:clearData', async (url) => {
     return clearSiteData(url);
+  });
+
+  handle('bookmarks:exportHtml', async (items) => {
+    const list = Array.isArray(items) ? items : (settings.value('data.bookmarks') ?? []);
+    const result = await dialog.showSaveDialog(chromeWindow(), {
+      title: 'Hinterland',
+      defaultPath: 'hinterland-bookmarks.html',
+      filters: [{ name: 'HTML Bookmarks', extensions: ['html', 'htm'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false };
+    const date = Math.floor(Date.now() / 1000);
+    const lines = [
+      '<!DOCTYPE NETSCAPE-Bookmark-file-1>',
+      '<!-- This is an automatically generated file.',
+      '     It will be read and overwritten.',
+      '     DO NOT EDIT! -->',
+      '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">',
+      '<TITLE>Bookmarks</TITLE>',
+      '<H1>Bookmarks</H1>',
+      '<DL><p>',
+    ];
+    for (const item of list) {
+      if (!item?.url) continue;
+      const title = String(item.title || item.url).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+      const url = String(item.url).replaceAll('"', '&quot;');
+      lines.push(`    <DT><A HREF="${url}" ADD_DATE="${date}">${title}</A>`);
+    }
+    lines.push('</DL><p>');
+    await writeFile(result.filePath, lines.join('\n'), 'utf8');
+    surface.send('toast', { message: 'toast.bookmarksExported', kind: 'success' });
+    return { ok: true, path: result.filePath };
+  });
+
+  handle('bookmarks:importHtml', async () => {
+    const result = await dialog.showOpenDialog(chromeWindow(), {
+      title: 'Hinterland',
+      properties: ['openFile'],
+      filters: [{ name: 'Bookmarks (HTML, JSON)', extensions: ['html', 'htm', 'json'] }],
+    });
+    if (result.canceled || !result.filePaths[0]) return { ok: false };
+    const content = await readFile(result.filePaths[0], 'utf8');
+    const existing = [...(settings.value('data.bookmarks') ?? [])];
+    const existingUrls = new Set(existing.map((b) => b.url));
+    const imported = [];
+
+    if (result.filePaths[0].endsWith('.json')) {
+      try {
+        const parsed = JSON.parse(content);
+        const list = Array.isArray(parsed) ? parsed : (parsed.bookmarks || []);
+        for (const item of list) {
+          if (item?.url && !existingUrls.has(item.url)) {
+            existingUrls.add(item.url);
+            imported.push({ title: item.title || item.url, url: item.url });
+          }
+        }
+      } catch {
+        return { ok: false, error: 'invalidJson' };
+      }
+    } else {
+      const regex = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
+      let match;
+      while ((match = regex.exec(content)) !== null) {
+        const url = match[1].trim();
+        const rawTitle = match[2].replace(/<[^>]+>/g, '').trim();
+        const title = rawTitle.replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"');
+        if (url && (url.startsWith('http://') || url.startsWith('https://')) && !existingUrls.has(url)) {
+          existingUrls.add(url);
+          imported.push({ title: title || url, url });
+        }
+      }
+    }
+
+    if (imported.length > 0) {
+      const merged = [...existing, ...imported];
+      settings.set('data.bookmarks', merged);
+      surface.send('toast', { message: 'toast.bookmarksImported', kind: 'success' });
+      return { ok: true, count: imported.length, bookmarks: merged };
+    }
+    return { ok: true, count: 0, bookmarks: existing };
   });
 
   handle('shell:open', (url) => {

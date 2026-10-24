@@ -109,6 +109,9 @@ export class TabManager extends EventEmitter {
   activate(id) {
     const tab = this.byId(id);
     if (!tab) return false;
+    if (tab.sleeping) {
+      tab.wake();
+    }
     if (this.activeId === id) {
       this.emit('active', { activeId: id, tab: tab.snapshot() });
       return true;
@@ -119,6 +122,41 @@ export class TabManager extends EventEmitter {
     this.emit('visibility', { tabId: id });
     this.scheduleSave();
     return true;
+  }
+
+  sleep(id) {
+    const tab = this.byId(id);
+    if (!tab || tab.id === this.activeId) return false;
+    const ok = tab.sleep();
+    if (ok) {
+      this.emit('update', tab.snapshot());
+      this.emit('list', this.snapshot());
+    }
+    return ok;
+  }
+
+  wake(id) {
+    const tab = this.byId(id);
+    if (!tab) return false;
+    const ok = tab.wake();
+    if (ok) {
+      this.emit('update', tab.snapshot());
+      this.emit('list', this.snapshot());
+    }
+    return ok;
+  }
+
+  sleepOthers(id) {
+    const keep = id ? this.byId(id) : this.active;
+    let count = 0;
+    for (const tab of this.tabs) {
+      if (tab.id === keep?.id || tab.pinned || tab.audible) continue;
+      if (tab.sleep()) count++;
+    }
+    if (count > 0) {
+      this.emit('list', this.snapshot());
+    }
+    return count;
   }
 
   cycle(delta) {

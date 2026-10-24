@@ -107,7 +107,14 @@
     "groupColorPrompt": "Colour (hex):",
     "groupExpand": "Expand group",
     "groupCollapse": "Collapse group",
-    "groupDelete": "Delete group"
+    "groupDelete": "Delete group",
+    "copyMarkdown": "Copy as Markdown",
+    "saveAsPdf": "Save as PDF…",
+    "sleepTab": "Sleep tab",
+    "wakeTab": "Wake tab",
+    "sleepOtherTabs": "Sleep other tabs",
+    "pasteAndGo": "Paste and open",
+    "translatePage": "Translate page"
   },
   "find": {
     "placeholder": "Find on page"
@@ -147,7 +154,11 @@
     "noPage": "This page cannot be bookmarked.",
     "addCurrent": "Add current page",
     "added": "Bookmark saved",
-    "removed": "Bookmark removed"
+    "removed": "Bookmark removed",
+    "exportHtml": "Export bookmarks (HTML)",
+    "importHtml": "Import bookmarks (HTML)",
+    "sort": "Sort by name (A-Z)",
+    "noMatch": "No bookmarks match your search."
   },
   "history": {
     "title": "History",
@@ -208,6 +219,9 @@
       "muteTab": "Mute or unmute tab",
       "readerMode": "Toggle reader mode",
       "pinTab": "Pin or unpin tab",
+      "sleepTab": "Sleep or wake tab",
+      "saveAsPdf": "Save page as PDF",
+      "copyMarkdown": "Copy page as Markdown",
       "reopen": "Reopen closed tab"
     }
   },
@@ -254,7 +268,12 @@
     "linkCopied": "Link copied to clipboard",
     "bookmarksBarShown": "Bookmarks bar enabled",
     "bookmarksBarHidden": "Bookmarks bar hidden",
-    "siteDataCleared": "Cookies and site data cleared for this site"
+    "siteDataCleared": "Cookies and site data cleared for this site",
+    "copiedMarkdown": "Markdown link copied to clipboard",
+    "pdfSaved": "Page saved as PDF",
+    "pdfFailed": "Could not create PDF",
+    "bookmarksExported": "Bookmarks exported successfully",
+    "bookmarksImported": "Bookmarks imported successfully"
   },
   "greeting": {
     "morning": "Good morning",
@@ -608,7 +627,14 @@
     "reload": "Reload",
     "viewSource": "View page source",
     "print": "Print…",
-    "inspect": "Inspect element"
+    "inspect": "Inspect element",
+    "copyLinkMarkdown": "Copy link as Markdown",
+    "copyPageMarkdown": "Copy page as Markdown",
+    "saveAsPdf": "Save page as PDF…",
+    "translateSelection": "Translate “{query}”"
+  },
+  "tab": {
+    "sleepingTooltip": "Sleeping to save memory — click to wake"
   },
   "siteInfo": {
     "connectionSecure": "Connection is secure",

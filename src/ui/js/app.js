@@ -264,7 +264,7 @@ function wireEvents() {
   listen('download:progress', onDownloadProgress);
   listen('download:done', onDownloadDone);
 
-  listen('toast', ({ message, kind }) => toast(message, kind));
+  listen('toast', ({ message, kind }) => toast(typeof message === 'string' && message.startsWith('toast.') ? t(message) : message, kind));
 
   listen('permission:request', (request) => showPermission(request));
 
@@ -297,6 +297,21 @@ function handleShortcut(action) {
   if (action === 'pinTab') {
     const cur = activeTab();
     if (cur) api().tabs.pin(cur.id, !cur.pinned);
+    return undefined;
+  }
+  if (action === 'sleepTab') {
+    const cur = activeTab();
+    if (cur) (cur.sleeping ? api().tab.wake(cur.id) : api().tab.sleep(cur.id));
+    return undefined;
+  }
+  if (action === 'saveAsPdf') {
+    const cur = activeTab();
+    if (cur) api().tab.savePdf(cur.id);
+    return undefined;
+  }
+  if (action === 'copyMarkdown') {
+    const cur = activeTab();
+    if (cur) api().tab.copyMarkdown(cur.id);
     return undefined;
   }
   if (action === 'stop') {
@@ -383,6 +398,27 @@ function wireShortcuts() {
       event.preventDefault();
       const cur = activeTab();
       if (cur) api().tabs.pin(cur.id, !cur.pinned);
+      return;
+    }
+
+    if (event.altKey && event.key.toLowerCase() === 's' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) (cur.sleeping ? api().tab.wake(cur.id) : api().tab.sleep(cur.id));
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'e' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) api().tab.savePdf(cur.id);
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'c' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) api().tab.copyMarkdown(cur.id);
       return;
     }
 

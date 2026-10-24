@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-10-24
+
+### Added
+- Tab Snoozing / Memory Saver: Put inactive background tabs to sleep (`Alt+S`) to release renderer resources and memory while preserving tab title, icon, and URL; tabs wake up automatically upon activation or click.
+- "Sleep tab" / "Wake tab" and "Sleep other tabs" options in the tab context menu, tabstrip actions, and Command Palette.
+- Save page as PDF (`Ctrl+Shift+E`) via native Chromium print-to-PDF rendering with direct file save dialog, accessible from in-page context menu, tab menu, omnibox tools menu, and Command Palette.
+- Copy page and link as Markdown (`[Title](URL)`, `Ctrl+Shift+C`) available from in-page link context menu, web content context menu, tab menu, omnibox menu, and Command Palette.
+- Enhanced Bookmarks panel with instant real-time search filter and alphabetical title sorting.
+- Netscape Bookmarks HTML import and export for seamless cross-browser migration with Chrome, Firefox, Safari, Edge, and Brave.
+- In-page selection translation via Google Translate, accessible directly from the text selection context menu.
+- Full-page translation integration in the omnibox tools menu and Command Palette.
+- "Paste and open" action in the omnibox right-click context menu.
+- Symmetrical English and German localizations across all new features, dialogs, toasts, and menus.
+
 ## [1.7.0] - 2026-10-24
 
 ### Added

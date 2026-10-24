@@ -37,6 +37,7 @@ const api = {
     checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates'),
     openFolder: (target) => ipcRenderer.invoke('app:openFolder', target),
     revealFile: (path) => ipcRenderer.invoke('app:revealFile', path),
+    getClipboardText: () => ipcRenderer.invoke('app:getClipboardText'),
   },
 
   settings: {
@@ -85,6 +86,7 @@ const api = {
     closeRight: (id) => ipcRenderer.invoke('tabs:closeRight', id),
     closeAll: () => ipcRenderer.invoke('tabs:closeAll'),
     muteOthers: (id) => ipcRenderer.invoke('tabs:muteOthers', id),
+    sleepOthers: (id) => ipcRenderer.invoke('tabs:sleepOthers', id),
     reloadAll: () => ipcRenderer.invoke('tabs:reloadAll'),
     confirmClose: (id, answer) => ipcRenderer.invoke('tab:confirmClose', id, answer),
     groups: () => ipcRenderer.invoke('tabs:groups'),
@@ -106,12 +108,17 @@ const api = {
     stop: (id) => ipcRenderer.invoke('tab:stop', id),
     zoom: (id, factor) => ipcRenderer.invoke('tab:zoom', id, factor),
     mute: (id, muted) => ipcRenderer.invoke('tab:mute', id, muted),
+    sleep: (id) => ipcRenderer.invoke('tab:sleep', id),
+    wake: (id) => ipcRenderer.invoke('tab:wake', id),
     focus: (id) => ipcRenderer.invoke('tab:focus', id),
     copyUrl: (id) => ipcRenderer.invoke('tab:copyUrl', id),
+    copyMarkdown: (id) => ipcRenderer.invoke('tab:copyMarkdown', id),
+    copyLinkMarkdown: (text, url) => ipcRenderer.invoke('tab:copyLinkMarkdown', { text, url }),
     copyText: (text) => ipcRenderer.invoke('tab:copyText', text),
     openExternal: (id) => ipcRenderer.invoke('tab:openExternal', id),
     inspect: (id) => ipcRenderer.invoke('tab:inspect', id),
     print: (id) => ipcRenderer.invoke('tab:print', id),
+    savePdf: (id) => ipcRenderer.invoke('tab:savePdf', id),
     readerMode: (id) => ipcRenderer.invoke('tab:readerMode', id),
     translate: (id) => ipcRenderer.invoke('tab:translate', id),
     find: (id, query, options) => ipcRenderer.invoke('tab:find', id, query, options),
@@ -145,6 +152,11 @@ const api = {
 
   data: {
     clear: (options) => ipcRenderer.invoke('data:clear', options),
+  },
+
+  bookmarks: {
+    exportHtml: (items) => ipcRenderer.invoke('bookmarks:exportHtml', items),
+    importHtml: () => ipcRenderer.invoke('bookmarks:importHtml'),
   },
 
   site: {

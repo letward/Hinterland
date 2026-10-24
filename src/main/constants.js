@@ -51,6 +51,9 @@ export const DEFAULT_SHORTCUTS = {
   muteTab: 'Ctrl+M',
   readerMode: 'Ctrl+Alt+R',
   pinTab: 'Alt+P',
+  sleepTab: 'Alt+S',
+  saveAsPdf: 'Ctrl+Shift+E',
+  copyMarkdown: 'Ctrl+Shift+C',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */
