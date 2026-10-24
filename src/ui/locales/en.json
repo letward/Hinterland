@@ -72,6 +72,14 @@
     "closeOthers": "Close other tabs",
     "closeLeft": "Close tabs to the left",
     "closeRight": "Close tabs to the right",
+    "closeAll": "Close all tabs",
+    "muteOthers": "Mute other tabs",
+    "reloadAll": "Reload all tabs",
+    "reader": "Reader mode",
+    "enterReader": "Enter reader mode",
+    "exitReader": "Exit reader mode",
+    "showBookmarksBar": "Bookmarks bar",
+    "hideBookmarksBar": "Hide bookmarks bar",
     "reloadTab": "Reload tab",
     "reopenClosed": "Reopen closed tab",
     "close": "Close tab",
@@ -101,6 +109,9 @@
   },
   "find": {
     "placeholder": "Find on page"
+  },
+  "bookmarksBar": {
+    "empty": "No bookmarks yet. Click the star icon to add one."
   },
   "commandPalette": {
     "placeholder": "Type a command or tab name...",
@@ -181,6 +192,7 @@
       "downloads": "Open downloads",
       "duplicateTab": "Duplicate tab",
       "muteTab": "Mute or unmute tab",
+      "readerMode": "Toggle reader mode",
       "reopen": "Reopen closed tab"
     }
   },
@@ -223,7 +235,10 @@
     "noTranslator": "No translation service is configured.",
     "dataCleared": "Browsing data cleared",
     "checkingUpdates": "Checking for updates...",
-    "updateCheckFailed": "Update check failed"
+    "updateCheckFailed": "Update check failed",
+    "linkCopied": "Link copied to clipboard",
+    "bookmarksBarShown": "Bookmarks bar enabled",
+    "bookmarksBarHidden": "Bookmarks bar hidden"
   },
   "greeting": {
     "morning": "Good morning",
@@ -332,7 +347,9 @@
       "homepage": "Home page",
       "homepageDesc": "The page opened by the home button.",
       "showHomeButton": "Show the home button",
-      "showHomeButtonDesc": "Adds a home button next to the navigation buttons."
+      "showHomeButtonDesc": "Adds a home button next to the navigation buttons.",
+      "showBookmarksBar": "Show bookmarks bar",
+      "showBookmarksBarDesc": "Displays a quick-access bar with your saved bookmarks below the address bar."
     },
     "search": {
       "engines": "Search engines",

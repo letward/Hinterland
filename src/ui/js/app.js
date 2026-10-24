@@ -15,6 +15,7 @@ import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
 import { bindFind, openFind, closeFind, isFindOpen, applyFindResult } from './find.js';
 import { bindShelf, onDownloadNew, onDownloadProgress, onDownloadDone } from './downloads.js';
+import { bindBookmarksBar, syncBookmarksBar } from './bookmarksBar.js';
 import { currentTab } from './state.js';
 
 const api = () => window.hinterland;
@@ -60,10 +61,12 @@ async function boot() {
 function bind() {
   bindShell($('#shell'));
   bindTabs($('#tabs'));
+  bindBookmarksBar($('#bookmarksBar'));
   bindOmnibox({
     form: $('#omni'),
     input: $('#omniInput'),
     icon: $('#omniIcon'),
+    reader: $('#omniReader'),
     clear: $('#omniClear'),
     star: $('#omniStar'),
     zoom: $('#omniZoom'),
@@ -84,6 +87,7 @@ function bind() {
   $('#forward').innerHTML = icon('forward');
   $('#reload').innerHTML = icon('reload');
   $('#home').innerHTML = icon('home');
+  $('#omniReader').innerHTML = icon('reader');
   $('#omniClear').innerHTML = icon('close');
   $('#omniStar').innerHTML = icon('star');
   $('#findButton').innerHTML = icon('find');
@@ -149,6 +153,7 @@ function bind() {
   window.addEventListener('hinterland:find', () => openFind());
   window.addEventListener('hinterland:bookmark', () => toggleBookmark());
   window.addEventListener('hinterland:commandpalette', () => openCommandPalette());
+  window.addEventListener('hinterland:togglebookmarksbar', () => toggleBookmarksBar());
 
   $('#extensionToolbar').addEventListener('click', async (event) => {
     const button = event.target.closest('.extensionButton');
@@ -270,7 +275,8 @@ function handleShortcut(action) {
   if (action === 'focusAddress') return focusOmnibox(true);
   if (action === 'focusSearch') return focusOmnibox(false);
   if (action === 'settings') return openSettings();
-  if (action === 'bookmarks') return openBookmarks();
+  if (action === 'bookmarks') return toggleBookmarksBar();
+  if (action === 'readerMode') return toggleReaderMode();
   if (action === 'history') return openHistory();
   if (action === 'shortcuts') return openShortcuts();
   if (action === 'find') return openFind();
@@ -335,6 +341,18 @@ function wireShortcuts() {
       return;
     }
 
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'b' && !inField) {
+      event.preventDefault();
+      toggleBookmarksBar();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.altKey && event.key.toLowerCase() === 'r' && !inField) {
+      event.preventDefault();
+      toggleReaderMode();
+      return;
+    }
+
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'd' && !inField) {
       event.preventDefault();
       if (activeTab()) api().tabs.duplicate(activeTab().id);
@@ -384,6 +402,21 @@ function syncToolbar() {
   $('#reload').title = t(tab?.loading ? 'action.stop' : 'action.reload');
   $('#home').hidden = !get('general.showHomeButton');
   syncOmni(tab);
+  syncBookmarksBar();
+}
+
+async function toggleBookmarksBar() {
+  const current = Boolean(get('general.showBookmarksBar'));
+  await api().settings.set('general.showBookmarksBar', !current);
+  syncBookmarksBar();
+  if (!current) toast(t('toast.bookmarksBarShown'), 'info');
+  else toast(t('toast.bookmarksBarHidden'), 'info');
+}
+
+async function toggleReaderMode() {
+  const tab = currentTab();
+  if (!tab || !tab.url || tab.url.startsWith('hinterland://')) return;
+  await api().tab.readerMode(tab.id);
 }
 
 async function toggleBookmark() {
@@ -399,6 +432,7 @@ async function toggleBookmark() {
 
   await api().settings.set('data.bookmarks', items);
   syncOmni(tab);
+  syncBookmarksBar();
   toast(t(index >= 0 ? 'bookmarks.removed' : 'bookmarks.added'), 'success');
 }
 

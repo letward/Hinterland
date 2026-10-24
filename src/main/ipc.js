@@ -216,6 +216,22 @@ export function installIpc() {
   handle('tabs:closeRight', (id) => tabs.closeRight(id));
   handle('tabs:closeLeft', (id) => tabs.closeLeft(id));
   handle('tabs:closeAll', () => tabs.closeAll());
+  handle('tabs:muteOthers', (id) => {
+    const keep = activeTab(id);
+    for (const tab of tabs.list) {
+      if (tab.id === keep?.id) continue;
+      tab.muted = true;
+      tab.contents.setAudioMuted(true);
+      surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
+    }
+    return true;
+  });
+  handle('tabs:reloadAll', () => {
+    for (const tab of tabs.list) {
+      tab.contents.reload();
+    }
+    return true;
+  });
 
   /* ------------------------------------------------------------- tab groups */
   function sortedGroups() {
@@ -405,6 +421,33 @@ export function installIpc() {
     tab.contents.setAudioMuted(tab.muted);
     surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
     return tab.muted;
+  });
+
+  handle('tab:readerMode', async (id) => {
+    const tab = activeTab(id);
+    if (!tab) return false;
+    if (tab.readerActive) {
+      tab.readerActive = false;
+      try {
+        await tab.contents.executeJavaScript('if (window.__hinterland_reader_exit) { window.__hinterland_reader_exit(); } else { location.reload(); }');
+      } catch {
+        tab.contents.reload();
+      }
+      surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
+      return false;
+    }
+
+    try {
+      const ok = await tab.contents.executeJavaScript(`(${inPageReaderScript.toString()})()`);
+      if (ok) {
+        tab.readerActive = true;
+        surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
+        return true;
+      }
+    } catch (error) {
+      console.warn('[Hinterland] Reader mode error:', error?.message ?? error);
+    }
+    return false;
   });
 
   handle('tab:focus', (id) => {
@@ -642,4 +685,146 @@ export function startupUrl() {
   const homepage = settings.value('general.homepage');
   if (homepage && homepage.trim()) return resolveTarget(homepage).url ?? NEW_TAB_URL;
   return NEW_TAB_URL;
+}
+
+function inPageReaderScript() {
+  const existing = document.getElementById('hinterland-reader-view');
+  if (existing) {
+    existing.remove();
+    document.documentElement.style.overflow = '';
+    return false;
+  }
+
+  const selectors = [
+    'article',
+    '[role="main"]',
+    '.post-content',
+    '.article-content',
+    '.entry-content',
+    '.article-body',
+    '.story-body',
+    '#content',
+    'main',
+  ];
+
+  let mainEl = null;
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    if (el && el.innerText && el.innerText.length > 200) {
+      mainEl = el;
+      break;
+    }
+  }
+
+  if (!mainEl) {
+    const candidates = Array.from(document.querySelectorAll('div, section'));
+    let maxLen = 0;
+    for (const cand of candidates) {
+      const ps = cand.querySelectorAll('p');
+      if (ps.length >= 2) {
+        let textLen = 0;
+        ps.forEach((p) => { textLen += p.innerText.length; });
+        if (textLen > maxLen) {
+          maxLen = textLen;
+          mainEl = cand;
+        }
+      }
+    }
+  }
+
+  if (!mainEl) mainEl = document.body;
+
+  const titleEl = document.querySelector('article h1, h1, [class*="title"], [class*="headline"]');
+  const title = (titleEl?.innerText || document.title || 'Reader').trim();
+
+  const authorEl = document.querySelector('article [rel="author"], .byline, [class*="author"], time');
+  const author = (authorEl?.innerText || '').trim();
+
+  const clone = mainEl.cloneNode(true);
+  const junk = clone.querySelectorAll(
+    'script, style, noscript, iframe, nav, footer, header, form, aside, button, input, textarea, select, ' +
+    '[role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], ' +
+    '.nav, .navigation, .footer, .header, .sidebar, .comments, .social-share, .ad, .advertisement, [class*="banner"]'
+  );
+  junk.forEach((n) => n.remove());
+
+  const fullText = clone.innerText || '';
+  const wordCount = fullText.split(/\\s+/).filter(Boolean).length;
+  const readMins = Math.max(1, Math.round(wordCount / 200));
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hinterland-reader-view';
+  overlay.setAttribute('data-hinterland-reader', 'true');
+
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:' + (isDark ? '#14161d' : '#f7f8fa') + ';color:' + (isDark ? '#e4e7ee' : '#1a1c22') + ';overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Georgia,serif;font-size:18px;line-height:1.75;padding:0;margin:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;';
+
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:' + (isDark ? 'rgba(20,22,29,0.92)' : 'rgba(247,248,250,0.92)') + ';backdrop-filter:blur(12px);border-bottom:1px solid ' + (isDark ? '#262a36' : '#e2e5eb') + ';z-index:10;';
+
+  const infoBadge = document.createElement('span');
+  infoBadge.style.cssText = 'font-size:13px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:' + (isDark ? '#98a2b3' : '#667085') + ';display:flex;align-items:center;gap:8px;';
+  infoBadge.textContent = readMins + ' min read • ' + wordCount + ' words';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.textContent = '✕ Close';
+  closeBtn.style.cssText = 'background:transparent;border:1px solid ' + (isDark ? '#344054' : '#d0d5dd') + ';border-radius:6px;color:inherit;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:13px;padding:4px 12px;cursor:pointer;';
+
+  const exit = () => {
+    overlay.remove();
+    document.documentElement.style.overflow = '';
+  };
+  closeBtn.onclick = exit;
+  window.__hinterland_reader_exit = exit;
+
+  bar.appendChild(infoBadge);
+  bar.appendChild(closeBtn);
+
+  const container = document.createElement('div');
+  container.style.cssText = 'max-width:720px;margin:0 auto;padding:48px 24px 96px;';
+
+  const h1 = document.createElement('h1');
+  h1.textContent = title;
+  h1.style.cssText = 'font-size:32px;line-height:1.3;margin:0 0 16px 0;font-weight:700;letter-spacing:-0.02em;';
+  container.appendChild(h1);
+
+  if (author) {
+    const meta = document.createElement('div');
+    meta.textContent = author;
+    meta.style.cssText = 'font-size:14px;color:' + (isDark ? '#98a2b3' : '#667085') + ';margin-bottom:24px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;';
+    container.appendChild(meta);
+  }
+
+  const divider = document.createElement('hr');
+  divider.style.cssText = 'border:0;height:1px;background:' + (isDark ? '#262a36' : '#e2e5eb') + ';margin:24px 0 32px 0;';
+  container.appendChild(divider);
+
+  const contentHolder = document.createElement('div');
+  contentHolder.innerHTML = clone.innerHTML;
+  contentHolder.querySelectorAll('img').forEach((img) => {
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.borderRadius = '8px';
+    img.style.margin = '20px 0';
+  });
+  contentHolder.querySelectorAll('p').forEach((p) => {
+    p.style.marginBottom = '1.4em';
+  });
+  contentHolder.querySelectorAll('h2, h3, h4').forEach((h) => {
+    h.style.margin = '1.8em 0 0.8em 0';
+    h.style.fontWeight = '600';
+  });
+  contentHolder.querySelectorAll('a').forEach((a) => {
+    a.style.color = '#4f7cff';
+  });
+
+  container.appendChild(contentHolder);
+  overlay.appendChild(bar);
+  overlay.appendChild(container);
+
+  document.documentElement.style.overflow = 'hidden';
+  document.body.appendChild(overlay);
+  return true;
 }

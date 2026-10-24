@@ -645,6 +645,7 @@ html[data-closeButton="always"] .tabClose {
   display: none;
 }
 
+.omniReader,
 .omniClear,
 .omniStar {
   display: grid;
@@ -656,27 +657,31 @@ html[data-closeButton="always"] .tabClose {
   border-radius: 50%;
   background: transparent;
   color: var(--textDim);
-  cursor: default;
+  cursor: pointer;
   flex: none;
   transition: background var(--anim), color var(--anim);
 }
 
+.omniReader svg,
 .omniClear svg,
 .omniStar svg {
   width: 13px;
   height: 13px;
 }
 
+.omniReader:hover,
 .omniClear:hover,
 .omniStar:hover {
   background: var(--surfaceHover);
   color: var(--text);
 }
 
+.omniReader.active,
 .omniStar.on {
   color: var(--accent);
 }
 
+.omniReader[hidden],
 .omniClear[hidden],
 .omniStar[hidden] {
   display: none;
@@ -803,4 +808,73 @@ html[data-closeButton="always"] .tabClose {
   height: 100%;
   background: var(--accent);
   transition: width 160ms linear;
+}
+
+/* --------------------------------------------------------------- bookmarks bar */
+
+.bookmarksBar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--borderSoft);
+  min-height: 28px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.bookmarksBar[hidden] {
+  display: none;
+}
+
+.bookmarksBar::-webkit-scrollbar {
+  height: 0;
+}
+
+.bookmarkBarItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: none;
+  transition: background var(--anim), color var(--anim);
+}
+
+.bookmarkBarItem:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.bookmarkBarItem svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--accent);
+}
+
+.bookmarkBarTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmarkBarEmpty {
+  font-size: 11px;
+  color: var(--textDim);
+  padding: 2px 6px;
+  font-style: italic;
+  opacity: 0.75;
 }

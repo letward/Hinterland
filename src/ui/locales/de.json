@@ -72,6 +72,14 @@
     "closeOthers": "Andere Tabs schließen",
     "closeLeft": "Tabs nach links schließen",
     "closeRight": "Tabs nach rechts schließen",
+    "closeAll": "Alle Tabs schließen",
+    "muteOthers": "Andere Tabs stummschalten",
+    "reloadAll": "Alle Tabs neu laden",
+    "reader": "Leseansicht",
+    "enterReader": "Leseansicht aktivieren",
+    "exitReader": "Leseansicht verlassen",
+    "showBookmarksBar": "Lesezeichenleiste",
+    "hideBookmarksBar": "Lesezeichenleiste ausblenden",
     "reloadTab": "Tab neu laden",
     "reopenClosed": "Geschlossenen Tab wieder öffnen",
     "close": "Tab schließen",
@@ -101,6 +109,9 @@
   },
   "find": {
     "placeholder": "In Seite suchen"
+  },
+  "bookmarksBar": {
+    "empty": "Noch keine Lesezeichen. Klicke auf den Stern, um eines hinzuzufügen."
   },
   "commandPalette": {
     "placeholder": "Befehl oder Tab-Namen eingeben...",
@@ -181,6 +192,7 @@
       "downloads": "Downloads öffnen",
       "duplicateTab": "Tab duplizieren",
       "muteTab": "Tab stummschalten/aktivieren",
+      "readerMode": "Leseansicht umschalten",
       "reopen": "Geschlossenen Tab öffnen"
     }
   },
@@ -223,7 +235,10 @@
     "noTranslator": "Es ist kein Übersetzungsdienst eingerichtet.",
     "dataCleared": "Browserdaten gelöscht",
     "checkingUpdates": "Suche nach Updates...",
-    "updateCheckFailed": "Update-Suche fehlgeschlagen"
+    "updateCheckFailed": "Update-Suche fehlgeschlagen",
+    "linkCopied": "Link in die Zwischenablage kopiert",
+    "bookmarksBarShown": "Lesezeichenleiste eingeblendet",
+    "bookmarksBarHidden": "Lesezeichenleiste ausgeblendet"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -332,7 +347,9 @@
       "homepage": "Startseite",
       "homepageDesc": "Die Seite, die die Starttaste öffnet.",
       "showHomeButton": "Starttaste anzeigen",
-      "showHomeButtonDesc": "Fügt eine Starttaste neben den Navigationstasten hinzu."
+      "showHomeButtonDesc": "Fügt eine Starttaste neben den Navigationstasten hinzu.",
+      "showBookmarksBar": "Lesezeichenleiste anzeigen",
+      "showBookmarksBarDesc": "Zeigt eine Schnellzugriffsleiste mit deinen Lesezeichen unter der Adressleiste an."
     },
     "search": {
       "engines": "Suchmaschinen",

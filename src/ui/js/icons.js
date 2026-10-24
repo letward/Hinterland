@@ -49,6 +49,7 @@ const PATHS = {
   refresh: '<path d="M20 12a8 8 0 1 1-2.6-5.9" /><path d="M20 4v5h-5" />',
   eye: '<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" /><circle cx="12" cy="12" r="2.5" />',
   filter: '<path d="M4 6h16l-6 7v6l-4-2v-4z" />',
+  reader: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />',
   print: '<path d="M7 8V4h10v4" /><rect x="4" y="8" width="16" height="8" rx="2" /><path d="M7 14h10v6H7z" />',
   zoomIn: '<circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M8.5 11h5M11 8.5v5" />',
   zoomOut: '<circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M8.5 11h5" />',

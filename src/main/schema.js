@@ -119,6 +119,11 @@ export const SCHEMA = [
     descKey: 'settings.general.showHomeButtonDesc',
     section: 'general',
   }),
+  option('general.showBookmarksBar', 'bool', false, {
+    labelKey: 'settings.general.showBookmarksBar',
+    descKey: 'settings.general.showBookmarksBarDesc',
+    section: 'general',
+  }),
 
   /* ------------------------------------------------------------- appearance */
   option('appearance.theme', 'select', 'system', {

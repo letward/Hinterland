@@ -13,6 +13,7 @@ let iconSlot = null;
 let clearButton = null;
 let starButton = null;
 let zoomButton = null;
+let readerButton = null;
 let progress = null;
 let items = [];
 let selected = -1;
@@ -30,6 +31,7 @@ export function bindOmnibox(nodes) {
   clearButton = nodes.clear;
   starButton = nodes.star;
   zoomButton = nodes.zoom;
+  readerButton = nodes.reader;
   progress = nodes.progress;
 
   form.addEventListener('submit', (event) => {
@@ -92,6 +94,14 @@ export function bindOmnibox(nodes) {
     zoomButton.addEventListener('click', () => {
       const tab = activeTab();
       if (tab) api().tab.zoom(tab.id, 1);
+    });
+  }
+
+  if (readerButton) {
+    readerButton.innerHTML = icon('reader');
+    readerButton.addEventListener('click', () => {
+      const tab = activeTab();
+      if (tab) api().tab.readerMode(tab.id);
     });
   }
 }
@@ -249,6 +259,12 @@ export function syncOmni(tab) {
     } else {
       zoomButton.hidden = true;
     }
+  }
+  if (readerButton) {
+    const isWeb = Boolean(url && (url.startsWith('http://') || url.startsWith('https://')));
+    readerButton.hidden = !isWeb;
+    readerButton.classList.toggle('active', Boolean(tab?.readerActive));
+    readerButton.title = t(tab?.readerActive ? 'menu.exitReader' : 'menu.enterReader');
   }
   if (!editing) input.value = shown;
 }

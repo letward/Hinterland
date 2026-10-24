@@ -55,6 +55,7 @@ export class Tab {
     this.error = null;
     this.unresponsive = false;
     this.attached = false;
+    this.readerActive = false;
     this.events = new EventEmitter();
     this.events.setMaxListeners(20);
 
@@ -83,6 +84,7 @@ export class Tab {
     contents.on('did-start-navigation', (_event, url, _inPlace, isMainFrame) => {
       if (!isMainFrame) return;
       this.loading = true;
+      this.readerActive = false;
       this.url = url;
       refresh();
     });
@@ -194,6 +196,7 @@ export class Tab {
       zoom: this.zoom,
       canGoBack: this.canGoBack,
       canGoForward: this.canGoForward,
+      readerActive: this.readerActive,
       error: this.error,
       unresponsive: this.unresponsive,
     };
@@ -206,6 +209,7 @@ export class Tab {
   loadUrl(url) {
     const value = typeof url === 'string' && url ? url : NEW_TAB_URL;
     this.url = value;
+    this.readerActive = false;
     return this.contents.loadURL(value).catch((error) => {
       console.warn('[Hinterland] Page could not be opened.', value, error?.message ?? error);
       return null;

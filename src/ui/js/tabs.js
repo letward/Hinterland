@@ -150,7 +150,7 @@ function buildTab(tab) {
     role: 'tab',
     'data-id': tab.id,
     'data-group': tab.groupId ?? '',
-    draggable: 'false',
+    draggable: 'true',
   });
 
   const iconSlot = faviconNode(tab);
@@ -209,6 +209,7 @@ function buildTab(tab) {
     node.classList.add('tabDragging');
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', tab.id);
+    event.dataTransfer.setData('text/tab', tab.id);
   });
 
   node.addEventListener('dragend', () => {

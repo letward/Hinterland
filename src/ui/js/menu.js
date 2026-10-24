@@ -2,6 +2,7 @@ import { openPopup, closePopup, row, separator, section, empty } from './popup.j
 import { t } from './i18n.js';
 import { hostOf } from './util.js';
 import { currentTab, currentSettings } from './state.js';
+import { toast } from './toast.js';
 
 const api = () => window.hinterland;
 
@@ -33,6 +34,12 @@ export function openMainMenu() {
           iconName: 'bookmark',
           title: t('menu.bookmarks'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'bookmarks' } })),
+        }),
+        row({
+          iconName: 'archive',
+          title: t('menu.showBookmarksBar'),
+          subtitle: 'Ctrl+Shift+B',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:togglebookmarksbar')),
         }),
         row({
           iconName: 'puzzle',
@@ -82,6 +89,11 @@ export function openTabMenu(tab, x, y) {
     render: (card) => {
       card.append(
         section('menu.page'),
+        row({
+          iconName: 'reader',
+          title: tab.readerActive ? t('menu.exitReader') : t('menu.enterReader'),
+          onSelect: () => api().tab.readerMode(tab.id),
+        }),
         row({
           iconName: 'reload',
           title: t('menu.reloadTab'),
@@ -151,6 +163,16 @@ export function openTabMenu(tab, x, y) {
           iconName: tab.muted ? 'volumeOff' : 'volume',
           title: tab.muted ? t('menu.unmute') : t('menu.mute'),
           onSelect: () => api().tab.mute(tab.id, !tab.muted),
+        }),
+        row({
+          iconName: 'volumeOff',
+          title: t('menu.muteOthers'),
+          onSelect: () => api().tabs.muteOthers(tab.id),
+        }),
+        row({
+          iconName: 'reload',
+          title: t('menu.reloadAll'),
+          onSelect: () => api().tabs.reloadAll(),
         }),
         row({
           iconName: 'minus',
@@ -321,6 +343,16 @@ export function openTabstripMenu() {
           iconName: 'clock',
           title: t('menu.reopenClosed'),
           onSelect: () => api().tabs.reopen(),
+        }),
+        row({
+          iconName: 'reload',
+          title: t('menu.reloadAll'),
+          onSelect: () => api().tabs.reloadAll(),
+        }),
+        row({
+          iconName: 'close',
+          title: t('menu.closeAll'),
+          onSelect: () => api().tabs.closeAll(),
         }),
       );
     },

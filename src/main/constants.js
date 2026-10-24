@@ -49,6 +49,7 @@ export const DEFAULT_SHORTCUTS = {
   downloads: 'Ctrl+J',
   duplicateTab: 'Ctrl+Shift+D',
   muteTab: 'Ctrl+M',
+  readerMode: 'Ctrl+Alt+R',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */
