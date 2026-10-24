@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-24
+
+### Added
+- Multi-resolution Windows application and installer icon (`.ico` with 16, 32, 48, 64, 128, and 256px) and high-resolution 512px assets.
+- Official Hinterland circular badge logo showcased in the About dialog and New Tab page hero section.
+- "Close tabs to the left" action in the tab context menu, IPC layer, and Command Palette.
+- "Reload tab" and "Copy link" direct actions in the tab context menu.
+- Keyboard shortcuts for Downloads (`Ctrl+J`), duplicate tab (`Ctrl+Shift+D`), and mute/unmute tab (`Ctrl+M`).
+- Full English and German localization for all new tab context actions and palette entries.
+
 ## [1.4.0] - 2026-10-24
 
 ### Added
