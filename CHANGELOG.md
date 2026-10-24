@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-24
+
+### Fixed
+- Release CI workflow PowerShell command compatibility and artifact publishing (`--publish always`).
+
 ## [1.3.0] - 2026-10-24
 
 ### Added
