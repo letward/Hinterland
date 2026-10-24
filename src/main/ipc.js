@@ -13,7 +13,7 @@ import { isInternalUrl } from './protocol.js';
 import { openExternal, blockedSummary, handOffToSystem } from './security.js';
 import updater from 'electron-updater';
 const { autoUpdater } = updater;
-import { applySettings, clearBrowsingData, downloadDirectory } from './sessions.js';
+import { applySettings, clearBrowsingData, downloadDirectory, clearSiteData } from './sessions.js';
 import { applyContentSettings } from './content.js';
 
 const registered = new Set();
@@ -204,7 +204,11 @@ export function installIpc() {
     return copy?.snapshot() ?? null;
   });
   handle('tabs:cycle', (delta) => tabs.cycle(delta));
-  handle('tabs:reopen', () => tabs.reopenClosed());
+  handle('tabs:reopen', (index) => tabs.reopenClosed(index));
+  handle('tabs:recentlyClosed', () => tabs.recentlyClosed());
+  handle('tabs:restoreClosed', (index) => tabs.reopenClosed(index));
+  handle('tabs:clearRecentlyClosed', () => tabs.clearRecentlyClosed());
+  handle('tabs:restoreAllClosed', () => tabs.restoreAllClosed());
   handle('tabs:closeOthers', async (id) => {
     const keep = activeTab(id);
     for (const tab of [...tabs.list]) {
@@ -594,6 +598,9 @@ handle('tab:confirmClose', (id, answer) => {
     await clearBrowsingData(options);
     surface.send('toast', { message: 'toast.dataCleared', kind: 'success' });
     return true;
+  });
+  handle('site:clearData', async (url) => {
+    return clearSiteData(url);
   });
 
   handle('shell:open', (url) => {

@@ -141,7 +141,7 @@ function extensionRow(entry, reload) {
 /* ---------------------------------------------------------------- history */
 
 export function openHistory() {
-  openModal({ title: t('history.title'), iconName: 'clock', nav: [historyPage()] });
+  openModal({ title: t('history.title'), iconName: 'clock', nav: [historyPage(), recentlyClosedPage()] });
 }
 
 function historyPage() {
@@ -196,6 +196,79 @@ function historyPage() {
       );
 
       api().history.search('').then(paint);
+      return container;
+    },
+  };
+}
+
+function recentlyClosedPage() {
+  return {
+    id: 'recentlyClosed',
+    icon: 'clock',
+    labelKey: 'history.recentlyClosed',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('history.recentlyClosedTitle'), t('history.recentlyClosedDesc')));
+
+      const list = el('div', { class: 'card' });
+      const language = currentLanguage();
+
+      const paint = async () => {
+        clear(list);
+        const entries = (await api().tabs.recentlyClosed()) || [];
+        if (!entries.length) {
+          list.append(el('div', { class: 'empty', text: t('history.recentlyClosedEmpty') }));
+          return;
+        }
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          list.append(
+            el('div', { class: 'option' }, [
+              el('div', { class: 'optionText' }, [
+                el('div', { class: 'optionLabel', text: entry.title || entry.url }),
+                el('div', { class: 'optionHint', text: entry.url }),
+              ]),
+              el('div', { class: 'optionControl' }, [
+                entry.closedAt ? el('span', { class: 'rowAside', text: formatTime(entry.closedAt, language) }) : null,
+                el('button', {
+                  class: 'iconButton small',
+                  type: 'button',
+                  html: icon('external'),
+                  title: t('action.restore'),
+                  onclick: async () => {
+                    await api().tabs.restoreClosed(i);
+                    closeModal();
+                  },
+                }),
+              ]),
+            ]),
+          );
+        }
+      };
+
+      container.append(
+        el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+          el('button', {
+            class: 'button primary',
+            type: 'button',
+            onclick: async () => {
+              await api().tabs.restoreAllClosed();
+              closeModal();
+            },
+          }, [t('history.restoreAll')]),
+          el('button', {
+            class: 'button',
+            type: 'button',
+            onclick: async () => {
+              await api().tabs.clearRecentlyClosed();
+              paint();
+            },
+          }, [t('history.clearRecentlyClosed')]),
+        ]),
+        list,
+      );
+
+      paint();
       return container;
     },
   };
@@ -353,16 +426,119 @@ function shortcutsPage() {
     render: () => {
       const container = el('div');
       container.append(head(t('shortcuts.title'), t('shortcuts.description')));
-      container.append(el('p', { class: 'optionHint', text: t('shortcuts.editHint') }));
-      container.append(el('button', {
-        class: 'button',
-        type: 'button',
-        style: { marginTop: '14px' },
-        onclick: () => {
-          closeModal();
-          window.dispatchEvent(new CustomEvent('hinterland:opensettings', { detail: { section: 'shortcuts' } }));
+
+      const listContainer = el('div', { class: 'shortcutsList' });
+
+      const shortcutGroups = [
+        {
+          titleKey: 'shortcuts.groupTabs',
+          items: [
+            { labelKey: 'menu.newTab', combo: 'Ctrl+T' },
+            { labelKey: 'menu.privateTab', combo: 'Ctrl+Shift+N' },
+            { labelKey: 'menu.close', combo: 'Ctrl+W' },
+            { labelKey: 'menu.duplicate', combo: 'Ctrl+Shift+D' },
+            { labelKey: 'shortcuts.action.muteTab', combo: 'Ctrl+M' },
+            { labelKey: 'shortcuts.action.pinTab', combo: 'Alt+P' },
+            { labelKey: 'menu.reopenClosed', combo: 'Ctrl+Shift+T' },
+            { labelKey: 'shortcuts.action.nextTab', combo: 'Ctrl+Tab' },
+            { labelKey: 'shortcuts.action.previousTab', combo: 'Ctrl+Shift+Tab' },
+          ],
         },
-      }, [t('shortcuts.edit')]));
+        {
+          titleKey: 'shortcuts.groupNav',
+          items: [
+            { labelKey: 'shortcuts.action.goBack', combo: 'Alt+Left' },
+            { labelKey: 'shortcuts.action.goForward', combo: 'Alt+Right' },
+            { labelKey: 'action.reload', combo: 'Ctrl+R' },
+            { labelKey: 'shortcuts.action.hardReload', combo: 'Ctrl+Shift+R' },
+            { labelKey: 'action.stop', combo: 'Esc' },
+            { labelKey: 'shortcuts.action.focusAddress', combo: 'Ctrl+L' },
+            { labelKey: 'shortcuts.action.focusSearch', combo: 'Ctrl+K' },
+          ],
+        },
+        {
+          titleKey: 'shortcuts.groupView',
+          items: [
+            { labelKey: 'shortcuts.action.readerMode', combo: 'Ctrl+Alt+R' },
+            { labelKey: 'menu.find', combo: 'Ctrl+F' },
+            { labelKey: 'menu.zoomIn', combo: 'Ctrl+=' },
+            { labelKey: 'menu.zoomOut', combo: 'Ctrl+-' },
+            { labelKey: 'menu.resetZoom', combo: 'Ctrl+0' },
+            { labelKey: 'shortcuts.action.fullscreen', combo: 'F11' },
+          ],
+        },
+        {
+          titleKey: 'shortcuts.groupBrowser',
+          items: [
+            { labelKey: 'menu.commandPalette', combo: 'Ctrl+Shift+P' },
+            { labelKey: 'menu.showBookmarksBar', combo: 'Ctrl+Shift+B' },
+            { labelKey: 'menu.history', combo: 'Ctrl+H' },
+            { labelKey: 'menu.downloads', combo: 'Ctrl+J' },
+            { labelKey: 'menu.settings', combo: 'Ctrl+,' },
+          ],
+        },
+      ];
+
+      function renderKbd(combo) {
+        const parts = combo.split('+');
+        const frag = el('span', { class: 'shortcutCombos' });
+        parts.forEach((part, idx) => {
+          if (idx > 0) frag.append(' + ');
+          frag.append(el('kbd', { class: 'kbd', text: part }));
+        });
+        return frag;
+      }
+
+      const paint = (filter = '') => {
+        clear(listContainer);
+        const query = filter.toLowerCase().trim();
+        let total = 0;
+
+        for (const group of shortcutGroups) {
+          const matched = group.items.filter((item) => {
+            if (!query) return true;
+            const name = t(item.labelKey).toLowerCase();
+            const combo = item.combo.toLowerCase();
+            return name.includes(query) || combo.includes(query);
+          });
+          if (!matched.length) continue;
+
+          total += matched.length;
+          const card = el('div', { class: 'card', style: { marginBottom: '16px' } });
+          for (const item of matched) {
+            card.append(
+              el('div', { class: 'option' }, [
+                el('div', { class: 'optionText' }, [el('div', { class: 'optionLabel', text: t(item.labelKey) })]),
+                el('div', { class: 'optionControl' }, [renderKbd(item.combo)]),
+              ]),
+            );
+          }
+          listContainer.append(el('h2', { class: 'groupTitle', text: t(group.titleKey) }), card);
+        }
+
+        if (total === 0) {
+          listContainer.append(el('div', { class: 'empty', text: t('shortcuts.noMatch') }));
+        }
+      };
+
+      const { field } = searchBox((value) => paint(value));
+
+      container.append(
+        el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+          el('button', {
+            class: 'button',
+            type: 'button',
+            onclick: () => {
+              closeModal();
+              window.dispatchEvent(new CustomEvent('hinterland:opensettings', { detail: { section: 'shortcuts' } }));
+            },
+          }, [el('span', { html: icon('gear') }), ` ${t('shortcuts.edit')}`]),
+        ]),
+        field,
+        listContainer,
+      );
+
+      paint();
       return container;
     },
   };

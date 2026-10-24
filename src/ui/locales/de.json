@@ -20,7 +20,8 @@
     "resetSection": "Diesen Bereich zurücksetzen",
     "stop": "Anhalten",
     "reloadPage": "Neu laden",
-    "showFolder": "Im Ordner anzeigen"
+    "showFolder": "Im Ordner anzeigen",
+    "restore": "Wiederherstellen"
   },
   "window": {
     "minimize": "Minimieren",
@@ -42,7 +43,8 @@
     "noRecent": "Noch nichts vorhanden.",
     "noEngine": "Es ist noch keine Suchmaschine eingerichtet.",
     "addEngine": "Suchmaschine hinzufügen",
-    "addEngineDesc": "Öffnet die Einstellungen für das Suchverhalten."
+    "addEngineDesc": "Öffnet die Einstellungen für das Suchverhalten.",
+    "viewSiteInfo": "Website-Informationen anzeigen"
   },
   "menu": {
     "newTab": "Neuer Tab",
@@ -118,6 +120,7 @@
     "noResults": "Keine passenden Befehle oder Tabs",
     "categoryCommand": "Befehl",
     "categoryTab": "Tab",
+    "categoryRecentlyClosed": "Kürzlich geschlossen",
     "activeTab": "Aktiv"
   },
   "confirm": {
@@ -150,7 +153,13 @@
     "title": "Verlauf",
     "description": "Seiten, die in diesem Browserprofil besucht wurden.",
     "empty": "Noch keine Einträge.",
-    "clear": "Verlauf leeren"
+    "clear": "Verlauf leeren",
+    "recentlyClosed": "Kürzlich geschlossen",
+    "recentlyClosedTitle": "Kürzlich geschlossene Tabs",
+    "recentlyClosedDesc": "In dieser Sitzung geschlossene Tabs, die wiederhergestellt werden können.",
+    "recentlyClosedEmpty": "Keine kürzlich geschlossenen Tabs vorhanden.",
+    "restoreAll": "Alle wiederherstellen",
+    "clearRecentlyClosed": "Geschlossene Tabs leeren"
   },
   "downloads": {
     "title": "Downloads",
@@ -165,6 +174,11 @@
     "editHint": "Jedes Kürzel lässt sich in den Einstellungen ändern. Klicke auf ein Kürzel und drücke die neue Kombination.",
     "press": "Taste drücken",
     "unset": "Nicht belegt",
+    "groupTabs": "Tabs & Fenster",
+    "groupNav": "Navigation",
+    "groupView": "Ansicht & Werkzeuge",
+    "groupBrowser": "Browser & Verwaltung",
+    "noMatch": "Keine Tastenkürzel für diese Suche gefunden.",
     "action": {
       "newTab": "Neuer Tab",
       "privateTab": "Privater Tab",
@@ -193,6 +207,7 @@
       "duplicateTab": "Tab duplizieren",
       "muteTab": "Tab stummschalten/aktivieren",
       "readerMode": "Leseansicht umschalten",
+      "pinTab": "Tab anheften oder lösen",
       "reopen": "Geschlossenen Tab öffnen"
     }
   },
@@ -238,7 +253,8 @@
     "updateCheckFailed": "Update-Suche fehlgeschlagen",
     "linkCopied": "Link in die Zwischenablage kopiert",
     "bookmarksBarShown": "Lesezeichenleiste eingeblendet",
-    "bookmarksBarHidden": "Lesezeichenleiste ausgeblendet"
+    "bookmarksBarHidden": "Lesezeichenleiste ausgeblendet",
+    "siteDataCleared": "Cookies und Websitedaten für diese Domain wurden gelöscht"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -572,5 +588,40 @@
     "search": "Suchen"
   },
   "exported": "Einstellungen gespeichert unter {path}",
-  "importFailed": "Diese Einstellungen konnten nicht gelesen werden."
+  "importFailed": "Diese Einstellungen konnten nicht gelesen werden.",
+  "context": {
+    "openLinkInNewTab": "Link in neuem Tab öffnen",
+    "openLinkInNewPrivateTab": "Link in privatem Tab öffnen",
+    "copyLinkAddress": "Link-Adresse kopieren",
+    "openImageInNewTab": "Bild in neuem Tab öffnen",
+    "copyImageAddress": "Bildadresse kopieren",
+    "saveImageAs": "Bild speichern unter…",
+    "copy": "Kopieren",
+    "searchWebFor": "Im Web nach „{query}“ suchen",
+    "undo": "Rückgängig",
+    "redo": "Wiederholen",
+    "cut": "Ausschneiden",
+    "paste": "Einfügen",
+    "selectAll": "Alles auswählen",
+    "back": "Zurück",
+    "forward": "Vorwärts",
+    "reload": "Neu laden",
+    "viewSource": "Seitenquelltext anzeigen",
+    "print": "Drucken…",
+    "inspect": "Element untersuchen"
+  },
+  "siteInfo": {
+    "connectionSecure": "Verbindung ist sicher",
+    "connectionSecureDesc": "Informationen, die Sie mit dieser Website teilen (z. B. Passwörter oder Zahlungsdaten), werden verschlüsselt übertragen.",
+    "connectionInsecure": "Verbindung ist nicht sicher",
+    "connectionInsecureDesc": "Die Verbindung zu dieser Website ist nicht verschlüsselt. Vertrauliche Daten könnten von Dritten eingesehen werden.",
+    "internalPage": "Interne Hinterland-Seite",
+    "internalPageDesc": "Dies ist eine integrierte und geschützte interne Seite von Hinterland.",
+    "protectionsHeader": "Aktive Schutzmechanismen",
+    "shieldTracking": "Tracker- & Werbeblocker",
+    "shieldHttps": "HTTPS-Verbindungsschutz",
+    "active": "Aktiv",
+    "clearData": "Cookies & Websitedaten löschen",
+    "privacySettings": "Datenschutzeinstellungen"
+  }
 }

@@ -50,6 +50,7 @@ export const DEFAULT_SHORTCUTS = {
   duplicateTab: 'Ctrl+Shift+D',
   muteTab: 'Ctrl+M',
   readerMode: 'Ctrl+Alt+R',
+  pinTab: 'Alt+P',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

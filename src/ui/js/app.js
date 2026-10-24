@@ -16,6 +16,7 @@ import { toast } from './toast.js';
 import { bindFind, openFind, closeFind, isFindOpen, applyFindResult } from './find.js';
 import { bindShelf, onDownloadNew, onDownloadProgress, onDownloadDone } from './downloads.js';
 import { bindBookmarksBar, syncBookmarksBar } from './bookmarksBar.js';
+import { openSiteInfo } from './siteInfo.js';
 import { currentTab } from './state.js';
 
 const api = () => window.hinterland;
@@ -154,6 +155,7 @@ function bind() {
   window.addEventListener('hinterland:bookmark', () => toggleBookmark());
   window.addEventListener('hinterland:commandpalette', () => openCommandPalette());
   window.addEventListener('hinterland:togglebookmarksbar', () => toggleBookmarksBar());
+  window.addEventListener('hinterland:siteinfo', () => openSiteInfo());
 
   $('#extensionToolbar').addEventListener('click', async (event) => {
     const button = event.target.closest('.extensionButton');
@@ -292,6 +294,11 @@ function handleShortcut(action) {
     if (cur) api().tab.mute(cur.id, !cur.muted);
     return undefined;
   }
+  if (action === 'pinTab') {
+    const cur = activeTab();
+    if (cur) api().tabs.pin(cur.id, !cur.pinned);
+    return undefined;
+  }
   if (action === 'stop') {
     api().tab.stop(activeTab()?.id);
     return syncToolbar();
@@ -369,6 +376,13 @@ function wireShortcuts() {
       event.preventDefault();
       const cur = activeTab();
       if (cur) api().tab.mute(cur.id, !cur.muted);
+      return;
+    }
+
+    if (event.altKey && event.key.toLowerCase() === 'p' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) api().tabs.pin(cur.id, !cur.pinned);
       return;
     }
 

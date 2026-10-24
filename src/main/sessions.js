@@ -88,6 +88,17 @@ export async function clearBrowsingData({ cache = false, cookies = false, storag
   await Promise.all(tasks);
 }
 
+export async function clearSiteData(targetUrl) {
+  try {
+    const origin = new URL(targetUrl).origin;
+    const ses = defaultSession();
+    await ses.clearStorageData({ origin, storages: ALL_STORAGES });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function flush() {
   try {
     defaultSession().flushStorageData();

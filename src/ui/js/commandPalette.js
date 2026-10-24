@@ -119,6 +119,7 @@ export function openCommandPalette() {
             id: 'pinTab',
             title: current?.pinned ? t('menu.unpin') : t('menu.pin'),
             category: t('commandPalette.categoryCommand'),
+            shortcut: 'Alt+P',
             icon: 'pin',
             run: () => { if (current) api().tabs.pin(current.id, !current.pinned); },
           },
@@ -182,6 +183,13 @@ export function openCommandPalette() {
             category: t('commandPalette.categoryCommand'),
             icon: 'bookmark',
             run: () => window.dispatchEvent(new CustomEvent('hinterland:bookmark')),
+          },
+          {
+            id: 'siteInfo',
+            title: t('omni.viewSiteInfo'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'shield',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:siteinfo')),
           },
           {
             id: 'copyLink',
@@ -337,13 +345,28 @@ export function openCommandPalette() {
         }
       };
 
+      let closedItems = [];
+      api().tabs.recentlyClosed().then((closed) => {
+        if (!Array.isArray(closed) || !closed.length) return;
+        closedItems = closed.map((entry, index) => ({
+          id: `closed:${index}`,
+          title: entry.title || prettyUrl(entry.url) || t('confirm.untitled'),
+          subtitle: entry.url,
+          category: t('commandPalette.categoryRecentlyClosed'),
+          icon: 'clock',
+          favicon: entry.favicon,
+          run: () => api().tabs.restoreClosed(index),
+        }));
+        renderList();
+      }).catch(() => {});
+
       const renderList = () => {
         clear(listContainer);
         const query = input.value.trim().toLowerCase();
 
         const commands = buildCommands();
         const tabs = buildTabs();
-        const all = [...tabs, ...commands];
+        const all = [...tabs, ...closedItems, ...commands];
 
         if (!query) {
           visibleItems = all;

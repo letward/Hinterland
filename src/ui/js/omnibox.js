@@ -90,6 +90,13 @@ export function bindOmnibox(nodes) {
 
   starButton.addEventListener('click', () => window.dispatchEvent(new CustomEvent('hinterland:bookmark')));
 
+  if (iconSlot) {
+    iconSlot.addEventListener('click', (event) => {
+      event.stopPropagation();
+      window.dispatchEvent(new CustomEvent('hinterland:siteinfo'));
+    });
+  }
+
   if (zoomButton) {
     zoomButton.addEventListener('click', () => {
       const tab = activeTab();
@@ -246,6 +253,7 @@ export function syncOmni(tab) {
 
   iconSlot.innerHTML = icon(iconFor(url));
   iconSlot.classList.toggle('secure', url.startsWith('https://'));
+  iconSlot.title = t('omni.viewSiteInfo');
   progress.classList.toggle('active', Boolean(tab?.loading));
   clearButton.hidden = editing || !shown;
   starButton.hidden = !shown;

@@ -593,6 +593,17 @@ html[data-closeButton="always"] .tabClose {
   flex: none;
 }
 
+.omniIcon {
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: var(--radiusSmall);
+  transition: background var(--anim);
+}
+
+.omniIcon:hover {
+  background: var(--surfaceHover);
+}
+
 .omniIcon svg,
 .findIcon svg {
   width: 15px;

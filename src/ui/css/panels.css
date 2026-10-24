@@ -857,3 +857,127 @@
 .extensionButton {
   -webkit-app-region: no-drag;
 }
+
+/* Site Information Popover */
+
+.siteInfoCard {
+  width: 360px;
+  max-width: 92vw;
+  margin-left: 56px;
+  margin-right: auto;
+  padding: 14px;
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  animation: menuIn var(--anim) ease-out;
+}
+
+.siteInfoHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.siteInfoBadge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.siteInfoBadge.secure {
+  background: color-mix(in srgb, #46b980 16%, transparent);
+  color: #46b980;
+}
+
+.siteInfoBadge.internal {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.siteInfoBadge.insecure {
+  background: color-mix(in srgb, #ef5350 16%, transparent);
+  color: #ef5350;
+}
+
+.siteInfoBadge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.siteInfoTitleGroup {
+  flex: 1;
+  min-width: 0;
+}
+
+.siteInfoHost {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.siteInfoStatus {
+  font-size: 0.82em;
+  font-weight: 500;
+}
+
+.siteInfoStatus.secure {
+  color: #46b980;
+}
+
+.siteInfoStatus.internal {
+  color: var(--accent);
+}
+
+.siteInfoStatus.insecure {
+  color: #ef5350;
+}
+
+.siteInfoDesc {
+  font-size: 0.84em;
+  color: var(--textDim);
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.siteInfoProtectionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 0.85em;
+  color: var(--text);
+}
+
+.siteInfoProtectionIcon svg {
+  width: 15px;
+  height: 15px;
+  color: #46b980;
+}
+
+.siteInfoProtectionText {
+  flex: 1;
+}
+
+.siteInfoActions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Shortcuts cheatsheet */
+
+.shortcutsList {
+  margin-top: 10px;
+}
+
+.shortcutCombos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

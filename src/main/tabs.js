@@ -72,8 +72,13 @@ export class TabManager extends EventEmitter {
 
     const wasActive = this.activeId === id;
     if (settings.value('tabs.restoreClosed') && !tab.privateMode) {
-      this.closedStack.unshift({ url: tab.url, title: tab.title });
-      const limit = Number(settings.value('tabs.maxUndo')) || 0;
+      this.closedStack.unshift({
+        url: tab.url,
+        title: tab.title || tab.url,
+        favicon: tab.favicon || '',
+        closedAt: Date.now(),
+      });
+      const limit = Number(settings.value('tabs.maxUndo')) || 25;
       this.closedStack.length = Math.min(this.closedStack.length, limit);
     }
 
@@ -154,18 +159,38 @@ export class TabManager extends EventEmitter {
     return copy;
   }
 
-  reopenClosed() {
-    const entry = this.closedStack.shift();
+  reopenClosed(index = 0) {
+    if (!this.closedStack.length) return false;
+    const target = typeof index === 'number' && index >= 0 && index < this.closedStack.length ? index : 0;
+    const [entry] = this.closedStack.splice(target, 1);
     if (!entry) return false;
     const tab = this.create({ url: entry.url });
     this.emit('list', this.snapshot());
     return Boolean(tab);
   }
 
+  recentlyClosed() {
+    return [...this.closedStack];
+  }
+
+  clearRecentlyClosed() {
+    this.closedStack = [];
+    return true;
+  }
+
+  async restoreAllClosed() {
+    const list = [...this.closedStack];
+    this.closedStack = [];
+    for (const entry of list) {
+      this.create({ url: entry.url, background: true });
+    }
+    this.emit('list', this.snapshot());
+    return true;
+  }
+
   async closeAll() {
     const ids = this.tabs.map((tab) => tab.id);
     for (const id of ids) {
-      this.closedStack = [];
       await this.close(id, { force: true });
     }
   }
@@ -212,6 +237,7 @@ export class TabManager extends EventEmitter {
         version: 1,
         activeId: this.activeId,
         tabs: this.tabs.filter((tab) => !tab.privateMode).map((tab) => tab.persist()),
+        closed: this.closedStack.slice(0, 30),
       };
       mkdirSync(dirname(this.filePath), { recursive: true });
       const temporary = `${this.filePath}.tmp`;
@@ -232,6 +258,9 @@ export class TabManager extends EventEmitter {
   }
 
   restore(saved) {
+    if (Array.isArray(saved?.closed)) {
+      this.closedStack = saved.closed.slice(0, 30);
+    }
     const entries = Array.isArray(saved?.tabs) ? saved.tabs : [];
     if (!entries.length) return false;
     for (const entry of entries.slice(0, 60)) {

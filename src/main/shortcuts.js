@@ -5,7 +5,7 @@ import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { NEW_TAB_URL } from './constants.js';
 
-const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette', 'downloads', 'readerMode']);
+const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette', 'downloads', 'readerMode', 'pinTab']);
 
 function normaliseCombo(combo) {
   const parts = String(combo ?? '')
@@ -66,6 +66,9 @@ function run(action) {
         surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
       }
       return true;
+    case 'pinTab':
+      if (tab) tabs.setPinned(tab.id, !tab.pinned);
+      return true;
     case 'reopenTab':
       tabs.reopenClosed();
       return true;
@@ -106,16 +109,6 @@ function run(action) {
       return true;
     case 'fullscreen':
       surface.toggleFullScreen();
-      return true;
-    case 'duplicateTab':
-      if (tab) tabs.duplicate(tab.id);
-      return true;
-    case 'muteTab':
-      if (tab) {
-        tab.muted = !tab.muted;
-        tab.contents.setAudioMuted(tab.muted);
-        surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
-      }
       return true;
     default:
       if (UI_ACTIONS.has(action)) {

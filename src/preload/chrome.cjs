@@ -75,7 +75,11 @@ const api = {
     pin: (id, pinned) => ipcRenderer.invoke('tabs:pin', id, pinned),
     duplicate: (id) => ipcRenderer.invoke('tabs:duplicate', id),
     cycle: (delta) => ipcRenderer.invoke('tabs:cycle', delta),
-    reopen: () => ipcRenderer.invoke('tabs:reopen'),
+    reopen: (index) => ipcRenderer.invoke('tabs:reopen', index),
+    recentlyClosed: () => ipcRenderer.invoke('tabs:recentlyClosed'),
+    restoreClosed: (index) => ipcRenderer.invoke('tabs:restoreClosed', index),
+    clearRecentlyClosed: () => ipcRenderer.invoke('tabs:clearRecentlyClosed'),
+    restoreAllClosed: () => ipcRenderer.invoke('tabs:restoreAllClosed'),
     closeOthers: (id) => ipcRenderer.invoke('tabs:closeOthers', id),
     closeLeft: (id) => ipcRenderer.invoke('tabs:closeLeft', id),
     closeRight: (id) => ipcRenderer.invoke('tabs:closeRight', id),
@@ -141,6 +145,10 @@ const api = {
 
   data: {
     clear: (options) => ipcRenderer.invoke('data:clear', options),
+  },
+
+  site: {
+    clearData: (url) => ipcRenderer.invoke('site:clearData', url),
   },
 
   shell: {

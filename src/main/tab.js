@@ -4,6 +4,7 @@ import { NEW_TAB_URL, VIEW_ROLE, PARTITION, PRIVATE_PARTITION } from './constant
 import { PAGE_PRELOAD } from './resources.js';
 import { settings } from './settings.js';
 import { handOffToSystem, isNavigable } from './security.js';
+import { showWebContextMenu } from './contextMenu.js';
 
 let sequence = 0;
 
@@ -173,6 +174,10 @@ export class Tab {
     contents.on('before-input-event', (_event, input) => {
       if (input.type !== 'keyDown') return;
       this.events.emit('key', input);
+    });
+
+    contents.on('context-menu', (_event, params) => {
+      showWebContextMenu(this, params);
     });
   }
 

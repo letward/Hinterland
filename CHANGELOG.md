@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-24
+
+### Added
+- Interactive in-page context menu for web content: link actions (open in new/private tab, copy link), image actions (open, copy address, save as), text selection search and copy, full editable controls (undo/redo, cut/copy/paste, select all), page navigation, view source, print, and developer tools element inspection.
+- Omnibox Site Information & Security popover with connection security indicators, active privacy shield status (tracker blocking and HTTPS-first), and direct origin cookies and site data clearing.
+- Recently closed tabs restoration history with session persistence across restarts, dedicated modal tab in the History panel, and one-click restoration or clearing.
+- Command Palette integration for recently closed tabs, enabling instant search and restoration of previously closed pages.
+- Interactive keyboard shortcuts cheatsheet modal (`openShortcuts`) with categorized groups (Tabs & Windows, Navigation, View & Tools, Browser & Management), real-time search filter, and `<kbd>` badge chips.
+- Tab Pinning keyboard shortcut (`Alt+P`) and Command Palette quick action.
+- Symmetrical English and German localizations for all new context actions, site information dialogs, shortcuts, and history views.
+
 ## [1.6.0] - 2026-10-24
 
 ### Added

@@ -20,7 +20,8 @@
     "resetSection": "Reset this section",
     "stop": "Stop",
     "reloadPage": "Reload",
-    "showFolder": "Show in folder"
+    "showFolder": "Show in folder",
+    "restore": "Restore"
   },
   "window": {
     "minimize": "Minimize",
@@ -42,7 +43,8 @@
     "noRecent": "Nothing here yet.",
     "noEngine": "No search engine is configured yet.",
     "addEngine": "Add a search engine",
-    "addEngineDesc": "Opens the settings so you can choose how searching works."
+    "addEngineDesc": "Opens the settings so you can choose how searching works.",
+    "viewSiteInfo": "View site information"
   },
   "menu": {
     "newTab": "New tab",
@@ -118,6 +120,7 @@
     "noResults": "No matching commands or tabs",
     "categoryCommand": "Command",
     "categoryTab": "Tab",
+    "categoryRecentlyClosed": "Recently closed",
     "activeTab": "Active"
   },
   "confirm": {
@@ -150,7 +153,13 @@
     "title": "History",
     "description": "Pages you visited in this browser profile.",
     "empty": "No entries yet.",
-    "clear": "Clear history"
+    "clear": "Clear history",
+    "recentlyClosed": "Recently closed",
+    "recentlyClosedTitle": "Recently closed tabs",
+    "recentlyClosedDesc": "Tabs closed in this session that can be restored.",
+    "recentlyClosedEmpty": "No recently closed tabs.",
+    "restoreAll": "Restore all",
+    "clearRecentlyClosed": "Clear closed tabs"
   },
   "downloads": {
     "title": "Downloads",
@@ -165,6 +174,11 @@
     "editHint": "Every shortcut can be changed in the settings. Click a shortcut and press the new key combination.",
     "press": "Press a key",
     "unset": "Not set",
+    "groupTabs": "Tabs & Windows",
+    "groupNav": "Navigation",
+    "groupView": "View & Tools",
+    "groupBrowser": "Browser & Management",
+    "noMatch": "No shortcuts match your search.",
     "action": {
       "newTab": "New tab",
       "privateTab": "Private tab",
@@ -193,6 +207,7 @@
       "duplicateTab": "Duplicate tab",
       "muteTab": "Mute or unmute tab",
       "readerMode": "Toggle reader mode",
+      "pinTab": "Pin or unpin tab",
       "reopen": "Reopen closed tab"
     }
   },
@@ -238,7 +253,8 @@
     "updateCheckFailed": "Update check failed",
     "linkCopied": "Link copied to clipboard",
     "bookmarksBarShown": "Bookmarks bar enabled",
-    "bookmarksBarHidden": "Bookmarks bar hidden"
+    "bookmarksBarHidden": "Bookmarks bar hidden",
+    "siteDataCleared": "Cookies and site data cleared for this site"
   },
   "greeting": {
     "morning": "Good morning",
@@ -572,5 +588,40 @@
     "search": "Search"
   },
   "exported": "Settings saved to {path}",
-  "importFailed": "These settings could not be read."
+  "importFailed": "These settings could not be read.",
+  "context": {
+    "openLinkInNewTab": "Open link in new tab",
+    "openLinkInNewPrivateTab": "Open link in new private tab",
+    "copyLinkAddress": "Copy link address",
+    "openImageInNewTab": "Open image in new tab",
+    "copyImageAddress": "Copy image address",
+    "saveImageAs": "Save image as…",
+    "copy": "Copy",
+    "searchWebFor": "Search web for “{query}”",
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "paste": "Paste",
+    "selectAll": "Select all",
+    "back": "Back",
+    "forward": "Forward",
+    "reload": "Reload",
+    "viewSource": "View page source",
+    "print": "Print…",
+    "inspect": "Inspect element"
+  },
+  "siteInfo": {
+    "connectionSecure": "Connection is secure",
+    "connectionSecureDesc": "Information you share with this site (e.g. passwords or payment details) is encrypted and private.",
+    "connectionInsecure": "Connection is not secure",
+    "connectionInsecureDesc": "Your connection to this site is not encrypted. Sensitive information could be seen by others.",
+    "internalPage": "Hinterland internal page",
+    "internalPageDesc": "This is a built-in and secure internal Hinterland browser page.",
+    "protectionsHeader": "Active privacy protections",
+    "shieldTracking": "Tracker & ad blocking",
+    "shieldHttps": "HTTPS connection protection",
+    "active": "Active",
+    "clearData": "Clear cookies & site data",
+    "privacySettings": "Privacy settings"
+  }
 }
