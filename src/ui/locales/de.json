@@ -70,7 +70,9 @@
     "mute": "Tab stummschalten",
     "unmute": "Tab ton einschalten",
     "closeOthers": "Andere Tabs schließen",
+    "closeLeft": "Tabs nach links schließen",
     "closeRight": "Tabs nach rechts schließen",
+    "reloadTab": "Tab neu laden",
     "reopenClosed": "Geschlossenen Tab wieder öffnen",
     "close": "Tab schließen",
     "find": "In Seite suchen",
@@ -176,6 +178,9 @@
       "fullscreen": "Vollbild",
       "sidebar": "Menü öffnen",
       "commandPalette": "Befehlspalette",
+      "downloads": "Downloads öffnen",
+      "duplicateTab": "Tab duplizieren",
+      "muteTab": "Tab stummschalten/aktivieren",
       "reopen": "Geschlossenen Tab öffnen"
     }
   },

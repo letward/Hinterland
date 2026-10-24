@@ -391,7 +391,13 @@ function aboutPage() {
       );
 
       api().app.info().then((info) => {
+        const logo = el('img', {
+          class: 'aboutLogo',
+          src: 'hinterland://assets/icon.png',
+          alt: info.name,
+        });
         container.replaceChildren(
+          logo,
           head(`${info.name} ${info.version}`, t('about.tagline')),
           card,
         );

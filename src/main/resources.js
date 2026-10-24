@@ -18,6 +18,7 @@ export const PAGE_PRELOAD = join(PRELOAD_ROOT, 'page.cjs');
 export function appIconPath() {
   const candidates = [
     join(ROOT, 'build', 'icons', 'icon.png'),
+    join(ROOT, 'build', 'icons', 'icon.ico'),
     join(ROOT, 'src', 'ui', 'assets', 'icon.png'),
   ];
   return candidates.find((candidate) => existsSync(candidate)) ?? '';

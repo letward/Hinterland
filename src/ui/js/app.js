@@ -276,6 +276,16 @@ function handleShortcut(action) {
   if (action === 'find') return openFind();
   if (action === 'sidebar') return openMainMenu();
   if (action === 'commandPalette') return openCommandPalette();
+  if (action === 'downloads') return openDownloads();
+  if (action === 'duplicateTab') {
+    if (activeTab()) api().tabs.duplicate(activeTab().id);
+    return undefined;
+  }
+  if (action === 'muteTab') {
+    const cur = activeTab();
+    if (cur) api().tab.mute(cur.id, !cur.muted);
+    return undefined;
+  }
   if (action === 'stop') {
     api().tab.stop(activeTab()?.id);
     return syncToolbar();
@@ -322,6 +332,25 @@ function wireShortcuts() {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 't' && !inField) {
       event.preventDefault();
       api().tabs.create({ url: 'hinterland://newtab/' });
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'd' && !inField) {
+      event.preventDefault();
+      if (activeTab()) api().tabs.duplicate(activeTab().id);
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'j' && !inField) {
+      event.preventDefault();
+      openDownloads();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'm' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) api().tab.mute(cur.id, !cur.muted);
       return;
     }
 

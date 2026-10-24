@@ -5,7 +5,7 @@ import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { NEW_TAB_URL } from './constants.js';
 
-const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette']);
+const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette', 'downloads']);
 
 function normaliseCombo(combo) {
   const parts = String(combo ?? '')
@@ -56,6 +56,16 @@ function run(action) {
     case 'closeTab':
       if (tab) tabs.close(tab.id);
       return true;
+    case 'duplicateTab':
+      if (tab) tabs.duplicate(tab.id);
+      return true;
+    case 'muteTab':
+      if (tab) {
+        tab.muted = !tab.muted;
+        tab.contents.setAudioMuted(tab.muted);
+        surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
+      }
+      return true;
     case 'reopenTab':
       tabs.reopenClosed();
       return true;
@@ -96,6 +106,16 @@ function run(action) {
       return true;
     case 'fullscreen':
       surface.toggleFullScreen();
+      return true;
+    case 'duplicateTab':
+      if (tab) tabs.duplicate(tab.id);
+      return true;
+    case 'muteTab':
+      if (tab) {
+        tab.muted = !tab.muted;
+        tab.contents.setAudioMuted(tab.muted);
+        surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
+      }
       return true;
     default:
       if (UI_ACTIONS.has(action)) {

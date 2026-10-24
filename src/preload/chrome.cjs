@@ -77,6 +77,7 @@ const api = {
     cycle: (delta) => ipcRenderer.invoke('tabs:cycle', delta),
     reopen: () => ipcRenderer.invoke('tabs:reopen'),
     closeOthers: (id) => ipcRenderer.invoke('tabs:closeOthers', id),
+    closeLeft: (id) => ipcRenderer.invoke('tabs:closeLeft', id),
     closeRight: (id) => ipcRenderer.invoke('tabs:closeRight', id),
     closeAll: () => ipcRenderer.invoke('tabs:closeAll'),
     confirmClose: (id, answer) => ipcRenderer.invoke('tab:confirmClose', id, answer),

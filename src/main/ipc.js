@@ -214,6 +214,7 @@ export function installIpc() {
     return tabs.snapshot();
   });
   handle('tabs:closeRight', (id) => tabs.closeRight(id));
+  handle('tabs:closeLeft', (id) => tabs.closeLeft(id));
   handle('tabs:closeAll', () => tabs.closeAll());
 
   /* ------------------------------------------------------------- tab groups */

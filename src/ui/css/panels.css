@@ -393,6 +393,17 @@
   padding: 18px 22px 40px;
 }
 
+.aboutLogo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: block;
+  margin: 0 0 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .pageHead {
   margin: 0 0 4px;
   font-size: 1.35em;

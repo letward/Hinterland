@@ -83,6 +83,11 @@ export function openTabMenu(tab, x, y) {
       card.append(
         section('menu.page'),
         row({
+          iconName: 'reload',
+          title: t('menu.reloadTab'),
+          onSelect: () => api().tab.reload(tab.id),
+        }),
+        row({
           iconName: 'copy',
           title: t('menu.copyLink'),
           onSelect: () => api().tab.copyUrl(tab.id),
@@ -151,6 +156,11 @@ export function openTabMenu(tab, x, y) {
           iconName: 'minus',
           title: t('menu.closeOthers'),
           onSelect: () => api().tabs.closeOthers(tab.id),
+        }),
+        row({
+          iconName: 'minus',
+          title: t('menu.closeLeft'),
+          onSelect: () => api().tabs.closeLeft(tab.id),
         }),
         row({
           iconName: 'minus',

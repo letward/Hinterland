@@ -11,7 +11,7 @@ Hinterland ist ein auf Electron basierender Browser (Chromium-Integration über 
 | Hauptprozess | `src/main/*.js` | App-Lebenzyklus, Auto-Updater, IPC, Sicherheit, Fenster |
 | Preload | `src/preload/chrome.cjs` | Brückentypen zum Renderer (inkl. `app.checkForUpdates`) |
 | UI / Renderer | `src/ui/*` | Fenster, Tabs, Gruppen, Menü, Locales |
-| Build | `build/icons/icon.png`, `package.json` (`build` block) | electron-builder Konfiguration (NSIS, GitHub Publish) |
+| Build | `build/icons/icon.ico`, `build/icons/icon.png`, `package.json` (`build` block) | electron-builder Konfiguration (NSIS, GitHub Publish) |
 | CI / Release | `.github/workflows/release.yml` | Tag-getriebener Build + Publish auf GitHub Releases |
 | CI / PR-Checks | `.github/workflows/pr-checks.yml` | `npm ci` + `npm run check` an PRs |
 | Security | `.github/workflows/codeql.yml`, `SECURITY.md`, `CODEOWNERS`, `dependabot.yml` | CodeQL, Dependabot, Sicherheitsrichtlinie |

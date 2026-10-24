@@ -70,7 +70,9 @@
     "mute": "Mute tab",
     "unmute": "Unmute tab",
     "closeOthers": "Close other tabs",
+    "closeLeft": "Close tabs to the left",
     "closeRight": "Close tabs to the right",
+    "reloadTab": "Reload tab",
     "reopenClosed": "Reopen closed tab",
     "close": "Close tab",
     "find": "Find on page",
@@ -176,6 +178,9 @@
       "fullscreen": "Full screen",
       "sidebar": "Open the menu",
       "commandPalette": "Command palette",
+      "downloads": "Open downloads",
+      "duplicateTab": "Duplicate tab",
+      "muteTab": "Mute or unmute tab",
       "reopen": "Reopen closed tab"
     }
   },

@@ -46,6 +46,9 @@ export const DEFAULT_SHORTCUTS = {
   sidebar: 'Ctrl+Shift+S',
   privateTab: 'Ctrl+Shift+N',
   commandPalette: 'Ctrl+Shift+P',
+  downloads: 'Ctrl+J',
+  duplicateTab: 'Ctrl+Shift+D',
+  muteTab: 'Ctrl+M',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

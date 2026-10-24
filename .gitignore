@@ -8,7 +8,6 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
-build/icons/
 
 # App data (created at runtime, not in repo)
 settings.json
