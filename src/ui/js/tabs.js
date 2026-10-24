@@ -160,7 +160,18 @@ function buildTab(tab) {
   node.append(el('span', { class: 'tabTitle', text: tab.title || prettyUrl(tab.url) }));
 
   if (tab.audible) {
-    node.append(el('span', { class: 'tabSound', html: icon(tab.muted ? 'volumeOff' : 'volume') }));
+    const soundBtn = el('button', {
+      class: 'tabSound',
+      type: 'button',
+      html: icon(tab.muted ? 'volumeOff' : 'volume'),
+      title: t(tab.muted ? 'menu.unmute' : 'menu.mute'),
+      'aria-label': t(tab.muted ? 'menu.unmute' : 'menu.mute'),
+    });
+    soundBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      api().tab.mute(tab.id, !tab.muted);
+    });
+    node.append(soundBtn);
   }
 
   const close = el('button', { class: 'tabClose', type: 'button', html: icon('close'), title: 'Close' });
@@ -179,7 +190,7 @@ function buildTab(tab) {
       return;
     }
     if (event.button !== 0) return;
-    if (event.target.closest('.tabClose, .groupClose, .groupToggle')) return;
+    if (event.target.closest('.tabClose, .groupClose, .groupToggle, .tabSound')) return;
     if (state.activeId === tab.id) return;
     api().tabs.activate(tab.id);
   });

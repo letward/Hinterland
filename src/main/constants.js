@@ -45,6 +45,7 @@ export const DEFAULT_SHORTCUTS = {
   fullscreen: 'F11',
   sidebar: 'Ctrl+Shift+S',
   privateTab: 'Ctrl+Shift+N',
+  commandPalette: 'Ctrl+Shift+P',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

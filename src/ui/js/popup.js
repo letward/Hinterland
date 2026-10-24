@@ -47,7 +47,9 @@ export function openPopup({ key = '', align = 'stretch', onClose, render }) {
   closePopup();
 
   host.hidden = false;
-  card = el('div', { class: align === 'right' ? 'popupCard menuCard' : 'popupCard' });
+  card = el('div', {
+    class: align === 'right' ? 'popupCard menuCard' : align === 'center' ? 'popupCard paletteCard' : 'popupCard',
+  });
   host.append(card);
   currentKey = key;
   closeHandler = typeof onClose === 'function' ? onClose : null;

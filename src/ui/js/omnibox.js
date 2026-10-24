@@ -12,6 +12,7 @@ let form = null;
 let iconSlot = null;
 let clearButton = null;
 let starButton = null;
+let zoomButton = null;
 let progress = null;
 let items = [];
 let selected = -1;
@@ -28,6 +29,7 @@ export function bindOmnibox(nodes) {
   iconSlot = nodes.icon;
   clearButton = nodes.clear;
   starButton = nodes.star;
+  zoomButton = nodes.zoom;
   progress = nodes.progress;
 
   form.addEventListener('submit', (event) => {
@@ -85,6 +87,13 @@ export function bindOmnibox(nodes) {
   });
 
   starButton.addEventListener('click', () => window.dispatchEvent(new CustomEvent('hinterland:bookmark')));
+
+  if (zoomButton) {
+    zoomButton.addEventListener('click', () => {
+      const tab = activeTab();
+      if (tab) api().tab.zoom(tab.id, 1);
+    });
+  }
 }
 
 function move(delta) {
@@ -231,6 +240,16 @@ export function syncOmni(tab) {
   clearButton.hidden = editing || !shown;
   starButton.hidden = !shown;
   starButton.classList.toggle('on', isBookmarked(url));
+  if (zoomButton) {
+    const factor = Number(tab?.zoom) || 1;
+    if (Math.abs(factor - 1) > 0.02) {
+      zoomButton.hidden = false;
+      zoomButton.textContent = `${Math.round(factor * 100)}%`;
+      zoomButton.title = t('menu.resetZoom');
+    } else {
+      zoomButton.hidden = true;
+    }
+  }
   if (!editing) input.value = shown;
 }
 

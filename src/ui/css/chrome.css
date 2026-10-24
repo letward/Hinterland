@@ -211,6 +211,19 @@ html[data-tabbar="bottom"] .tabstrip {
   color: var(--textDim);
   display: grid;
   place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--anim), color var(--anim);
+}
+
+.tabSound:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
 }
 
 .tabSound svg {
@@ -603,6 +616,33 @@ html[data-closeButton="always"] .tabClose {
 
 .omniInput::placeholder {
   color: var(--textDim);
+}
+
+.omniZoom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceHover);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+  transition: background var(--anim), color var(--anim);
+}
+
+.omniZoom:hover {
+  background: var(--surfaceAlt);
+  color: var(--accent);
+}
+
+.omniZoom[hidden] {
+  display: none;
 }
 
 .omniClear,

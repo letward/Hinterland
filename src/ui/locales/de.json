@@ -70,6 +70,8 @@
     "mute": "Tab stummschalten",
     "unmute": "Tab ton einschalten",
     "closeOthers": "Andere Tabs schließen",
+    "closeRight": "Tabs nach rechts schließen",
+    "reopenClosed": "Geschlossenen Tab wieder öffnen",
     "close": "Tab schließen",
     "find": "In Seite suchen",
     "print": "Drucken",
@@ -79,6 +81,7 @@
     "insecure": "Diese Verbindung ist nicht sicher",
     "manageExtensions": "Erweiterungen verwalten",
     "checkForUpdates": "Nach Updates suchen",
+    "commandPalette": "Befehlspalette",
     "group": "Gruppen",
     "groupNew": "Neue Gruppe",
     "groupNamePrompt": "Gruppenname",
@@ -96,6 +99,13 @@
   },
   "find": {
     "placeholder": "In Seite suchen"
+  },
+  "commandPalette": {
+    "placeholder": "Befehl oder Tab-Namen eingeben...",
+    "noResults": "Keine passenden Befehle oder Tabs",
+    "categoryCommand": "Befehl",
+    "categoryTab": "Tab",
+    "activeTab": "Aktiv"
   },
   "confirm": {
     "closeTitle": "Tab schließen",
@@ -165,6 +175,7 @@
       "zoomReset": "Zoom zurücksetzen",
       "fullscreen": "Vollbild",
       "sidebar": "Menü öffnen",
+      "commandPalette": "Befehlspalette",
       "reopen": "Geschlossenen Tab öffnen"
     }
   },

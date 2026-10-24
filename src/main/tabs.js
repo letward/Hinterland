@@ -170,6 +170,16 @@ export class TabManager extends EventEmitter {
     }
   }
 
+  async closeRight(id) {
+    const index = this.indexOf(id);
+    if (index === -1) return false;
+    const toClose = this.tabs.slice(index + 1).filter((tab) => !tab.pinned);
+    for (const tab of toClose) {
+      await this.close(tab.id, { force: true });
+    }
+    return true;
+  }
+
   snapshot() {
     return {
       tabs: this.tabs.map((tab) => tab.snapshot()),

@@ -70,6 +70,8 @@
     "mute": "Mute tab",
     "unmute": "Unmute tab",
     "closeOthers": "Close other tabs",
+    "closeRight": "Close tabs to the right",
+    "reopenClosed": "Reopen closed tab",
     "close": "Close tab",
     "find": "Find on page",
     "print": "Print",
@@ -79,6 +81,7 @@
     "insecure": "This connection is not secure",
     "manageExtensions": "Manage extensions",
     "checkForUpdates": "Check for updates",
+    "commandPalette": "Command palette",
     "group": "Groups",
     "groupNew": "New group",
     "groupNamePrompt": "Group name",
@@ -96,6 +99,13 @@
   },
   "find": {
     "placeholder": "Find on page"
+  },
+  "commandPalette": {
+    "placeholder": "Type a command or tab name...",
+    "noResults": "No matching commands or tabs",
+    "categoryCommand": "Command",
+    "categoryTab": "Tab",
+    "activeTab": "Active"
   },
   "confirm": {
     "closeTitle": "Close tab",
@@ -165,6 +175,7 @@
       "zoomReset": "Reset zoom",
       "fullscreen": "Full screen",
       "sidebar": "Open the menu",
+      "commandPalette": "Command palette",
       "reopen": "Reopen closed tab"
     }
   },

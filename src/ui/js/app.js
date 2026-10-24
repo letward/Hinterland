@@ -7,10 +7,11 @@ import { bindShell, openPopup, closePopup, isOpen } from './popup.js';
 import { closeModal, isModalOpen } from './modal.js';
 import { bindTabs, renderTabs, updateTab, setActive, activeTab } from './tabs.js';
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
-import { openMainMenu, openTabMenu, openOmniMenu, openExtensionsButton, closeMenus } from './menu.js';
+import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
 import { openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
+import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
 import { bindFind, openFind, closeFind, isFindOpen, applyFindResult } from './find.js';
 import { bindShelf, onDownloadNew, onDownloadProgress, onDownloadDone } from './downloads.js';
@@ -65,6 +66,7 @@ function bind() {
     icon: $('#omniIcon'),
     clear: $('#omniClear'),
     star: $('#omniStar'),
+    zoom: $('#omniZoom'),
     progress: $('#omniProgress'),
   });
   bindFind({
@@ -107,6 +109,12 @@ function bind() {
     api().window.maximize();
   });
 
+  $('#tabstrip').addEventListener('contextmenu', (event) => {
+    if (event.target.closest('.tab, .groupHeader, .windowButtons, .tabAction')) return;
+    event.preventDefault();
+    openTabstripMenu();
+  });
+
   $('#newTab').addEventListener('click', () => api().tabs.create({ url: 'hinterland://newtab/' }));
   $('#back').addEventListener('click', () => api().tab.back(activeTab()?.id));
   $('#forward').addEventListener('click', () => api().tab.forward(activeTab()?.id));
@@ -140,6 +148,7 @@ function bind() {
   window.addEventListener('hinterland:opensettings', (event) => openSettings(event.detail?.section ?? 'general'));
   window.addEventListener('hinterland:find', () => openFind());
   window.addEventListener('hinterland:bookmark', () => toggleBookmark());
+  window.addEventListener('hinterland:commandpalette', () => openCommandPalette());
 
   $('#extensionToolbar').addEventListener('click', async (event) => {
     const button = event.target.closest('.extensionButton');
@@ -266,6 +275,7 @@ function handleShortcut(action) {
   if (action === 'shortcuts') return openShortcuts();
   if (action === 'find') return openFind();
   if (action === 'sidebar') return openMainMenu();
+  if (action === 'commandPalette') return openCommandPalette();
   if (action === 'stop') {
     api().tab.stop(activeTab()?.id);
     return syncToolbar();
@@ -283,6 +293,36 @@ function wireShortcuts() {
       if (isFindOpen()) return closeFind();
       if (inField) event.target.blur();
       return undefined;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'p') {
+      event.preventDefault();
+      openCommandPalette();
+      return;
+    }
+
+    if (event.key === 'F1' && !inField) {
+      event.preventDefault();
+      openCommandPalette();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 't') {
+      event.preventDefault();
+      api().tabs.reopen();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      api().tabs.create({ url: 'hinterland://newtab/', privateMode: true });
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 't' && !inField) {
+      event.preventDefault();
+      api().tabs.create({ url: 'hinterland://newtab/' });
+      return;
     }
 
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'l') {

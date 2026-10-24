@@ -51,6 +51,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'shortcuts' } })),
         }),
         row({
+          iconName: 'search',
+          title: t('menu.commandPalette'),
+          subtitle: 'Ctrl+Shift+P',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:commandpalette')),
+        }),
+        row({
           iconName: 'refresh',
           title: t('menu.checkForUpdates'),
           onSelect: async () => {
@@ -145,6 +151,16 @@ export function openTabMenu(tab, x, y) {
           iconName: 'minus',
           title: t('menu.closeOthers'),
           onSelect: () => api().tabs.closeOthers(tab.id),
+        }),
+        row({
+          iconName: 'minus',
+          title: t('menu.closeRight'),
+          onSelect: () => api().tabs.closeRight(tab.id),
+        }),
+        row({
+          iconName: 'clock',
+          title: t('menu.reopenClosed'),
+          onSelect: () => api().tabs.reopen(),
         }),
         row({
           iconName: 'close',
@@ -276,6 +292,27 @@ export function openExtensionsButton() {
           }),
         );
       });
+    },
+  });
+}
+
+export function openTabstripMenu() {
+  openPopup({
+    key: 'tabstripmenu',
+    align: 'left',
+    render: (card) => {
+      card.append(
+        row({
+          iconName: 'plus',
+          title: t('menu.newTab'),
+          onSelect: () => api().tabs.create({ url: 'hinterland://newtab/' }),
+        }),
+        row({
+          iconName: 'clock',
+          title: t('menu.reopenClosed'),
+          onSelect: () => api().tabs.reopen(),
+        }),
+      );
     },
   });
 }

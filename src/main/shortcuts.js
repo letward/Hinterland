@@ -5,7 +5,7 @@ import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { NEW_TAB_URL } from './constants.js';
 
-const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts']);
+const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette']);
 
 function normaliseCombo(combo) {
   const parts = String(combo ?? '')
