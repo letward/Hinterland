@@ -74,9 +74,10 @@ function bind() {
     input: $('#omniInput'),
     icon: $('#omniIcon'),
     reader: $('#omniReader'),
+    zoom: $('#omniZoom'),
+    qr: $('#omniQr'),
     clear: $('#omniClear'),
     star: $('#omniStar'),
-    zoom: $('#omniZoom'),
     progress: $('#omniProgress'),
   });
   bindFind({
@@ -203,14 +204,17 @@ async function renderExtensions() {
         'aria-label': info?.name ?? entry.name,
       });
       let iconHtml = icon('puzzle');
-      if (info?.icons) {
+      if (entry.iconUrl || info?.iconUrl) {
+        const src = entry.iconUrl || info?.iconUrl;
+        iconHtml = `<img src="${src}" alt="" style="width:16px;height:16px;border-radius:3px;display:block" />`;
+      } else if (info?.icons) {
         const sizes = Object.keys(info.icons).map((k) => Number(k)).sort((a, b) => a - b);
         const best = sizes[sizes.length - 1];
-        iconHtml = `<img src="${info.icons[String(best)]}" alt="" style="width:14px;height:14px;border-radius:3px" />`;
+        iconHtml = `<img src="${info.icons[String(best)]}" alt="" style="width:16px;height:16px;border-radius:3px;display:block" />`;
       } else if (info?.action?.defaultIcon) {
         const icons = info.action.defaultIcon;
         const src = typeof icons === 'string' ? icons : icons[Object.keys(icons).pop()];
-        iconHtml = `<img src="${src}" alt="" style="width:14px;height:14px;border-radius:3px" />`;
+        iconHtml = `<img src="${src}" alt="" style="width:16px;height:16px;border-radius:3px;display:block" />`;
       }
       button.innerHTML = iconHtml;
       host.append(button);

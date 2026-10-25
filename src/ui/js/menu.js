@@ -5,6 +5,7 @@ import { icon } from './icons.js';
 import { currentTab, currentSettings } from './state.js';
 import { allTabs } from './tabs.js';
 import { toast } from './toast.js';
+import { openQrCode } from './panels.js';
 
 const api = () => window.hinterland;
 
@@ -152,6 +153,14 @@ export function openMainMenu() {
           },
         }),
         row({
+          iconName: 'qr',
+          title: t('menu.qrCode'),
+          onSelect: () => {
+            const cur = currentTab();
+            if (cur) openQrCode(cur.url, cur.title);
+          },
+        }),
+        row({
           iconName: 'cpu',
           title: t('menu.taskManager'),
           subtitle: 'Shift+Esc',
@@ -223,6 +232,11 @@ export function openTabMenu(tab, x, y) {
           iconName: 'camera',
           title: t('menu.capturePage'),
           onSelect: () => api().tab.capture(tab.id, { saveAs: false }),
+        }),
+        row({
+          iconName: 'qr',
+          title: t('menu.qrCode'),
+          onSelect: () => openQrCode(tab.url, tab.title),
         }),
         row({
           iconName: 'pip',
@@ -328,6 +342,14 @@ export function openTabMenu(tab, x, y) {
           iconName: 'minus',
           title: t('menu.closeDuplicates'),
           onSelect: () => api().tabs.closeDuplicates(),
+        }),
+        row({
+          iconName: 'moon',
+          title: t('menu.sleepAllInactive'),
+          onSelect: async () => {
+            const count = await api().tabs.sleepOthers();
+            if (count > 0) toast(t('toast.sleptOthers', { count }), 'info');
+          },
         }),
         row({
           iconName: 'bookmark',
@@ -511,7 +533,8 @@ export function openExtensionsButton() {
         for (const entry of list.slice(0, 8)) {
           card.append(
             row({
-              iconName: 'puzzle',
+              iconHtml: entry.iconUrl ? `<img src="${entry.iconUrl}" alt="" style="width:16px;height:16px;border-radius:3px;display:block" />` : null,
+              iconName: entry.iconUrl ? null : 'puzzle',
               title: entry.name,
               subtitle: entry.error ? t('extensions.broken') : `v${entry.version}`,
               aside: entry.enabled ? t('extensions.on') : t('extensions.off'),
@@ -588,6 +611,14 @@ export function openTabstripMenu() {
           iconName: 'minus',
           title: t('menu.closeDuplicates'),
           onSelect: () => api().tabs.closeDuplicates(),
+        }),
+        row({
+          iconName: 'moon',
+          title: t('menu.sleepAllInactive'),
+          onSelect: async () => {
+            const count = await api().tabs.sleepOthers();
+            if (count > 0) toast(t('toast.sleptOthers', { count }), 'info');
+          },
         }),
         row({
           iconName: 'volumeOff',

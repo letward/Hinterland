@@ -1,4 +1,4 @@
-import { ipcMain, dialog, shell, app, clipboard, BrowserWindow } from 'electron';
+import { ipcMain, dialog, shell, app, clipboard, BrowserWindow, nativeImage } from 'electron';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { NEW_TAB_URL, DEFAULT_SHORTCUTS } from './constants.js';
@@ -82,6 +82,20 @@ export function installIpc() {
   });
 
   handle('app:getClipboardText', () => clipboard.readText());
+
+  handle('app:copyImage', (dataUrl) => {
+    if (!dataUrl || typeof dataUrl !== 'string') return false;
+    try {
+      const img = nativeImage.createFromDataURL(dataUrl);
+      if (!img.isEmpty()) {
+        clipboard.writeImage(img);
+        return true;
+      }
+    } catch (e) {
+      console.warn('[Hinterland] Error copying image to clipboard:', e?.message ?? e);
+    }
+    return false;
+  });
 
   /* -------------------------------------------------------- task manager & metrics */
   handle('app:metrics', () => {
@@ -286,6 +300,8 @@ export function installIpc() {
     return true;
   });
   handle('tabs:sleepOthers', (id) => tabs.sleepOthers(id));
+  handle('tabs:memorySaverStats', () => tabs.getMemorySaverStats());
+  handle('tabs:sleepInactive', (delay) => tabs.sleepInactive(delay));
   handle('tabs:reloadAll', () => {
     for (const tab of tabs.list) {
       tab.contents.reload();
@@ -529,7 +545,13 @@ export function installIpc() {
     }
 
     try {
-      const ok = await tab.contents.executeJavaScript(`(${inPageReaderScript.toString()})()`);
+      const prefs = {
+        theme: settings.value('reader.theme') || 'sepia',
+        font: settings.value('reader.fontFamily') || 'serif',
+        size: Number(settings.value('reader.fontSize')) || 18,
+        width: settings.value('reader.contentWidth') || 'standard',
+      };
+      const ok = await tab.contents.executeJavaScript(`(${inPageReaderScript.toString()})(${JSON.stringify(prefs)})`);
       if (ok) {
         tab.readerActive = true;
         surface.send('tab:update', { ...tab.snapshot(), id: tab.id });

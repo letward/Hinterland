@@ -797,6 +797,34 @@
   color: #eb8880;
 }
 
+.extensionOptionRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.extensionCardIcon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 8px;
+  object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2, var(--surfaceAlt));
+  border: 1px solid var(--borderSoft);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.extensionCardIcon.fallback svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--textSecondary, var(--textDim));
+}
+
 /* ------------------------------------------------------------------- extension popup */
 
 .popupHeader {
@@ -1501,5 +1529,31 @@
   cursor: pointer;
   outline: none;
 }
+
+/* ------------------------------------------------------------------ qr code */
+
+.qrCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.qrBox {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
+  margin: 12px auto;
+  display: inline-block;
+}
+
+.qrCanvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 
 

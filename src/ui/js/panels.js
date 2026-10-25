@@ -133,7 +133,12 @@ function extensionRow(entry, reload) {
     reload();
   });
 
-  return el('div', { class: 'option' }, [
+  const iconEl = entry.iconUrl
+    ? el('img', { src: entry.iconUrl, alt: '', class: 'extensionCardIcon' })
+    : el('div', { class: 'extensionCardIcon fallback', html: icon('puzzle') });
+
+  return el('div', { class: 'option extensionOptionRow' }, [
+    iconEl,
     el('div', { class: 'optionText' }, [
       el('div', { class: 'optionLabel' }, [
         entry.name,
@@ -725,6 +730,17 @@ function taskManagerPage() {
           el('span', { text: `${t('taskManager.tabs')}: ` }),
           el('strong', { text: String(data.tabCount) }),
         ]);
+
+        const saverStats = await api().tabs.memorySaverStats?.();
+        const saverStat = el('div', { class: 'taskStat', title: t('taskManager.memorySaverTooltip') }, [
+          el('span', { text: `${t('taskManager.memorySaver')}: ` }),
+          el('strong', {
+            text: saverStats?.sleepingCount > 0
+              ? `${saverStats.sleepingCount} ${t('taskManager.sleepingTabs')} (~${saverStats.estimatedSavedMB} MB)`
+              : (saverStats?.enabled ? t('taskManager.active') : t('taskManager.inactive')),
+          }),
+        ]);
+
         const refreshBtn = el('button', {
           class: 'button',
           type: 'button',
@@ -742,7 +758,7 @@ function taskManagerPage() {
           },
         }, [el('span', { html: icon('moon') }), ` ${t('taskManager.sleepAll')}`]);
 
-        summaryCard.append(memStat, procStat, tabStat, sleepOthersBtn, refreshBtn);
+        summaryCard.append(memStat, procStat, tabStat, saverStat, sleepOthersBtn, refreshBtn);
 
         clear(list);
         let items = data.processes || [];
@@ -1721,3 +1737,5 @@ function tabStashPage() {
     },
   };
 }
+
+export { openQrCode } from './qrcode.js';

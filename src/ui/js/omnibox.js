@@ -5,6 +5,7 @@ import { get } from './store.js';
 import { openPopup, closePopup, isOpen, empty } from './popup.js';
 import { activeTab } from './tabs.js';
 import { toast } from './toast.js';
+import { openQrCode } from './qrcode.js';
 
 const api = () => window.hinterland;
 
@@ -15,6 +16,7 @@ let clearButton = null;
 let starButton = null;
 let zoomButton = null;
 let readerButton = null;
+let qrButton = null;
 let progress = null;
 let items = [];
 let selected = -1;
@@ -33,6 +35,7 @@ export function bindOmnibox(nodes) {
   starButton = nodes.star;
   zoomButton = nodes.zoom;
   readerButton = nodes.reader;
+  qrButton = nodes.qr;
   progress = nodes.progress;
 
   form.addEventListener('submit', (event) => {
@@ -113,6 +116,14 @@ export function bindOmnibox(nodes) {
     readerButton.addEventListener('click', () => {
       const tab = activeTab();
       if (tab) api().tab.readerMode(tab.id);
+    });
+  }
+
+  if (qrButton) {
+    qrButton.innerHTML = icon('qr');
+    qrButton.addEventListener('click', () => {
+      const tab = activeTab();
+      if (tab) openQrCode(tab.url, tab.title);
     });
   }
 }
@@ -307,6 +318,11 @@ export function syncOmni(tab) {
     readerButton.hidden = !isWeb;
     readerButton.classList.toggle('active', Boolean(tab?.readerActive));
     readerButton.title = t(tab?.readerActive ? 'menu.exitReader' : 'menu.enterReader');
+  }
+  if (qrButton) {
+    const isWeb = Boolean(url && (url.startsWith('http://') || url.startsWith('https://')));
+    qrButton.hidden = !isWeb;
+    qrButton.title = t('omni.qrCode');
   }
   if (!editing) input.value = shown;
 }

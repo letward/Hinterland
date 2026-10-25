@@ -78,6 +78,60 @@ function readManifest(directory) {
   }
 }
 
+function readIconDataUrl(directory, relativePath) {
+  if (!directory || !relativePath || typeof relativePath !== 'string') return null;
+  const fullPath = safeJoin(directory, relativePath);
+  if (!fullPath || !existsSync(fullPath)) return null;
+  try {
+    const ext = relativePath.toLowerCase().split('.').pop();
+    const mime = ext === 'svg' ? 'image/svg+xml' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const buffer = readFileSync(fullPath);
+    return `data:${mime};base64,${buffer.toString('base64')}`;
+  } catch {
+    return null;
+  }
+}
+
+function resolveIcons(directory, manifest) {
+  if (!manifest) return { icons: null, defaultIcon: null, iconUrl: null };
+  const rawIcons = manifest.icons;
+  const rawActionIcons = manifest.action?.default_icon;
+
+  const resolvedIcons = {};
+  if (rawIcons && typeof rawIcons === 'object') {
+    for (const [size, path] of Object.entries(rawIcons)) {
+      const dataUrl = readIconDataUrl(directory, path);
+      if (dataUrl) resolvedIcons[size] = dataUrl;
+    }
+  }
+
+  let resolvedActionIcon = null;
+  if (typeof rawActionIcons === 'string') {
+    resolvedActionIcon = readIconDataUrl(directory, rawActionIcons);
+  } else if (rawActionIcons && typeof rawActionIcons === 'object') {
+    resolvedActionIcon = {};
+    for (const [size, path] of Object.entries(rawActionIcons)) {
+      const dataUrl = readIconDataUrl(directory, path);
+      if (dataUrl) resolvedActionIcon[size] = dataUrl;
+    }
+  }
+
+  const allDataUrls = [
+    resolvedIcons['32'],
+    resolvedIcons['48'],
+    resolvedIcons['16'],
+    resolvedIcons['128'],
+    ...(typeof resolvedActionIcon === 'object' && resolvedActionIcon ? Object.values(resolvedActionIcon) : [resolvedActionIcon]),
+    ...Object.values(resolvedIcons),
+  ].filter(Boolean);
+
+  return {
+    icons: Object.keys(resolvedIcons).length ? resolvedIcons : null,
+    defaultIcon: resolvedActionIcon,
+    iconUrl: allDataUrls[0] ?? null,
+  };
+}
+
 export class ExtensionManager {
   constructor() {
     this.filePath = join(app.getPath('userData'), REGISTRY_FILE);
@@ -139,29 +193,73 @@ export class ExtensionManager {
       const id = entry.id || manifest.name.toLowerCase().replace(/[^a-z0-9]+/g, '');
       this.installed.set(id, { ...entry, id, bundled: false, name: manifest.name, version: manifest.version ?? '0' });
     }
-    await this.loadAll();
     this.enableBundledByDefault();
+    await this.loadAll();
   }
 
   async loadAll() {
     const enabled = this.enabledIds();
     const ses = defaultSession();
-    this.live.clear();
-    this.errors.clear();
+    const loadedExtensions = ses.extensions.getAllExtensions?.() ?? [];
+
+    for (const loaded of loadedExtensions) {
+      const entry = [...this.installed.values()].find((e) => e.path === loaded.path || this.live.get(e.id)?.id === loaded.id);
+      if (!entry || !enabled.has(entry.id)) {
+        try {
+          await ses.extensions.removeExtension(loaded.id);
+        } catch (error) {
+          console.warn('[Hinterland] Could not remove extension from session:', loaded.id, error?.message ?? error);
+        }
+        if (entry) {
+          this.live.delete(entry.id);
+          this.errors.delete(entry.id);
+        }
+      }
+    }
+
+    for (const [id, liveExt] of this.live.entries()) {
+      if (!enabled.has(id)) {
+        if (liveExt?.id) {
+          try {
+            await ses.extensions.removeExtension(liveExt.id);
+          } catch {}
+        }
+        this.live.delete(id);
+        this.errors.delete(id);
+      }
+    }
 
     for (const entry of this.installed.values()) {
       if (!enabled.has(entry.id)) continue;
+
+      const currentLive = this.live.get(entry.id);
+      const allNow = ses.extensions.getAllExtensions?.() ?? [];
+      const alreadyInSession = allNow.find((e) => e.path === entry.path || (currentLive && e.id === currentLive.id));
+
+      if (currentLive && alreadyInSession) {
+        this.errors.delete(entry.id);
+        continue;
+      }
+
+      if (alreadyInSession?.id) {
+        try {
+          await ses.extensions.removeExtension(alreadyInSession.id);
+        } catch {}
+      }
+
       try {
-const extension = await ses.extensions.loadExtension(entry.path, {
-        allowFileAccess: false,
-        observeWindowCreation: false,
-      });
+        const extension = await ses.extensions.loadExtension(entry.path, {
+          allowFileAccess: false,
+          observeWindowCreation: false,
+        });
         this.live.set(entry.id, extension);
+        this.errors.delete(entry.id);
       } catch (error) {
         this.errors.set(entry.id, error?.message ?? 'loadFailed');
         console.warn('[Hinterland] Extension could not be loaded.', entry.id, error?.message ?? error);
       }
     }
+
     this.surfaceChanged();
     return this.list();
   }
@@ -174,23 +272,39 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     const entry = this.installed.get(id);
     if (!entry) return false;
     const extension = this.live.get(id);
-    if (extension) {
+    if (extension?.reload) {
       try {
         extension.reload();
+        this.errors.delete(id);
         this.surfaceChanged();
         return true;
       } catch {
-        return this.loadOne(id);
+        /* fallback to clean unload & loadOne */
       }
     }
+    const ses = defaultSession();
+    if (extension?.id) {
+      try {
+        await ses.extensions.removeExtension(extension.id);
+      } catch {}
+    }
+    this.live.delete(id);
     return this.loadOne(id);
   }
 
   async loadOne(id) {
     const entry = this.installed.get(id);
     if (!entry) return false;
+    const ses = defaultSession();
+    const all = ses.extensions.getAllExtensions?.() ?? [];
+    const stale = all.find((e) => e.path === entry.path);
+    if (stale?.id) {
+      try {
+        await ses.extensions.removeExtension(stale.id);
+      } catch {}
+    }
     try {
-      const extension = await defaultSession().extensions.loadExtension(entry.path, {
+      const extension = await ses.extensions.loadExtension(entry.path, {
         allowFileAccess: false,
         observeWindowCreation: false,
       });
@@ -200,6 +314,7 @@ const extension = await ses.extensions.loadExtension(entry.path, {
       return true;
     } catch (error) {
       this.errors.set(id, error?.message ?? 'loadFailed');
+      this.surfaceChanged();
       return false;
     }
   }
@@ -213,6 +328,7 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     if (!entry) return null;
     const extension = this.live.get(id);
     const manifest = extension ? extension.manifest : readManifest(entry.path);
+    const iconData = resolveIcons(entry.path, manifest);
     return {
       id: entry.id,
       name: manifest?.name ?? entry.name,
@@ -225,9 +341,10 @@ const extension = await ses.extensions.loadExtension(entry.path, {
       action: manifest?.action ? {
         defaultTitle: manifest.action.default_title ?? '',
         defaultPopup: manifest.action.default_popup ?? null,
-        defaultIcon: manifest.action.default_icon ?? null,
+        defaultIcon: iconData.defaultIcon,
       } : null,
-      icons: manifest?.icons ?? null,
+      icons: iconData.icons,
+      iconUrl: iconData.iconUrl,
       permissions: manifest?.permissions ?? [],
       content_scripts: manifest?.content_scripts ?? [],
     };
@@ -362,24 +479,29 @@ const extension = await ses.extensions.loadExtension(entry.path, {
   }
 
   list() {
-    return [...this.installed.values()].map((entry) => ({
-      ...entry,
-      enabled: this.live.has(entry.id),
-      error: this.errors.get(entry.id) ?? null,
-      description: readDescription(entry.path),
-    }));
+    return [...this.installed.values()].map((entry) => {
+      const manifest = readManifest(entry.path);
+      const iconData = resolveIcons(entry.path, manifest);
+      return {
+        ...entry,
+        enabled: this.live.has(entry.id),
+        error: this.errors.get(entry.id) ?? null,
+        description: readDescription(entry.path),
+        iconUrl: iconData.iconUrl,
+      };
+    });
   }
 
   enableBundledByDefault() {
+    const isInitialized = settings.value('extensions.initialized');
     const enabled = new Set(settings.value('extensions.enabled'));
-    let changed = false;
-    for (const entry of this.installed.values()) {
-      if (entry.bundled && !enabled.has(entry.id)) {
-        enabled.add(entry.id);
-        changed = true;
+    if (!isInitialized || enabled.size === 0) {
+      for (const entry of this.installed.values()) {
+        if (entry.bundled) enabled.add(entry.id);
       }
+      settings.set('extensions.enabled', [...enabled]);
+      settings.set('extensions.initialized', true);
     }
-    if (changed) settings.set('extensions.enabled', [...enabled]);
   }
 }
 

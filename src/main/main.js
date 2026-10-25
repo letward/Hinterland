@@ -136,6 +136,7 @@ function wireTabs() {
   });
   tabs.on('detach', () => surface.stackViews());
   tabs.on('found', (payload) => surface.send('tab:found', payload));
+  tabs.on('toast', (data) => surface.send('toast', data));
   tabs.on('confirmClose', ({ tab, resolve }) => {
     askCloseTab(tab).then(resolve);
   });

@@ -66,10 +66,11 @@ export function section(labelKey) {
   return el('div', { class: 'popupSection', text: t(labelKey) });
 }
 
-export function row({ iconName, title, subtitle, aside, selected, onSelect, trailing }) {
+export function row({ iconName, iconHtml, title, subtitle, aside, selected, onSelect, trailing }) {
   const button = el('button', { class: `row${selected ? ' rowSelected' : ''}`, type: 'button' });
   button.addEventListener('click', () => onSelect?.(button));
-  if (iconName) button.append(el('span', { class: 'rowIcon', html: icon(iconName) }));
+  if (iconHtml) button.append(el('span', { class: 'rowIcon', html: iconHtml }));
+  else if (iconName) button.append(el('span', { class: 'rowIcon', html: icon(iconName) }));
   button.append(
     el('span', { class: 'rowBody' }, [
       el('span', { class: 'rowTitle', text: title }),

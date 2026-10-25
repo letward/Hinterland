@@ -4,6 +4,33 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.15.0] - 2026-10-25
+
+### Fixed
+- **Bundled Extensions Default Enablement & Lifecycle Fix**:
+  - Fixed an issue where bundled extensions (`Hinterland Focus`, `Hinterland Panel`, `Hinterland Pass`) defaulted to disabled and showed as "nicht geladen" (loadFailed) or could not be activated.
+  - Resolved session extension synchronization in `ExtensionManager`: cleanly removes extensions from Electron's session runtime via `session.extensions.removeExtension` upon disabling to prevent `Extension is already loaded` / `loadFailed` crashes on re-enable.
+  - Automatically activates bundled extensions by default on initial start while respecting manual user enable/disable selections across browser restarts.
+- **Dedicated Extension Symbols & Icon Rendering**:
+  - Created high-resolution, custom icons (16px, 32px, 48px, 128px) for all bundled extensions:
+    - `Hinterland Focus`: Sapphire and indigo focus target badge representing quiet reading mode.
+    - `Hinterland Panel`: Emerald and mint split panel layout badge representing distraction-free sidebar view.
+    - `Hinterland Pass`: Dedicated security shield and lock badge.
+  - Enhanced `ExtensionManager` with base64 data URI icon resolution (`resolveIcons`), allowing crisp rendering across the browser toolbar, extension popup, and extensions management modal.
+  - Added visual icon cards (`extensionCardIcon`) in the Extensions Manager (`#openExtensions`) for every installed extension.
+
+### Added
+- **Native Page QR-Code Generator (`openQrCode`)**:
+  - Share any webpage directly to a mobile device, smartphone, or tablet camera with 1 click without any external dependencies or third-party web requests.
+  - Pure in-browser QR matrix engine with Galois Field math, Reed-Solomon error correction, and optimal byte encoding.
+  - Interactive QR Modal with "Copy image", "Copy link", and "Download PNG" capabilities.
+  - Omnibox quick action button (`#omniQr`) on all web pages, Tab Context Menu, Main Menu, and Command Palette integration.
+- **Task Manager Memory Saver Statistics**:
+  - Live statistics in the Task Manager (`#openTaskManager`) tracking active sleeping tabs and estimated RAM savings in megabytes.
+  - "Sleep all inactive tabs" action in the main menu and tab context menu for instant resource reclamation.
+- **Test Suite**:
+  - Comprehensive unit test coverage in `sdk/test/extensionsAndQr.test.mjs` verifying extension icon sets, valid PNG headers, base64 resolution, default enablement, lifecycle toggling, and QR matrix generation.
+
 ## [1.14.0] - 2026-10-25
 
 ### Added

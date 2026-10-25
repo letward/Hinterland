@@ -17,6 +17,7 @@ export class TabManager extends EventEmitter {
     this.closedStack = [];
     this.filePath = join(app.getPath('userData'), SESSION_FILE);
     this.saveTimer = null;
+    this.memorySaverTimer = setInterval(() => this.checkMemorySaver(), 60000);
   }
 
   get list() {
@@ -52,6 +53,8 @@ export class TabManager extends EventEmitter {
     tab.on('key', (input) => this.emit('key', { tabId: tab.id, input }));
 
     tab.on('found', (result) => this.emit('found', { tabId: tab.id, result }));
+
+    tab.on('readerAction', (payload) => this.handleReaderAction(tab, payload));
 
     if (!background || !this.activeId) this.activate(tab.id);
     this.emit('list', this.snapshot());
@@ -112,6 +115,7 @@ export class TabManager extends EventEmitter {
   activate(id) {
     const tab = this.byId(id);
     if (!tab) return false;
+    tab.touch();
     if (tab.sleeping) {
       tab.wake();
     }
@@ -125,6 +129,80 @@ export class TabManager extends EventEmitter {
     this.emit('visibility', { tabId: id });
     this.scheduleSave();
     return true;
+  }
+
+  checkMemorySaver() {
+    if (!settings.value('advanced.memorySaver')) return 0;
+    const delayMinutes = Number(settings.value('advanced.memorySaverDelay')) || 20;
+    return this.sleepInactive(delayMinutes);
+  }
+
+  sleepInactive(delayMinutes = 20) {
+    const thresholdMs = Math.max(1, Number(delayMinutes) || 20) * 60 * 1000;
+    const now = Date.now();
+    let count = 0;
+
+    for (const tab of this.tabs) {
+      if (tab.id === this.activeId) continue;
+      if (tab.pinned || tab.audible || tab.privateMode || tab.sleeping) continue;
+      if (!tab.url || tab.url === 'about:blank' || tab.url.startsWith('hinterland://')) continue;
+      const lastActive = tab.lastActiveAt || tab.createdAt;
+      if (now - lastActive >= thresholdMs) {
+        if (tab.sleep()) count++;
+      }
+    }
+
+    if (count > 0) {
+      this.emit('list', this.snapshot());
+    }
+    return count;
+  }
+
+  getMemorySaverStats() {
+    const total = this.tabs.length;
+    const sleeping = this.tabs.filter((t) => t.sleeping).length;
+    const enabled = Boolean(settings.value('advanced.memorySaver'));
+    const delayMinutes = Number(settings.value('advanced.memorySaverDelay')) || 20;
+    const estimatedSavedMB = sleeping * 70;
+    return {
+      enabled,
+      delayMinutes,
+      sleepingCount: sleeping,
+      totalTabs: total,
+      estimatedSavedMB,
+    };
+  }
+
+  handleReaderAction(tab, payload) {
+    if (payload.action === 'savePrefs' && payload.prefs) {
+      if (payload.prefs.theme) settings.set('reader.theme', payload.prefs.theme);
+      if (payload.prefs.font) settings.set('reader.fontFamily', payload.prefs.font);
+      if (payload.prefs.size) settings.set('reader.fontSize', payload.prefs.size);
+      if (payload.prefs.width) settings.set('reader.contentWidth', payload.prefs.width);
+    } else if (payload.action === 'addToReadingList') {
+      const list = [...(settings.value('data.readingList') || [])];
+      const url = payload.url || tab.url;
+      const title = payload.title || tab.title;
+      const existing = list.findIndex((e) => e.url === url);
+      if (existing !== -1) {
+        list[existing].read = false;
+        list[existing].addedAt = Date.now();
+      } else {
+        list.unshift({
+          id: `rl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+          url,
+          title,
+          favicon: tab.favicon || '',
+          addedAt: Date.now(),
+          read: false,
+        });
+      }
+      settings.set('data.readingList', list);
+      this.emit('toast', { message: 'toast.addedToReadingList', kind: 'success' });
+    } else if (payload.action === 'exit') {
+      tab.readerActive = false;
+      this.emit('update', tab.snapshot());
+    }
   }
 
   sleep(id) {

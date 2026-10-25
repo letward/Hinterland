@@ -45,7 +45,8 @@
     "addEngine": "Suchmaschine hinzufügen",
     "addEngineDesc": "Öffnet die Einstellungen für das Suchverhalten.",
     "viewSiteInfo": "Website-Informationen anzeigen",
-    "keywordEngines": "Suchmaschinen & Kürzel"
+    "keywordEngines": "Suchmaschinen & Kürzel",
+    "qrCode": "QR-Code für diese Seite"
   },
   "menu": {
     "newTab": "Neuer Tab",
@@ -134,7 +135,10 @@
     "tabStash": "Tab-Stash & Arbeitsbereiche",
     "stashAllTabs": "Alle offenen Tabs sichern",
     "stashOtherTabs": "Andere Tabs sichern",
-    "pictureInPicture": "Bild-in-Bild"
+    "pictureInPicture": "Bild-in-Bild",
+    "qrCode": "QR-Code für Seite",
+    "qrCodeDesc": "Erzeuge einen scannbaren QR-Code, um diesen Tab auf dem Smartphone zu öffnen",
+    "sleepAllInactive": "Alle inaktiven Tabs schlafenlegen"
   },
   "find": {
     "placeholder": "In Seite suchen"
@@ -349,7 +353,11 @@
     "stashImported": "{count} Stash(es) erfolgreich importiert",
     "tabOpened": "Tab geöffnet",
     "zoomReset": "Zoomstufe auf 100% zurückgesetzt",
-    "permissionUpdated": "Website-Berechtigung aktualisiert"
+    "permissionUpdated": "Website-Berechtigung aktualisiert",
+    "copiedUrl": "Link in die Zwischenablage kopiert",
+    "failed": "Aktion konnte nicht ausgeführt werden",
+    "qrCopied": "QR-Code in die Zwischenablage kopiert",
+    "qrDownloaded": "QR-Code als PNG gespeichert"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -785,7 +793,12 @@
     "sleeping": "Schläft",
     "sleep": "Schlafen legen",
     "wake": "Aufwecken",
-    "endProcess": "Prozess beenden"
+    "endProcess": "Prozess beenden",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "memorySaver": "Speicherschoner",
+    "memorySaverTooltip": "Automatisches und manuelles Schlafenlegen inaktiver Tabs spart Arbeitsspeicher",
+    "sleepingTabs": "schlafende(r) Tab(s)"
   },
   "store": {
     "title": "Hinter Store",
@@ -911,5 +924,12 @@
     "export": "Als JSON exportieren",
     "delete": "Löschen",
     "deleteConfirm": "Möchtest du diesen Stash wirklich löschen:"
+  },
+  "qr": {
+    "title": "QR-Code für Seite",
+    "description": "Scanne diesen QR-Code mit der Smartphone- oder Tablet-Kamera, um den Link direkt zu öffnen.",
+    "copyImage": "Bild kopieren",
+    "copyLink": "Link kopieren",
+    "downloadPng": "PNG herunterladen"
   }
 }

@@ -53,6 +53,7 @@ export class Tab {
     this.openerId = options.openerId ?? null;
     this.groupId = options.groupId ?? null;
     this.createdAt = Date.now();
+    this.lastActiveAt = Date.now();
     this.error = null;
     this.unresponsive = false;
     this.attached = false;
@@ -135,6 +136,18 @@ export class Tab {
     });
 
     contents.on('found-in-page', (_event, result) => this.events.emit('found', result));
+
+    contents.on('console-message', (_event, level, message) => {
+      const text = typeof _event === 'object' && _event?.message ? _event.message : (typeof message === 'string' ? message : '');
+      if (text && text.startsWith('__HINTERLAND_READER_ACTION__:')) {
+        try {
+          const payload = JSON.parse(text.slice('__HINTERLAND_READER_ACTION__:'.length));
+          this.events.emit('readerAction', payload);
+        } catch (e) {
+          console.warn('[Hinterland] Error parsing reader action:', e);
+        }
+      }
+    });
 
     contents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
       if (code === -3) return;
@@ -227,6 +240,10 @@ export class Tab {
     };
   }
 
+  touch() {
+    this.lastActiveAt = Date.now();
+  }
+
   sleep() {
     if (this.sleeping || this.url === 'about:blank' || this.url.startsWith('hinterland://')) return false;
     this.sleeping = true;
@@ -241,6 +258,7 @@ export class Tab {
   wake() {
     if (!this.sleeping) return false;
     this.sleeping = false;
+    this.touch();
     const target = this.sleepingUrl || this.url;
     this.sleepingUrl = null;
     this.sleepingTitle = null;
@@ -249,6 +267,7 @@ export class Tab {
   }
 
   loadUrl(url) {
+    this.touch();
     const value = typeof url === 'string' && url ? url : NEW_TAB_URL;
     this.url = value;
     this.readerActive = false;

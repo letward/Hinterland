@@ -5,6 +5,7 @@ import { openPopup, closePopup, isOpen } from './popup.js';
 import { activeTab, allTabs } from './tabs.js';
 import { openMediaControls } from './menu.js';
 import { toast } from './toast.js';
+import { openQrCode } from './panels.js';
 
 const api = () => window.hinterland;
 
@@ -141,6 +142,16 @@ export function openCommandPalette() {
             run: () => { if (current) api().tabs.sleepOthers(current.id); },
           },
           {
+            id: 'sleepAllInactive',
+            title: t('menu.sleepAllInactive'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'moon',
+            run: async () => {
+              const count = await api().tabs.sleepOthers();
+              if (count > 0) toast(t('toast.sleptOthers', { count }), 'info');
+            },
+          },
+          {
             id: 'muteTab',
             title: current?.muted ? t('menu.unmute') : t('menu.mute'),
             category: t('commandPalette.categoryCommand'),
@@ -177,6 +188,14 @@ export function openCommandPalette() {
             shortcut: 'Ctrl+Alt+R',
             icon: 'reader',
             run: () => { if (current) api().tab.readerMode(current.id); },
+          },
+          {
+            id: 'qrCode',
+            title: t('menu.qrCode'),
+            subtitle: t('menu.qrCodeDesc'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'qr',
+            run: () => { if (current) openQrCode(current.url, current.title); },
           },
           {
             id: 'hardReload',

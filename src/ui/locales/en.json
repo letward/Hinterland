@@ -45,7 +45,8 @@
     "addEngine": "Add a search engine",
     "addEngineDesc": "Opens the settings so you can choose how searching works.",
     "viewSiteInfo": "View site information",
-    "keywordEngines": "Search engines & keywords"
+    "keywordEngines": "Search engines & keywords",
+    "qrCode": "Page QR code"
   },
   "menu": {
     "newTab": "New tab",
@@ -134,7 +135,10 @@
     "tabStash": "Tab Stash & Workspaces",
     "stashAllTabs": "Stash all open tabs",
     "stashOtherTabs": "Stash other tabs",
-    "pictureInPicture": "Picture-in-Picture"
+    "pictureInPicture": "Picture-in-Picture",
+    "qrCode": "Page QR code",
+    "qrCodeDesc": "Generate a scannable QR code to open this tab on your phone",
+    "sleepAllInactive": "Sleep all inactive tabs"
   },
   "find": {
     "placeholder": "Find on page"
@@ -349,7 +353,11 @@
     "stashImported": "{count} stash(es) imported successfully",
     "tabOpened": "Tab opened",
     "zoomReset": "Zoom level reset to 100%",
-    "permissionUpdated": "Site permission updated"
+    "permissionUpdated": "Site permission updated",
+    "copiedUrl": "Link copied to clipboard",
+    "failed": "Action could not be executed",
+    "qrCopied": "QR code copied to clipboard",
+    "qrDownloaded": "QR code saved as PNG"
   },
   "greeting": {
     "morning": "Good morning",
@@ -785,7 +793,12 @@
     "sleeping": "Sleeping",
     "sleep": "Put to sleep",
     "wake": "Wake up",
-    "endProcess": "End task"
+    "endProcess": "End task",
+    "active": "Active",
+    "inactive": "Inactive",
+    "memorySaver": "Memory Saver",
+    "memorySaverTooltip": "Automatic and manual sleeping of background tabs saves system RAM",
+    "sleepingTabs": "sleeping tab(s)"
   },
   "store": {
     "title": "Hinter Store",
@@ -911,5 +924,12 @@
     "export": "Export JSON",
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete"
+  },
+  "qr": {
+    "title": "Page QR Code",
+    "description": "Scan this QR code with your smartphone or tablet camera to open the link directly.",
+    "copyImage": "Copy image",
+    "copyLink": "Copy link",
+    "downloadPng": "Download PNG"
   }
 }

@@ -654,7 +654,7 @@ export const SCHEMA = [
   }),
 
   /* -------------------------------------------------------------- extensions */
-  option('extensions.enabled', 'multiselect', [], {
+  option('extensions.enabled', 'multiselect', ['hinterlandfocus', 'hinterlandpanel', 'hinterlandpass'], {
     labelKey: 'settings.extensions.enabled',
     descKey: 'settings.extensions.enabledDesc',
     section: 'extensions',
@@ -670,6 +670,7 @@ export const SCHEMA = [
     descKey: 'settings.extensions.allowUnpackedDesc',
     section: 'extensions',
   }),
+  option('extensions.initialized', 'bool', false),
   option('extensions.permissions', 'keyvalue', {}, {
     labelKey: 'settings.extensions.permissions',
     descKey: 'settings.extensions.permissionsDesc',

@@ -698,6 +698,7 @@ html[data-closeButton="always"] .tabClose {
 }
 
 .omniReader,
+.omniQr,
 .omniClear,
 .omniStar {
   display: grid;
@@ -715,6 +716,7 @@ html[data-closeButton="always"] .tabClose {
 }
 
 .omniReader svg,
+.omniQr svg,
 .omniClear svg,
 .omniStar svg {
   width: 13px;
@@ -722,6 +724,7 @@ html[data-closeButton="always"] .tabClose {
 }
 
 .omniReader:hover,
+.omniQr:hover,
 .omniClear:hover,
 .omniStar:hover {
   background: var(--surfaceHover);
@@ -734,6 +737,7 @@ html[data-closeButton="always"] .tabClose {
 }
 
 .omniReader[hidden],
+.omniQr[hidden],
 .omniClear[hidden],
 .omniStar[hidden] {
   display: none;
