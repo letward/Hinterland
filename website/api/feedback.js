@@ -6,7 +6,6 @@
 const REPO = process.env.GITHUB_REPO || 'letward/Hinterland';
 const TOKEN = process.env.GITHUB_TOKEN;
 
-// Simple in-memory rate limit (per instance). Good enough for hobby tier.
 const hits = new Map();
 function rateLimited(ip) {
   const now = Date.now();
@@ -19,7 +18,7 @@ function rateLimited(ip) {
   return entry.count > max;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -30,17 +29,15 @@ export default async function handler(req, res) {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (rateLimited(ip)) return res.status(429).json({ error: 'Too many requests' });
 
-  if (!TOKEN) return res.status(500).json({ error: 'Server not configured' });
+  if (!TOKEN) return res.status(500).json({ error: 'Server not configured (missing GITHUB_TOKEN)' });
 
-  let body = req.body;
-  if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-  body = body || {};
+  const body = req.body || {};
   const message = String(body.message || '').trim().slice(0, 2000);
   const email = String(body.email || '').trim().slice(0, 200);
 
   if (message.length < 5) return res.status(400).json({ error: 'Message too short' });
 
-  const title = `Website feedback: ${message.slice(0, 60)}${message.length > 60 ? '…' : ''}`;
+  const title = 'Website feedback: ' + message.slice(0, 60) + (message.length > 60 ? '…' : '');
   const issueBody = [
     '**Source:** Hinterland website feedback form',
     email ? `**Contact:** ${email}` : '',
@@ -70,4 +67,4 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: String(e) });
   }
-}
+};
