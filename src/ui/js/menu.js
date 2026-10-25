@@ -100,6 +100,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'readingList' } })),
         }),
         row({
+          iconName: 'store',
+          title: t('menu.store'),
+          subtitle: t('menu.storeDesc'),
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'store' } })),
+        }),
+        row({
           iconName: 'puzzle',
           title: t('menu.extensions'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'extensions' } })),
@@ -455,6 +461,13 @@ export function openExtensionsButton() {
           );
         }
         card.append(separator());
+        card.append(
+          row({
+            iconName: 'store',
+            title: t('menu.openStore'),
+            onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'store' } })),
+          }),
+        );
         card.append(
           row({
             iconName: 'gear',

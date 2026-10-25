@@ -5,6 +5,7 @@ import { openModal, closeModal } from './modal.js';
 import { toast } from './toast.js';
 import { get } from './store.js';
 import { currentTab } from './state.js';
+import { renderHinterStore } from './hinterStore.js';
 
 const api = () => window.hinterland;
 
@@ -23,6 +24,24 @@ function searchBox(onInput) {
   ]);
   input.addEventListener('input', () => onInput(input.value.trim()));
   return { field, input };
+}
+
+/* ------------------------------------------------------------- hinter store */
+
+export function openStore(initialTab = 'all') {
+  const activeId = initialTab.startsWith('store-') ? initialTab : `store-${initialTab}`;
+  openModal({
+    title: t('store.title'),
+    iconName: 'store',
+    activeId,
+    nav: [
+      { id: 'store-all', labelKey: 'store.all', icon: 'sparkles', render: () => renderHinterStore('all') },
+      { id: 'store-themes', labelKey: 'store.themes', icon: 'palette', render: () => renderHinterStore('themes') },
+      { id: 'store-extensions', labelKey: 'store.extensions', icon: 'puzzle', render: () => renderHinterStore('extensions') },
+      { id: 'store-installed', labelKey: 'store.installed', icon: 'check', render: () => renderHinterStore('installed') },
+      { id: 'store-studio', labelKey: 'store.studio', icon: 'brush', render: () => renderHinterStore('studio') },
+    ],
+  });
 }
 
 /* -------------------------------------------------------------- extensions */
@@ -57,6 +76,11 @@ function extensionsPage() {
       const actions = el('div', { class: 'actionRow', style: { marginBottom: '16px' } }, [
         el('button', {
           class: 'button primary',
+          type: 'button',
+          onclick: () => openStore('extensions'),
+        }, [el('span', { html: icon('store') }), ' Hinter Store']),
+        el('button', {
+          class: 'button',
           type: 'button',
           onclick: async () => {
             const result = await api().extensions.install();

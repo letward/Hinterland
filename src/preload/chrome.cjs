@@ -149,6 +149,19 @@ const api = {
     action: (id) => ipcRenderer.invoke('extensions:action', id),
   },
 
+  store: {
+    catalog: () => ipcRenderer.invoke('store:catalog'),
+    installExtension: (id, config) => ipcRenderer.invoke('store:installExtension', { id, config }),
+    uninstallExtension: (id) => ipcRenderer.invoke('store:uninstallExtension', id),
+    saveConfig: (id, config) => ipcRenderer.invoke('store:saveExtensionConfig', { id, config }),
+    getConfig: (id) => ipcRenderer.invoke('store:getExtensionConfig', id),
+    applyTheme: (theme) => ipcRenderer.invoke('store:applyTheme', theme),
+    installTheme: (theme, apply) => ipcRenderer.invoke('store:installTheme', { theme, apply }),
+    uninstallTheme: (id) => ipcRenderer.invoke('store:uninstallTheme', id),
+    exportTheme: (theme) => ipcRenderer.invoke('store:exportTheme', theme),
+    importThemeFile: () => ipcRenderer.invoke('store:importThemeFile'),
+  },
+
   history: {
     search: (query) => ipcRenderer.invoke('history:search', query),
     clear: () => ipcRenderer.invoke('history:clear'),

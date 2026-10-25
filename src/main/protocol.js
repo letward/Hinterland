@@ -14,6 +14,7 @@ const PAGE_ROOTS = {
   bookmarks: UI_ROOT,
   extensions: UI_ROOT,
   settings: UI_ROOT,
+  store: UI_ROOT,
 };
 
 const UI_SECURITY = [

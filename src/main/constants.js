@@ -5,8 +5,9 @@ export const SCHEME_ORIGIN = `${SCHEME}://app`;
 export const SCHEME_VERSION = 1;
 export const NEW_TAB_URL = `${SCHEME}://newtab/`;
 export const HISTORY_URL = `${SCHEME}://history/`;
-export const INTERNAL_HOSTS = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'assets', 'app', 'strings']);
-export const INTERNAL_PAGES = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings']);
+export const STORE_URL = `${SCHEME}://store/`;
+export const INTERNAL_HOSTS = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'assets', 'app', 'strings', 'store']);
+export const INTERNAL_PAGES = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'store']);
 
 export const PARTITION = '';
 export const PRIVATE_PARTITION = 'hinterland:private';

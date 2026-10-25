@@ -1,0 +1,778 @@
+/* ==========================================================================
+   Hinter Store — Stylesheet
+   ========================================================================== */
+
+.storeRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--text);
+  padding: 4px 2px 24px;
+}
+
+/* ------------------------------------------------------------- Hero Banner */
+
+.storeHero {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(79, 124, 255, 0.12) 0%, rgba(122, 92, 255, 0.08) 50%, rgba(34, 192, 138, 0.06) 100%), var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.storeHero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.15;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.storeHeroHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.storeHeroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(79, 124, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(79, 124, 255, 0.3);
+}
+
+.storeHeroTitle {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.storeHeroTitle svg {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+
+.storeHeroDesc {
+  font-size: 0.92rem;
+  color: var(--textDim);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 680px;
+}
+
+.storeHeroStats {
+  display: flex;
+  gap: 14px;
+  font-size: 0.8rem;
+  color: var(--textDim);
+}
+
+.storeStatItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceHover);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------------- Tab Bar */
+
+.storeNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--borderSoft);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.storeTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--radiusSmall);
+  background: transparent;
+  color: var(--textDim);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--anim);
+  white-space: nowrap;
+}
+
+.storeTab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.storeTab:hover {
+  background: var(--surfaceHover);
+  color: var(--text);
+}
+
+.storeTab.active {
+  background: var(--accent);
+  color: var(--onAccent);
+  box-shadow: 0 4px 12px rgba(79, 124, 255, 0.3);
+}
+
+.storeTabCount {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.storeTab:not(.active) .storeTabCount {
+  background: var(--surfaceHover);
+  color: var(--textDim);
+}
+
+/* -------------------------------------------------------------- Filter Bar */
+
+.storeFilterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.storeSearchWrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.storeSearchInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px 10px 38px;
+  border-radius: var(--radiusSmall);
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color var(--anim), box-shadow var(--anim);
+}
+
+.storeSearchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.2);
+}
+
+.storeSearchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--textDim);
+  pointer-events: none;
+}
+
+.storeFilterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.storeFilterPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--borderSoft);
+  background: var(--surface);
+  color: var(--textDim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--anim);
+}
+
+.storeFilterPill:hover {
+  border-color: var(--border);
+  color: var(--text);
+  background: var(--surfaceHover);
+}
+
+.storeFilterPill.active {
+  background: var(--accent);
+  color: var(--onAccent);
+  border-color: var(--accent);
+}
+
+.storeSelect {
+  padding: 8px 12px;
+  border-radius: var(--radiusSmall);
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.storeSelect:focus {
+  border-color: var(--accent);
+}
+
+/* ------------------------------------------------------------- Store Grid */
+
+.storeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* ------------------------------------------------------------- Store Card */
+
+.storeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  padding: 16px;
+  gap: 12px;
+  transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
+}
+
+.storeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+  border-color: var(--border);
+}
+
+.storeCard.activeCard {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(79, 124, 255, 0.15);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceHover);
+  border: 1px solid var(--borderSoft);
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--accent);
+}
+
+.cardIconWrap svg {
+  width: 22px;
+  height: 22px;
+}
+
+.cardHeaderInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardAuthor {
+  font-size: 0.78rem;
+  color: var(--textDim);
+  margin-top: 2px;
+}
+
+.cardBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: none;
+}
+
+.badgeOfficial {
+  background: rgba(79, 124, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(79, 124, 255, 0.3);
+}
+
+.badgeCommunity {
+  background: rgba(34, 192, 138, 0.15);
+  color: #22c08a;
+  border: 1px solid rgba(34, 192, 138, 0.3);
+}
+
+.badgeActive {
+  background: var(--accent);
+  color: var(--onAccent);
+}
+
+.cardDesc {
+  font-size: 0.84rem;
+  color: var(--textDim);
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.45em;
+}
+
+/* ---------------------------------------------------- Theme Mockup Preview */
+
+.themeMockup {
+  position: relative;
+  height: 86px;
+  border-radius: var(--radiusSmall);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.mockupTitlebar {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mockupTab {
+  height: 16px;
+  width: 60px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+}
+
+.mockupTabActive {
+  box-shadow: 0 -2px 0 0 var(--accentPreview, #4f7cff) inset;
+}
+
+.mockupTabDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accentPreview, #4f7cff);
+}
+
+.mockupToolbar {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 6px;
+}
+
+.mockupOmni {
+  height: 14px;
+  flex: 1;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mockupBody {
+  flex: 1;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mockupLine {
+  height: 4px;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.mockupLinePrimary {
+  width: 65%;
+}
+
+.mockupLineSecondary {
+  width: 45%;
+}
+
+.paletteDots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.paletteDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ------------------------------------------------------------- Card Meta */
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: var(--textDim);
+  padding-top: 4px;
+}
+
+.cardRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #ffb020;
+}
+
+.cardTags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.cardTag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--surfaceHover);
+  font-size: 0.7rem;
+}
+
+/* ------------------------------------------------------------ Card Actions */
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--borderSoft);
+}
+
+.btnPrimary {
+  background: var(--accent);
+  color: var(--onAccent);
+  border: 0;
+  border-radius: var(--radiusSmall);
+  padding: 7px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--anim);
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 14px rgba(79, 124, 255, 0.3);
+}
+
+.btnSecondary {
+  background: var(--surfaceHover);
+  color: var(--text);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall);
+  padding: 7px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--anim);
+}
+
+.btnSecondary:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.btnIcon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--surfaceHover);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall);
+  color: var(--textDim);
+  cursor: pointer;
+  transition: all var(--anim);
+}
+
+.btnIcon:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btnIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.btnDanger:hover {
+  color: #ff4c4c;
+  border-color: #ff4c4c;
+}
+
+/* ----------------------------------------------------- Configuration Modal */
+
+.configSheet {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px 0;
+}
+
+.configHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--borderSoft);
+}
+
+.configHeadIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  background: var(--surfaceHover);
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.configHeadIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.configRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.configRowLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.configRowDesc {
+  font-size: 0.78rem;
+  color: var(--textDim);
+  margin-top: 2px;
+}
+
+.configSliderWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.configSlider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.configValueBadge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------- Community Studio */
+
+.studioGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .studioGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.studioForm {
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.studioPreviewBox {
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--textDim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.formInput {
+  padding: 9px 12px;
+  border-radius: var(--radiusSmall);
+  background: var(--bg);
+  border: 1px solid var(--borderSoft);
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.formInput:focus {
+  border-color: var(--accent);
+}
+
+.colorPickerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.colorPickerBox {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radiusSmall);
+  border: 1px solid var(--borderSoft);
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+/* ------------------------------------------------------------- Empty State */
+
+.storeEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px dashed var(--borderSoft);
+}
+
+.storeEmptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--surfaceHover);
+  display: grid;
+  place-items: center;
+  color: var(--textDim);
+}
+
+.storeEmptyIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.storeEmptyTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.storeEmptyText {
+  font-size: 0.86rem;
+  color: var(--textDim);
+  max-width: 400px;
+  margin: 0;
+}

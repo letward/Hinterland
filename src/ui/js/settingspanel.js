@@ -431,8 +431,20 @@ function sectionFooter(definition) {
       el('button', { class: 'button', type: 'button', onclick: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'about' } })) }, [t('action.about')]),
     );
   }
+  if (definition.id === 'appearance') {
+    wrapper.append(
+      el('button', { class: 'button primary', type: 'button', onclick: () => {
+        closeModal();
+        window.dispatchEvent(new CustomEvent('hinterland:openstore', { detail: { tab: 'themes' } }));
+      } }, [t('menu.store')]),
+    );
+  }
   if (definition.id === 'extensions') {
     wrapper.append(
+      el('button', { class: 'button primary', type: 'button', onclick: () => {
+        closeModal();
+        window.dispatchEvent(new CustomEvent('hinterland:openstore', { detail: { tab: 'extensions' } }));
+      } }, [t('menu.store')]),
       el('button', { class: 'button', type: 'button', onclick: () => {
         closeModal();
         window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'extensions' } }));

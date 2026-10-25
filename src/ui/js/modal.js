@@ -25,7 +25,7 @@ function activateItem(item, sidebar, nav) {
  * Full surface overlay. `nav` items each provide their own render function,
  * which lets every panel stay independent of the modal shell.
  */
-export function openModal({ title, iconName = 'shield', nav = [], onClose }) {
+export function openModal({ title, iconName = 'shield', nav = [], activeId, onClose }) {
   nodes();
   if (!modal || !surface || !content) return;
 
@@ -65,7 +65,10 @@ export function openModal({ title, iconName = 'shield', nav = [], onClose }) {
   surface.append(bar, body);
   if (!modal.open) modal.showModal();
   window.hinterland.layout.setFullscreen(true);
-  if (nav.length) activateItem(nav[0], sidebar, nav);
+  if (nav.length) {
+    const target = (activeId && nav.find((item) => item.id === activeId)) || nav[0];
+    activateItem(target, sidebar, nav);
+  }
 }
 
 export function closeModal() {

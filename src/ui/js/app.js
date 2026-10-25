@@ -9,7 +9,7 @@ import { bindTabs, renderTabs, updateTab, setActive, activeTab } from './tabs.js
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
 import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
-import { openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList } from './panels.js';
+import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
 import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
@@ -22,6 +22,7 @@ import { currentTab } from './state.js';
 const api = () => window.hinterland;
 
 const PANELS = {
+  store: openStore,
   extensions: openExtensions,
   history: openHistory,
   bookmarks: openBookmarks,
@@ -100,6 +101,11 @@ function bind() {
   $('#findClose').innerHTML = icon('close');
   $('#downloadsButton').innerHTML = icon('download');
   $('#extensionsButton').innerHTML = icon('puzzle');
+  const storeBtn = $('#storeButton');
+  if (storeBtn) {
+    storeBtn.innerHTML = icon('store');
+    storeBtn.addEventListener('click', () => openStore());
+  }
   $('#menuButton').innerHTML = icon('menu');
 
   for (const button of document.querySelectorAll('.windowButton')) {
@@ -152,6 +158,7 @@ function bind() {
 
   window.addEventListener('hinterland:tabmenu', (event) => openTabMenu(event.detail.tab, event.detail.x, event.detail.y));
   window.addEventListener('hinterland:openpanel', (event) => PANELS[event.detail.panel]?.());
+  window.addEventListener('hinterland:openstore', (event) => openStore(event.detail?.tab));
   window.addEventListener('hinterland:opensettings', (event) => openSettings(event.detail?.section ?? 'general'));
   window.addEventListener('hinterland:find', () => openFind());
   window.addEventListener('hinterland:bookmark', () => toggleBookmark());

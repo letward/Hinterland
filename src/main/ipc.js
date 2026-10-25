@@ -8,6 +8,7 @@ import { translations, availableLanguages, resolveLanguage } from './i18n.js';
 import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { extensions } from './extensions.js';
+import { hinterStore } from './store.js';
 import { history } from './history.js';
 import { resolveTarget, suggestionList, activeEngines } from './navigation.js';
 import { isInternalUrl } from './protocol.js';
@@ -747,6 +748,18 @@ handle('tab:confirmClose', (id, answer) => {
     const url = event.sender.getURL();
     return extensions.manifestForUrl(url);
   });
+
+  /* ------------------------------------------------------------- hinter store */
+  handle('store:catalog', () => hinterStore.catalog());
+  handle('store:installExtension', ({ id, config } = {}) => hinterStore.installExtension(id, config));
+  handle('store:uninstallExtension', (id) => hinterStore.uninstallExtension(id));
+  handle('store:saveExtensionConfig', ({ id, config } = {}) => hinterStore.saveExtensionConfig(id, config));
+  handle('store:getExtensionConfig', (id) => hinterStore.getExtensionConfig(id));
+  handle('store:applyTheme', (theme) => hinterStore.applyTheme(theme));
+  handle('store:installTheme', ({ theme, apply } = {}) => hinterStore.installCommunityTheme(theme, apply));
+  handle('store:uninstallTheme', (id) => hinterStore.uninstallCommunityTheme(id));
+  handle('store:exportTheme', (theme) => hinterStore.exportThemeFile(theme));
+  handle('store:importThemeFile', () => hinterStore.importThemeFile());
 
   /* --------------------------------------------------------------- history */
   handle('history:search', (query) => history.search(query, 60));

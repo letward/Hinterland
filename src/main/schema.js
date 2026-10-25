@@ -726,6 +726,32 @@ export const SCHEMA = [
     descKey: 'settings.advanced.loggingDesc',
     section: 'advanced',
   }),
+
+  /* ----------------------------------------------------------------- store */
+  option('store.activeThemeId', 'text', 'midnight', {
+    labelKey: 'settings.store.activeTheme',
+    descKey: 'settings.store.activeThemeDesc',
+    section: 'appearance',
+  }),
+  option('store.installedThemes', 'list', [], {
+    labelKey: 'settings.store.installedThemes',
+    descKey: 'settings.store.installedThemesDesc',
+    section: 'appearance',
+    itemSchema: { id: 'text', name: 'text', author: 'text' },
+    itemLabelKey: 'settings.store.themeItem',
+  }),
+  option('store.extensionConfigs', 'keyvalue', {}, {
+    labelKey: 'settings.store.extensionConfigs',
+    descKey: 'settings.store.extensionConfigsDesc',
+    section: 'extensions',
+  }),
+  option('store.communityRegistries', 'list', [], {
+    labelKey: 'settings.store.communityRegistries',
+    descKey: 'settings.store.communityRegistriesDesc',
+    section: 'extensions',
+    itemSchema: { name: 'text', url: 'text' },
+    itemLabelKey: 'settings.store.registryItem',
+  }),
 ];
 
 export function buildDefaults() {
