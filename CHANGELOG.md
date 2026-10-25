@@ -4,6 +4,21 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.12.1] - 2026-10-25
+
+### Added
+- Hinter Store Weekly Spotlight ("Fokus der Woche" / "Weekly Pick"):
+  - Highlights one curated application or theme every week based on calendar rotation.
+  - Features clear editorial breakdowns detailing "Was es ist" (What it is) and "Wieso im Fokus" (Why it's in focus).
+  - Direct 1-click install, configure, or theme activation from the spotlight banner.
+
+### Removed
+- Removed simulated rating stars and download metrics from all themes and extension cards in Hinter Store until official telemetry and server-backed data are implemented.
+
+### Changed
+- Curated store filtering: Streamlined sort options to focus on curated recommendations and alphabetical browsing.
+- Theme and extension card metadata redesigned with clean mode badges (Dark/Light) and categorized capability tags.
+
 ## [1.12.0] - 2026-10-25
 
 ### Added
