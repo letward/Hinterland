@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hinterland Pass</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="shell" id="appShell">
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <circle cx="12" cy="10" r="2.2"></circle>
+          <path d="M12 12.2v3.5"></path>
+        </svg>
+        <span class="brand-name">Hinterland Pass</span>
+      </div>
+      <div class="top-actions">
+        <span class="vault-status-pill" id="vaultStatusPill">Locked</span>
+        <button type="button" class="icon-btn" id="btnLockVault" title="Lock Vault" aria-label="Lock Vault" hidden>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"></path></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btnClosePopup" title="Close" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification Toast Container -->
+    <div class="toast" id="toast" hidden></div>
+
+    <!-- VIEW 1: FIRST-TIME SETUP -->
+    <section class="view" id="viewSetup" hidden>
+      <div class="setup-hero">
+        <div class="hero-icon-box">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#388bfd" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="10" r="2.5"></circle><path d="M12 12.5v3"></path></svg>
+        </div>
+        <h2>Create Master Vault</h2>
+        <p class="hero-desc">Protect all your web logins with hardware-accelerated AES-256 GCM zero-knowledge encryption.</p>
+      </div>
+
+      <form id="formSetup" class="form-stack">
+        <div class="field">
+          <label for="setupPassword">Master Password</label>
+          <div class="input-wrap">
+            <input type="password" id="setupPassword" required minlength="8" placeholder="Choose a strong passphrase" autocomplete="new-password">
+            <button type="button" class="input-icon-btn" data-toggle-target="setupPassword" title="Show/Hide">👁</button>
+          </div>
+          <div class="strength-bar-container">
+            <div class="strength-bar" id="setupStrengthBar"></div>
+          </div>
+          <span class="field-hint" id="setupStrengthLabel">Minimum 8 characters</span>
+        </div>
+
+        <div class="field">
+          <label for="setupConfirm">Confirm Master Password</label>
+          <div class="input-wrap">
+            <input type="password" id="setupConfirm" required minlength="8" placeholder="Confirm your passphrase" autocomplete="new-password">
+          </div>
+        </div>
+
+        <div class="callout warning">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+          <span>Hinterland cannot recover your master password if forgotten. Store it somewhere safe.</span>
+        </div>
+
+        <button type="submit" class="btn primary full-width" id="btnCreateVault">Initialize Vault</button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: UNLOCK VAULT -->
+    <section class="view" id="viewUnlock" hidden>
+      <div class="unlock-hero">
+        <div class="hero-icon-box lock-glow">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#388bfd" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"></path></svg>
+        </div>
+        <h2>Vault is Locked</h2>
+        <p class="hero-desc">Enter your master password to unlock your credentials.</p>
+      </div>
+
+      <form id="formUnlock" class="form-stack">
+        <div class="field">
+          <div class="input-wrap">
+            <input type="password" id="unlockPassword" required placeholder="Master Password" autofocus autocomplete="current-password">
+            <button type="button" class="input-icon-btn" data-toggle-target="unlockPassword" title="Show/Hide">👁</button>
+          </div>
+          <div class="form-error" id="unlockError" hidden></div>
+        </div>
+        <button type="submit" class="btn primary full-width" id="btnUnlockSubmit">Unlock Vault</button>
+      </form>
+    </section>
+
+    <!-- VIEW 3: MAIN DASHBOARD -->
+    <main class="view" id="viewDashboard" hidden>
+      <!-- Navigation Bar -->
+      <nav class="nav-tabs" role="tablist">
+        <button type="button" class="nav-tab active" data-tab="tabThisSite" id="navThisSite">This Site</button>
+        <button type="button" class="nav-tab" data-tab="tabVault" id="navVault">All Logins</button>
+        <button type="button" class="nav-tab" data-tab="tabGenerator" id="navGenerator">Generator</button>
+        <button type="button" class="nav-tab" data-tab="tabSettings" id="navSettings">Settings</button>
+      </nav>
+
+      <!-- TAB 1: THIS SITE -->
+      <div class="tab-pane active" id="tabThisSite">
+        <div class="domain-header">
+          <div class="domain-info">
+            <span class="domain-icon">🌐</span>
+            <span class="domain-name" id="currentSiteDomain">Current Site</span>
+          </div>
+          <button type="button" class="btn small" id="btnAddForCurrentSite">+ Add</button>
+        </div>
+
+        <div class="card-list" id="siteLoginsList"></div>
+      </div>
+
+      <!-- TAB 2: ALL LOGINS -->
+      <div class="tab-pane" id="tabVault" hidden>
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+          <input type="text" id="vaultSearchInput" placeholder="Search logins..." autocomplete="off">
+          <button type="button" class="btn primary small" id="btnAddNewLogin">+ New</button>
+        </div>
+
+        <div class="card-list" id="allLoginsList"></div>
+      </div>
+
+      <!-- TAB 3: PASSWORD GENERATOR -->
+      <div class="tab-pane" id="tabGenerator" hidden>
+        <div class="generator-card">
+          <div class="generated-password-display" id="genPasswordDisplay">Generating...</div>
+          <div class="gen-actions">
+            <button type="button" class="btn small primary" id="btnCopyGenerated">Copy Password</button>
+            <button type="button" class="btn small" id="btnRegenerate">🔄 New</button>
+            <button type="button" class="btn small" id="btnFillGenerated" title="Fill into page">⚡ Fill</button>
+          </div>
+
+          <div class="strength-bar-container">
+            <div class="strength-bar" id="genStrengthBar"></div>
+          </div>
+          <div class="strength-metrics">
+            <span id="genStrengthLabel">Strong</span>
+            <span id="genEntropyLabel">72 bits</span>
+          </div>
+        </div>
+
+        <div class="options-box">
+          <div class="option-slider-row">
+            <span>Length</span>
+            <span class="slider-val" id="genLengthVal">20</span>
+          </div>
+          <input type="range" id="genLengthSlider" min="8" max="64" value="20" class="slider">
+
+          <div class="checkbox-grid">
+            <label class="check-label"><input type="checkbox" id="genUpper" checked> A-Z (Upper)</label>
+            <label class="check-label"><input type="checkbox" id="genLower" checked> a-z (Lower)</label>
+            <label class="check-label"><input type="checkbox" id="genNumbers" checked> 0-9 (Numbers)</label>
+            <label class="check-label"><input type="checkbox" id="genSymbols" checked> !@#$ (Symbols)</label>
+            <label class="check-label full-width"><input type="checkbox" id="genAvoidAmbiguous"> Avoid ambiguous (1, l, 0, O)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SETTINGS & BACKUP -->
+      <div class="tab-pane" id="tabSettings" hidden>
+        <div class="settings-group">
+          <div class="setting-row">
+            <div>
+              <div class="setting-title">Auto-Lock Vault</div>
+              <div class="setting-desc">Locks vault after inactivity.</div>
+            </div>
+            <select id="selectAutoLock" class="select-input">
+              <option value="5">5 minutes</option>
+              <option value="15" selected>15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="0">Never</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div class="setting-title">Change Master Password</div>
+              <div class="setting-desc">Re-encrypts vault with a new key.</div>
+            </div>
+            <button type="button" class="btn small" id="btnOpenChangePassword">Change</button>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div class="setting-title">Export Vault</div>
+              <div class="setting-desc">Save a JSON backup of your logins.</div>
+            </div>
+            <button type="button" class="btn small" id="btnExportVault">Export</button>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div class="setting-title">Import Vault</div>
+              <div class="setting-desc">Merge logins from a JSON file.</div>
+            </div>
+            <button type="button" class="btn small" id="btnTriggerImport">Import</button>
+            <input type="file" id="importFileInput" accept=".json" hidden>
+          </div>
+        </div>
+
+        <div class="security-badge-box">
+          <div class="security-badge-title">🛡️ Hardware Security</div>
+          <div class="security-badge-text">AES-GCM 256-bit encryption • PBKDF2 100,000 iterations • Zero-Knowledge Isolated Architecture</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL: ADD / EDIT LOGIN DIALOG -->
+    <div class="modal-overlay" id="modalEditLogin" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add Login</h3>
+          <button type="button" class="icon-btn" id="btnCloseModal">✕</button>
+        </div>
+        <form id="formEditLogin" class="form-stack">
+          <input type="hidden" id="editItemId">
+          <div class="field">
+            <label for="editTitle">Title / Service</label>
+            <input type="text" id="editTitle" required placeholder="e.g. GitHub">
+          </div>
+          <div class="field">
+            <label for="editDomain">Website Domain or URL</label>
+            <input type="text" id="editDomain" required placeholder="e.g. github.com">
+          </div>
+          <div class="field">
+            <label for="editUsername">Username / Email</label>
+            <input type="text" id="editUsername" placeholder="e.g. user@example.com">
+          </div>
+          <div class="field">
+            <label for="editPassword">Password</label>
+            <div class="input-wrap">
+              <input type="password" id="editPassword" placeholder="Password">
+              <button type="button" class="input-icon-btn" data-toggle-target="editPassword">👁</button>
+              <button type="button" class="input-icon-btn" id="btnModalGenPassword" title="Generate strong password">⚡</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="editNotes">Notes (Optional)</label>
+            <textarea id="editNotes" rows="2" placeholder="Recovery codes, pin, etc."></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn secondary" id="btnCancelEdit">Cancel</button>
+            <button type="submit" class="btn primary" id="btnSaveEdit">Save Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: CHANGE MASTER PASSWORD -->
+    <div class="modal-overlay" id="modalChangePassword" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Change Master Password</h3>
+          <button type="button" class="icon-btn" id="btnCloseChangePass">✕</button>
+        </div>
+        <form id="formChangePassword" class="form-stack">
+          <div class="field">
+            <label for="changeCurrentPassword">Current Master Password</label>
+            <input type="password" id="changeCurrentPassword" required>
+          </div>
+          <div class="field">
+            <label for="changeNewPassword">New Master Password</label>
+            <input type="password" id="changeNewPassword" required minlength="8">
+          </div>
+          <div class="field">
+            <label for="changeConfirmPassword">Confirm New Master Password</label>
+            <input type="password" id="changeConfirmPassword" required minlength="8">
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn secondary" id="btnCancelChangePass">Cancel</button>
+            <button type="submit" class="btn primary">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

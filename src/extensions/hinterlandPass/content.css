@@ -1,0 +1,20 @@
+/**
+ * Hinterland Pass - Content Script Styles
+ * Injected into web pages to support the isolated Shadow DOM host.
+ */
+
+.hinterland-pass-host {
+  all: initial !important;
+  position: absolute !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+
+.hinterland-pass-banner-host {
+  all: initial !important;
+  position: fixed !important;
+  top: 16px !important;
+  right: 16px !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}

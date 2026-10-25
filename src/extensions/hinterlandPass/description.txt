@@ -1,0 +1,1 @@
+A native, end-to-end encrypted password manager. Generates strong passwords, autofills saved logins, and keeps your credentials secure with AES-256 GCM encryption.

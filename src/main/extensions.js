@@ -247,14 +247,18 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     if (popup) {
       const base = pathToFileURL(entry.path).href;
       const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
-      const popupUrl = new URL(popup, baseWithSlash).toString();
+      const popupClean = popup.replace(/^\/+/, '');
+      const popupUrl = extension?.id
+        ? `chrome-extension://${extension.id}/${popupClean}`
+        : new URL(popup, baseWithSlash).toString();
       const win = new BrowserWindow({
-        width: 350,
-        height: 450,
+        width: 380,
+        height: 560,
         show: false,
         frame: false,
         parent: surface.window,
-        modal: true,
+        modal: false,
+        resizable: false,
         webPreferences: {
           preload: EXTENSION_PRELOAD,
           webSecurity: true,
@@ -267,6 +271,14 @@ const extension = await ses.extensions.loadExtension(entry.path, {
       win.loadURL(popupUrl).catch(() => {});
       win.center();
       win.show();
+      win.on('blur', () => {
+        if (!win.isDestroyed()) win.close();
+      });
+      win.webContents.on('before-input-event', (event, input) => {
+        if (input.key === 'Escape' && !win.isDestroyed()) {
+          win.close();
+        }
+      });
       return true;
     }
     try {
