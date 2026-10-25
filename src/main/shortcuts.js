@@ -5,7 +5,24 @@ import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { NEW_TAB_URL } from './constants.js';
 
-const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette', 'downloads', 'readerMode', 'pinTab', 'sleepTab', 'saveAsPdf', 'copyMarkdown', 'taskManager', 'capturePage', 'readingList', 'clearData', 'notes', 'togglePiP', 'mediaControls']);
+const UI_ACTIONS = new Set(['focusAddress', 'focusSearch', 'settings', 'bookmarks', 'history', 'find', 'sidebar', 'shortcuts', 'commandPalette', 'downloads', 'readerMode', 'pinTab', 'sleepTab', 'saveAsPdf', 'copyMarkdown', 'taskManager', 'capturePage', 'readingList', 'clearData', 'notes', 'togglePiP', 'mediaControls', 'tabStash']);
+
+function saveHostZoom(url, factor) {
+  if (!url || !url.startsWith('http')) return;
+  try {
+    const host = new URL(url).hostname;
+    if (!host) return;
+    const levels = { ...(settings.value('site.zoomLevels') || {}) };
+    if (Math.abs(factor - 1) < 0.02) {
+      delete levels[host];
+    } else {
+      levels[host] = factor;
+    }
+    settings.set('site.zoomLevels', levels);
+  } catch {
+    /* ignore malformed url */
+  }
+}
 
 function normaliseCombo(combo) {
   const parts = String(combo ?? '')
@@ -49,6 +66,7 @@ function zoom(delta) {
   const steps = Math.round(Math.log(tab.zoom || 1) / Math.log(1.1) + delta);
   tab.zoom = Math.pow(1.1, Math.max(-3, Math.min(5, steps)));
   tab.contents.setZoomFactor(tab.zoom);
+  saveHostZoom(tab.url, tab.zoom);
   surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
 }
 
@@ -113,6 +131,7 @@ function run(action) {
       if (tab) {
         tab.zoom = 1;
         tab.contents.setZoomFactor(1);
+        saveHostZoom(tab.url, 1);
         surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
       }
       return true;

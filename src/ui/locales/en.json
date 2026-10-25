@@ -44,7 +44,8 @@
     "noEngine": "No search engine is configured yet.",
     "addEngine": "Add a search engine",
     "addEngineDesc": "Opens the settings so you can choose how searching works.",
-    "viewSiteInfo": "View site information"
+    "viewSiteInfo": "View site information",
+    "keywordEngines": "Search engines & keywords"
   },
   "menu": {
     "newTab": "New tab",
@@ -130,6 +131,9 @@
     "clearBrowsingData": "Clear browsing data…",
     "mediaControls": "Media controller",
     "notes": "Notes & Scratchpad",
+    "tabStash": "Tab Stash & Workspaces",
+    "stashAllTabs": "Stash all open tabs",
+    "stashOtherTabs": "Stash other tabs",
     "pictureInPicture": "Picture-in-Picture"
   },
   "find": {
@@ -160,6 +164,9 @@
     "clearData": "Clear browsing data",
     "mediaControls": "Open Media Controller",
     "openNotes": "Open Notes & Scratchpad",
+    "openTabStash": "Open Tab Stash & Workspaces",
+    "stashAllTabs": "Stash all open tabs",
+    "stashOtherTabs": "Stash inactive background tabs",
     "togglePiP": "Toggle Picture-in-Picture"
   },
   "confirm": {
@@ -261,6 +268,7 @@
       "readingList": "Open Reading List",
       "clearData": "Clear browsing data",
       "notes": "Notes & Scratchpad",
+      "tabStash": "Open Tab Stash",
       "togglePiP": "Toggle Picture-in-Picture",
       "mediaControls": "Media controller"
     }
@@ -332,7 +340,16 @@
     "noVideoFound": "No playable video found on this page",
     "pipEntered": "Entered Picture-in-Picture",
     "pipExited": "Exited Picture-in-Picture",
-    "noteExported": "Note exported successfully"
+    "noteExported": "Note exported successfully",
+    "tabsStashed": "{count} tab(s) stashed successfully",
+    "noTabsToStash": "No web tabs available to stash",
+    "stashRestored": "{count} tab(s) restored",
+    "stashDeleted": "Stash deleted",
+    "stashExported": "Stashes exported successfully",
+    "stashImported": "{count} stash(es) imported successfully",
+    "tabOpened": "Tab opened",
+    "zoomReset": "Zoom level reset to 100%",
+    "permissionUpdated": "Site permission updated"
   },
   "greeting": {
     "morning": "Good morning",
@@ -576,6 +593,8 @@
       "popupsDesc": "New windows are turned into normal tabs.",
       "allowedSites": "Never block these sites",
       "allowedSitesDesc": "One address per line. These sites are always loaded.",
+      "sitePermissions": "Website permission exceptions",
+      "sitePermissionsDesc": "Granular permissions allowed or blocked per site origin.",
       "blockRules": "Own block rules",
       "blockRulesDesc": "One regular expression per line for requests to block."
     },
@@ -590,6 +609,8 @@
       "spellcheckDesc": "Underlines spelling mistakes while you type.",
       "defaultZoom": "Default zoom",
       "defaultZoomDesc": "Size applied to every page.",
+      "zoomLevels": "Saved site zoom levels",
+      "zoomLevelsDesc": "Zoom factors remembered per website domain.",
       "defaultFontSize": "Page font size",
       "defaultFontSizeDesc": "Base text size for every page.",
       "defaultFontFamily": "Page font",
@@ -638,7 +659,9 @@
       "readingList": "Reading list entries",
       "readingListDesc": "Saved pages and articles in your reading list.",
       "notes": "Notes & Scratchpad",
-      "notesDesc": "Saved notes, checklists, and web clippings."
+      "notesDesc": "Saved notes, checklists, and web clippings.",
+      "tabStashes": "Saved Tab Stashes & Workspaces",
+      "tabStashesDesc": "Saved tab groups and sessions for quick restoration."
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -722,7 +745,16 @@
     "shieldHttps": "HTTPS connection protection",
     "active": "Active",
     "clearData": "Clear cookies & site data",
-    "privacySettings": "Privacy settings"
+    "privacySettings": "Privacy settings",
+    "permissionsHeader": "Site permissions",
+    "permCamera": "Camera",
+    "permMicrophone": "Microphone",
+    "permLocation": "Location",
+    "permNotifications": "Notifications",
+    "permClipboard": "Clipboard",
+    "permDefault": "Default",
+    "permAllow": "Allow",
+    "permBlock": "Block"
   },
   "readingList": {
     "title": "Reading List",
@@ -861,5 +893,23 @@
     "emptyPreview": "No content to preview.",
     "welcomeTitle": "Welcome to Hinterland Notes",
     "welcomeContent": "# Welcome to Hinterland Notes\n\nA fast, distraction-free scratchpad built directly into your browser.\n\n### Features:\n- **Markdown formatting**: Supports headings, **bold**, *italics*, `code`, and checklists.\n- **1-Click Web Clipping**: Use the 'Clip Tab Link' button to instantly insert links from active tabs.\n- **Checklists**:\n  - [x] Create first note\n  - [ ] Research next project\n- **Export**: Export any note to `.md` for Obsidian, Notion, or GitHub."
+  },
+  "stash": {
+    "title": "Tab Stash & Workspaces",
+    "description": "Save, organize, and restore tab groups and research sessions with 1 click.",
+    "empty": "No saved stashes yet. Stash open tabs to clear your workspace without losing your place.",
+    "noMatch": "No stashes match your search.",
+    "stashAll": "Stash all tabs",
+    "stashInactive": "Stash inactive tabs",
+    "import": "Import JSON",
+    "exportAll": "Export all JSON",
+    "defaultTitle": "Tab Stash",
+    "renameHint": "Click to rename this stash",
+    "tab": "tab",
+    "tabs": "tabs",
+    "restore": "Restore all",
+    "export": "Export JSON",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete"
   }
 }

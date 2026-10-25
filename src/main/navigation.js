@@ -48,7 +48,7 @@ export function activeEngines() {
   const defaultId = settings.value('search.defaultEngine');
   const usable = list.filter((engine) => engine && engine.url && engine.enabled !== false);
   if (!usable.length) {
-    return [{ id: 'mojeek', name: 'Mojeek', url: 'https://www.mojeek.com/search?q={q}', enabled: true }];
+    return [{ id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q={q}', shortcut: '@ddg', enabled: true }];
   }
   const chosen = usable.find((engine) => engine.id === defaultId || engine.name === defaultId);
   return [chosen ?? usable[0], ...usable.filter((engine) => engine !== (chosen ?? usable[0]))];
@@ -73,6 +73,30 @@ export function resolveTarget(input) {
 
   const engines = activeEngines();
   if (!engines.length) return { kind: 'search', url: null, query: value };
+
+  // Check for search keyword prefix (e.g. "@gh react" or "gh react")
+  const spaceIndex = value.indexOf(' ');
+  const firstWord = spaceIndex > 0 ? value.slice(0, spaceIndex) : value;
+  const queryPart = spaceIndex > 0 ? value.slice(spaceIndex + 1).trim() : '';
+
+  const matchedEngine = engines.find((eng) => {
+    if (!eng.shortcut) return false;
+    const s = eng.shortcut.toLowerCase();
+    const w = firstWord.toLowerCase();
+    return s === w || s.replace(/^@/, '') === w || s === `@${w}`;
+  });
+
+  if (matchedEngine) {
+    if (!queryPart) {
+      try {
+        const u = new URL(matchedEngine.url);
+        return { kind: 'url', url: `${u.protocol}//${u.host}/`, query: '' };
+      } catch {
+        return { kind: 'search', url: buildSearchUrl(matchedEngine.url, ''), query: '', engine: matchedEngine.name };
+      }
+    }
+    return { kind: 'search', url: buildSearchUrl(matchedEngine.url, queryPart), query: queryPart, engine: matchedEngine.name };
+  }
 
   return { kind: 'search', url: buildSearchUrl(engines[0].url, value), query: value, engine: engines[0].name };
 }

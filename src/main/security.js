@@ -148,7 +148,20 @@ const PERMISSION_CHOICES = {
   openExternal: null,
 };
 
-function decisionFor(permission) {
+function decisionFor(permission, origin) {
+  if (origin) {
+    try {
+      const url = new URL(origin);
+      const originKey = `${url.protocol}//${url.host}`;
+      const sites = settings.value('privacy.sitePermissions') ?? {};
+      const sitePerms = sites[originKey];
+      if (sitePerms && sitePerms[permission]) {
+        return sitePerms[permission];
+      }
+    } catch {
+      /* ignore invalid origin */
+    }
+  }
   const settingKey = PERMISSION_CHOICES[permission];
   if (!settingKey) return 'allow';
   return settings.value(settingKey);
@@ -156,23 +169,23 @@ function decisionFor(permission) {
 
 export function installPermissionPolicy(sessionObject, hooks) {
   sessionObject.setPermissionRequestHandler((contents, permission, callback, details) => {
-    const choice = decisionFor(permission);
+    const origin = details?.requestingUrl ?? details?.securityOrigin?.origin ?? '';
+    const choice = decisionFor(permission, origin);
     if (choice === 'allow') return callback(true);
     if (choice === 'deny') return callback(false);
-    const origin = details?.requestingUrl ?? details?.securityOrigin?.origin ?? '';
     hooks.requestPermission({ permission, origin, mediaTypes: details?.mediaTypes ?? [] });
     callback(false);
   });
 
   sessionObject.setPermissionCheckHandler((contents, permission, requestingOrigin) => {
     if (requestingOrigin?.startsWith('hinterland://')) return true;
-    const choice = decisionFor(permission);
+    const choice = decisionFor(permission, requestingOrigin);
     if (choice === 'ask') return false;
     return choice === 'allow';
   });
 
   sessionObject.setDevicePermissionHandler((details) => {
-    const choice = decisionFor(details.deviceType);
+    const choice = decisionFor(details.deviceType, details.requestingUrl);
     if (choice === 'allow') return true;
     if (choice === 'deny') return false;
     hooks.requestPermission({ permission: details.deviceType, origin: details.requestingUrl });

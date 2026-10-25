@@ -9,7 +9,7 @@ import { bindTabs, renderTabs, updateTab, setActive, activeTab, allTabs } from '
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
 import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus, openMediaControls } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
-import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList, openClearData, openNotes } from './panels.js';
+import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList, openClearData, openNotes, openTabStash } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
 import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
@@ -33,6 +33,7 @@ const PANELS = {
   readingList: openReadingList,
   clearData: openClearData,
   notes: openNotes,
+  stash: openTabStash,
 };
 
 let activeTabSnapshot = null;
@@ -174,6 +175,7 @@ function bind() {
   window.addEventListener('hinterland:commandpalette', () => openCommandPalette());
   window.addEventListener('hinterland:togglebookmarksbar', () => toggleBookmarksBar());
   window.addEventListener('hinterland:siteinfo', () => openSiteInfo());
+  window.addEventListener('hinterland:openstash', () => openTabStash());
 
   $('#extensionToolbar').addEventListener('click', async (event) => {
     const button = event.target.closest('.extensionButton');
@@ -336,6 +338,7 @@ function handleShortcut(action) {
   if (action === 'readingList') return openReadingList();
   if (action === 'clearData') return openClearData();
   if (action === 'notes') return openNotes();
+  if (action === 'tabStash') return openTabStash();
   if (action === 'togglePiP') return toggleActivePiP();
   if (action === 'mediaControls') return openMediaControls();
   if (action === 'copyMarkdown') {
@@ -371,6 +374,12 @@ function wireShortcuts() {
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'y' && !inField) {
       event.preventDefault();
       openNotes();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'u' && !inField) {
+      event.preventDefault();
+      openTabStash();
       return;
     }
 

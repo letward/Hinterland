@@ -4,6 +4,7 @@ import { t } from './i18n.js';
 import { get } from './store.js';
 import { openPopup, closePopup, isOpen, empty } from './popup.js';
 import { activeTab } from './tabs.js';
+import { toast } from './toast.js';
 
 const api = () => window.hinterland;
 
@@ -100,7 +101,10 @@ export function bindOmnibox(nodes) {
   if (zoomButton) {
     zoomButton.addEventListener('click', () => {
       const tab = activeTab();
-      if (tab) api().tab.zoom(tab.id, 1);
+      if (tab) {
+        api().tab.zoom(tab.id, 1);
+        toast(t('toast.zoomReset'), 'info');
+      }
     });
   }
 
@@ -128,7 +132,9 @@ function commit() {
     closePopup();
     input.blur();
     if (target.kind === 'engine') {
-      const url = target.url.replaceAll('{q}', encodeURIComponent(input.value.trim()));
+      const url = target.url.includes('{q}')
+        ? target.url.replaceAll('{q}', encodeURIComponent(input.value.trim()))
+        : target.url;
       api().tab.navigate(activeTab()?.id, url);
       return;
     }
@@ -160,8 +166,13 @@ async function render(value, suggestions) {
       items.push({ kind: 'url', url: trimmed, title: prettyUrl(trimmed), detail: target.url });
       card.append(entry(items[0], 0, 'omni.go'));
     } else if (target.url) {
-      items.push({ kind: 'engine', url: target.engine ? engines[0]?.url : target.url, title: trimmed, detail: target.url });
-      card.append(entry(items[0], 0, 'omni.searchWith'));
+      items.push({
+        kind: 'engine',
+        url: target.url,
+        title: target.query || trimmed,
+        detail: target.engine ? `${target.engine}: ${target.query || trimmed}` : target.url,
+      });
+      card.append(entry(items[0], 0, 'omni.searchWith', target.engine || undefined));
     } else {
       card.append(empty(t('omni.noEngine')));
       card.append(
@@ -213,6 +224,29 @@ async function render(value, suggestions) {
           api().tab.navigate(activeTab()?.id, engine.url.replaceAll('{q}', encodeURIComponent(trimmed)));
         }),
       );
+    }
+  }
+
+  if (trimmed.startsWith('@')) {
+    const filterKeyword = trimmed.toLowerCase();
+    const matchingEngines = engines.filter((e) => (e.shortcut && e.shortcut.toLowerCase().startsWith(filterKeyword)) || (e.name && e.name.toLowerCase().includes(filterKeyword.slice(1))));
+    if (matchingEngines.length) {
+      card.append(el('div', { class: 'popupSection', text: t('omni.keywordEngines') }));
+      for (const engine of matchingEngines) {
+        const entryItem = {
+          kind: 'engine',
+          url: engine.url,
+          title: engine.shortcut ? `${engine.shortcut} — ${engine.name}` : engine.name,
+          detail: engine.url,
+        };
+        items.push(entryItem);
+        card.append(
+          entry(entryItem, items.length - 1, 'omni.searchWith', engine.name, () => {
+            input.value = `${engine.shortcut || `@${engine.name.toLowerCase()}`} `;
+            input.focus();
+          }),
+        );
+      }
     }
   }
 }

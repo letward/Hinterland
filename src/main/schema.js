@@ -490,6 +490,11 @@ export const SCHEMA = [
     descKey: 'settings.privacy.allowedSitesDesc',
     section: 'privacy',
   }),
+  option('privacy.sitePermissions', 'object', {}, {
+    labelKey: 'settings.privacy.sitePermissions',
+    descKey: 'settings.privacy.sitePermissionsDesc',
+    section: 'privacy',
+  }),
   option('privacy.blockRules', 'textarea', '', {
     labelKey: 'settings.privacy.blockRules',
     descKey: 'settings.privacy.blockRulesDesc',
@@ -526,6 +531,11 @@ export const SCHEMA = [
     max: 5,
     step: 0.1,
     unit: 'x',
+  }),
+  option('site.zoomLevels', 'object', {}, {
+    labelKey: 'settings.content.zoomLevels',
+    descKey: 'settings.content.zoomLevelsDesc',
+    section: 'content',
   }),
   option('content.defaultFontSize', 'number', 16, {
     labelKey: 'settings.content.defaultFontSize',
@@ -570,7 +580,13 @@ export const SCHEMA = [
 
   /* ----------------------------------------------------------------- search */
   option('search.engines', 'list', [
-    { id: 'mojeek', name: 'Mojeek', url: 'https://www.mojeek.com/search?q={q}', enabled: true },
+    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q={q}', shortcut: '@ddg', enabled: true },
+    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q={q}', shortcut: '@g', enabled: true },
+    { id: 'mojeek', name: 'Mojeek', url: 'https://www.mojeek.com/search?q={q}', shortcut: '@m', enabled: true },
+    { id: 'github', name: 'GitHub', url: 'https://github.com/search?q={q}', shortcut: '@gh', enabled: true },
+    { id: 'wikipedia', name: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Special:Search?search={q}', shortcut: '@w', enabled: true },
+    { id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com/results?search_query={q}', shortcut: '@yt', enabled: true },
+    { id: 'npm', name: 'npm', url: 'https://www.npmjs.com/search?q={q}', shortcut: '@npm', enabled: true },
   ], {
     labelKey: 'settings.search.engines',
     descKey: 'settings.search.enginesDesc',
@@ -578,7 +594,7 @@ export const SCHEMA = [
     itemSchema: { name: 'text', url: 'text', shortcut: 'text', enabled: 'bool' },
     itemLabelKey: 'settings.search.engineItem',
   }),
-  option('search.defaultEngine', 'text', 'mojeek', {
+  option('search.defaultEngine', 'text', 'duckduckgo', {
     labelKey: 'settings.search.defaultEngine',
     descKey: 'settings.search.defaultEngineDesc',
     section: 'general',
@@ -681,6 +697,11 @@ export const SCHEMA = [
   option('data.notes', 'list', [], {
     labelKey: 'settings.data.notes',
     descKey: 'settings.data.notesDesc',
+    section: 'data',
+  }),
+  option('data.tabStashes', 'list', [], {
+    labelKey: 'settings.data.tabStashes',
+    descKey: 'settings.data.tabStashesDesc',
     section: 'data',
   }),
 

@@ -330,6 +330,36 @@ export function openCommandPalette() {
             },
           },
           {
+            id: 'openTabStash',
+            title: t('commandPalette.openTabStash'),
+            category: t('commandPalette.categoryCommand'),
+            shortcut: 'Ctrl+Shift+U',
+            icon: 'archive',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:openstash')),
+          },
+          {
+            id: 'stashAllTabs',
+            title: t('commandPalette.stashAllTabs'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'archive',
+            run: async () => {
+              const res = await api().stashes.stashCurrent({ keepActive: false });
+              if (res?.ok) toast(t('toast.tabsStashed', { count: res.count }), 'success');
+              else if (res?.error === 'no_tabs') toast(t('toast.noTabsToStash'), 'warning');
+            },
+          },
+          {
+            id: 'stashOtherTabs',
+            title: t('commandPalette.stashOtherTabs'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'archive',
+            run: async () => {
+              const res = await api().stashes.stashCurrent({ keepActive: true });
+              if (res?.ok) toast(t('toast.tabsStashed', { count: res.count }), 'success');
+              else if (res?.error === 'no_tabs') toast(t('toast.noTabsToStash'), 'warning');
+            },
+          },
+          {
             id: 'storeThemes',
             title: t('commandPalette.browseThemes'),
             category: t('commandPalette.categoryCommand'),

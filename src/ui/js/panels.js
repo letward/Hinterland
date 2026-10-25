@@ -1488,3 +1488,236 @@ function notesPage() {
     },
   };
 }
+
+/* ------------------------------------------------------------- tab stashes */
+
+export function openTabStash() {
+  openModal({
+    title: t('stash.title'),
+    iconName: 'archive',
+    nav: [tabStashPage()],
+  });
+}
+
+function tabStashPage() {
+  return {
+    id: 'tabStash',
+    icon: 'archive',
+    labelKey: 'stash.title',
+    render: () => {
+      const language = currentLanguage();
+      const container = el('div', { class: 'stashPage' });
+      container.append(head(t('stash.title'), t('stash.description')));
+
+      let stashes = [];
+      let filterText = '';
+
+      const search = searchBox((value) => {
+        filterText = value.toLowerCase();
+        paint();
+      });
+
+      const topActions = el('div', { class: 'actionRow stashActions' }, [
+        el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: async () => {
+            const res = await api().stashes.stashCurrent({ keepActive: false });
+            if (res?.ok) {
+              await loadStashes();
+              toast(t('toast.tabsStashed', { count: res.count }), 'success');
+            } else if (res?.error === 'no_tabs') {
+              toast(t('toast.noTabsToStash'), 'warning');
+            }
+          },
+        }, [el('span', { html: icon('archive') }), ` ${t('stash.stashAll')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            const res = await api().stashes.stashCurrent({ keepActive: true });
+            if (res?.ok) {
+              await loadStashes();
+              toast(t('toast.tabsStashed', { count: res.count }), 'success');
+            } else if (res?.error === 'no_tabs') {
+              toast(t('toast.noTabsToStash'), 'warning');
+            }
+          },
+        }, [el('span', { html: icon('archive') }), ` ${t('stash.stashInactive')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            await api().stashes.importJson();
+            await loadStashes();
+          },
+        }, [el('span', { html: icon('upload') }), ` ${t('stash.import')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            await api().stashes.exportJson();
+          },
+        }, [el('span', { html: icon('download') }), ` ${t('stash.exportAll')}`]),
+      ]);
+
+      const listContainer = el('div', { class: 'stashList' });
+
+      const paint = () => {
+        clear(listContainer);
+        let items = [...stashes];
+        if (filterText) {
+          items = items.filter((s) => {
+            const matchTitle = (s.title || '').toLowerCase().includes(filterText);
+            const matchTab = (s.tabs || []).some((tab) =>
+              (tab.title || '').toLowerCase().includes(filterText) ||
+              (tab.url || '').toLowerCase().includes(filterText)
+            );
+            return matchTitle || matchTab;
+          });
+        }
+
+        if (!items.length) {
+          listContainer.append(el('div', { class: 'empty', text: filterText ? t('stash.noMatch') : t('stash.empty') }));
+          return;
+        }
+
+        for (const stash of items) {
+          const card = el('div', { class: 'card stashCard' });
+
+          const header = el('div', { class: 'stashHeader' });
+          const titleGroup = el('div', { class: 'stashTitleGroup' });
+
+          const titleEl = el('span', {
+            class: 'stashTitle',
+            text: stash.title || t('stash.defaultTitle'),
+            title: t('stash.renameHint'),
+          });
+
+          titleEl.addEventListener('click', () => {
+            const input = el('input', {
+              class: 'textInput stashTitleEdit',
+              type: 'text',
+              value: stash.title || '',
+            });
+            input.addEventListener('blur', async () => {
+              if (input.value.trim() && input.value !== stash.title) {
+                stash.title = input.value.trim();
+                await api().stashes.rename(stash.id, stash.title);
+              }
+              paint();
+            });
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') input.blur();
+              if (e.key === 'Escape') paint();
+            });
+            titleEl.replaceWith(input);
+            input.focus();
+            input.select();
+          });
+
+          const tabCount = (stash.tabs || []).length;
+          const countBadge = el('span', {
+            class: 'statusTag active',
+            text: `${tabCount} ${t(tabCount === 1 ? 'stash.tab' : 'stash.tabs')}`,
+          });
+
+          const timeEl = el('span', {
+            class: 'stashTime',
+            text: formatTime(stash.createdAt, language),
+          });
+
+          titleGroup.append(titleEl, countBadge, timeEl);
+
+          const actions = el('div', { class: 'stashCardActions' }, [
+            el('button', {
+              class: 'button primary small',
+              type: 'button',
+              onclick: async () => {
+                await api().stashes.restore(stash.id, { closeCurrent: false, removeStash: false });
+                closeModal();
+              },
+            }, [el('span', { html: icon('external') }), ` ${t('stash.restore')}`]),
+            el('button', {
+              class: 'button small',
+              type: 'button',
+              title: t('stash.export'),
+              onclick: async () => {
+                await api().stashes.exportJson(stash.id);
+              },
+            }, [el('span', { html: icon('download') })]),
+            el('button', {
+              class: 'button small danger',
+              type: 'button',
+              title: t('stash.delete'),
+              onclick: async () => {
+                const confirmed = await api().dialog.confirm({
+                  title: t('stash.delete'),
+                  message: `${t('stash.deleteConfirm')} "${stash.title}"?`,
+                });
+                if (confirmed) {
+                  await api().stashes.delete(stash.id);
+                  await loadStashes();
+                  toast(t('toast.stashDeleted'), 'info');
+                }
+              },
+            }, [el('span', { html: icon('trash') })]),
+          ]);
+
+          header.append(titleGroup, actions);
+
+          const tabsList = el('div', { class: 'stashTabsList' });
+          (stash.tabs || []).forEach((tab, index) => {
+            const tabRow = el('div', { class: 'stashTabRow' });
+
+            const iconHtml = tab.favicon
+              ? `<img src="${tab.favicon}" alt="" style="width:14px;height:14px;border-radius:2px" onerror="this.outerHTML='${icon('globe')}'" />`
+              : icon('globe');
+
+            const tabIcon = el('span', { class: 'stashTabIcon', html: iconHtml });
+            const tabInfo = el('div', { class: 'stashTabInfo' }, [
+              el('span', { class: 'stashTabTitle', text: tab.title || tab.url }),
+              el('span', { class: 'stashTabUrl', text: prettyUrl(tab.url) }),
+            ]);
+
+            const tabActions = el('div', { class: 'stashTabActions' }, [
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('action.open'),
+                onclick: () => {
+                  api().tabs.create({ url: tab.url });
+                  toast(t('toast.tabOpened'), 'info');
+                },
+              }, [el('span', { html: icon('external') })]),
+              el('button', {
+                class: 'iconButton small danger',
+                type: 'button',
+                title: t('action.remove'),
+                onclick: async () => {
+                  await api().stashes.removeTab(stash.id, index);
+                  await loadStashes();
+                },
+              }, [el('span', { html: icon('close') })]),
+            ]);
+
+            tabRow.append(tabIcon, tabInfo, tabActions);
+            tabsList.append(tabRow);
+          });
+
+          card.append(header, tabsList);
+          listContainer.append(card);
+        }
+      };
+
+      const loadStashes = async () => {
+        stashes = (await api().stashes.get()) || [];
+        paint();
+      };
+
+      loadStashes();
+      container.append(topActions, search.field, listContainer);
+      return container;
+    },
+  };
+}

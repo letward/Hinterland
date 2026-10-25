@@ -44,7 +44,8 @@
     "noEngine": "Es ist noch keine Suchmaschine eingerichtet.",
     "addEngine": "Suchmaschine hinzufügen",
     "addEngineDesc": "Öffnet die Einstellungen für das Suchverhalten.",
-    "viewSiteInfo": "Website-Informationen anzeigen"
+    "viewSiteInfo": "Website-Informationen anzeigen",
+    "keywordEngines": "Suchmaschinen & Kürzel"
   },
   "menu": {
     "newTab": "Neuer Tab",
@@ -130,6 +131,9 @@
     "clearBrowsingData": "Browserdaten löschen…",
     "mediaControls": "Mediensteuerung",
     "notes": "Notizen & Entwürfe",
+    "tabStash": "Tab-Stash & Arbeitsbereiche",
+    "stashAllTabs": "Alle offenen Tabs sichern",
+    "stashOtherTabs": "Andere Tabs sichern",
     "pictureInPicture": "Bild-in-Bild"
   },
   "find": {
@@ -160,6 +164,9 @@
     "clearData": "Browserdaten löschen",
     "mediaControls": "Mediensteuerung öffnen",
     "openNotes": "Notizen & Entwürfe öffnen",
+    "openTabStash": "Tab-Stash & Arbeitsbereiche öffnen",
+    "stashAllTabs": "Alle offenen Tabs im Stash sichern",
+    "stashOtherTabs": "Inaktive Hintergrund-Tabs sichern",
     "togglePiP": "Bild-in-Bild umschalten"
   },
   "confirm": {
@@ -261,6 +268,7 @@
       "readingList": "Leseliste öffnen",
       "clearData": "Browserdaten löschen",
       "notes": "Notizen & Entwürfe",
+      "tabStash": "Tab-Stash öffnen",
       "togglePiP": "Bild-in-Bild umschalten",
       "mediaControls": "Mediensteuerung"
     }
@@ -332,7 +340,16 @@
     "noVideoFound": "Kein abspielbares Video auf dieser Seite gefunden",
     "pipEntered": "Bild-in-Bild aktiviert",
     "pipExited": "Bild-in-Bild beendet",
-    "noteExported": "Notiz erfolgreich exportiert"
+    "noteExported": "Notiz erfolgreich exportiert",
+    "tabsStashed": "{count} Tab(s) erfolgreich im Stash gesichert",
+    "noTabsToStash": "Keine Web-Tabs zum Sichern vorhanden",
+    "stashRestored": "{count} Tab(s) wiederhergestellt",
+    "stashDeleted": "Stash gelöscht",
+    "stashExported": "Stashes erfolgreich exportiert",
+    "stashImported": "{count} Stash(es) erfolgreich importiert",
+    "tabOpened": "Tab geöffnet",
+    "zoomReset": "Zoomstufe auf 100% zurückgesetzt",
+    "permissionUpdated": "Website-Berechtigung aktualisiert"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -576,6 +593,8 @@
       "popupsDesc": "Neue Fenster werden zu normalen Tabs.",
       "allowedSites": "Diese Seiten nie blockieren",
       "allowedSitesDesc": "Eine Adresse je Zeile. Diese Seiten werden immer geladen.",
+      "sitePermissions": "Website-Berechtigungsausnahmen",
+      "sitePermissionsDesc": "Granulare Berechtigungen, die pro Website-Origin zugelassen oder blockiert sind.",
       "blockRules": "Eigene Blockregeln",
       "blockRulesDesc": "Ein regulärer Ausdruck je Zeile für Anfragen, die blockiert werden."
     },
@@ -590,6 +609,8 @@
       "spellcheckDesc": "Markiert Schreibfehler beim Tippen.",
       "defaultZoom": "Standardzoom",
       "defaultZoomDesc": "Größe, die für jede Seite gilt.",
+      "zoomLevels": "Gespeicherte Website-Zoomstufen",
+      "zoomLevelsDesc": "Pro Website-Domain gemerkte Vergrößerungsfaktoren.",
       "defaultFontSize": "Schriftgröße der Seiten",
       "defaultFontSizeDesc": "Grundgröße des Textes auf jeder Seite.",
       "defaultFontFamily": "Schrift der Seiten",
@@ -638,7 +659,9 @@
       "readingList": "Leselisten-Einträge",
       "readingListDesc": "Gespeicherte Webseiten und Artikel in Ihrer Leseliste.",
       "notes": "Notizen & Entwürfe",
-      "notesDesc": "Gespeicherte Notizen, Checklisten und Web-Ausschnitte."
+      "notesDesc": "Gespeicherte Notizen, Checklisten und Web-Ausschnitte.",
+      "tabStashes": "Gespeicherte Tab-Stashes & Arbeitsbereiche",
+      "tabStashesDesc": "Gespeicherte Tab-Gruppen und Sitzungen zur schnellen Wiederherstellung."
     },
     "shortcuts": {
       "title": "Tastenkürzel",
@@ -722,7 +745,16 @@
     "shieldHttps": "HTTPS-Verbindungsschutz",
     "active": "Aktiv",
     "clearData": "Cookies & Websitedaten löschen",
-    "privacySettings": "Datenschutzeinstellungen"
+    "privacySettings": "Datenschutzeinstellungen",
+    "permissionsHeader": "Website-Berechtigungen",
+    "permCamera": "Kamera",
+    "permMicrophone": "Mikrofon",
+    "permLocation": "Standort",
+    "permNotifications": "Benachrichtigungen",
+    "permClipboard": "Zwischenablage",
+    "permDefault": "Standard",
+    "permAllow": "Zulassen",
+    "permBlock": "Blockieren"
   },
   "readingList": {
     "title": "Leseliste",
@@ -861,5 +893,23 @@
     "emptyPreview": "Kein Inhalt für die Vorschau vorhanden.",
     "welcomeTitle": "Willkommen bei Hinterland Notizen",
     "welcomeContent": "# Willkommen bei Hinterland Notizen\n\nEin schneller, ablenkungsfreier Notizzettel direkt in Ihrem Browser.\n\n### Funktionen:\n- **Markdown-Formatierung**: Unterstützt Überschriften, **fett**, *kursiv*, `Code` und Checklisten.\n- **1-Klick Web-Clipping**: Nutzen Sie die Schaltfläche 'Tab-Link einfügen', um Links aktiver Tabs einzufügen.\n- **Checklisten**:\n  - [x] Erste Notiz ansehen\n  - [ ] Nächstes Projekt recherchieren\n- **Export**: Exportieren Sie jede Notiz als `.md` für Obsidian, Notion oder GitHub."
+  },
+  "stash": {
+    "title": "Tab-Stash & Arbeitsbereiche",
+    "description": "Sichere, organisiere und stelle Tab-Gruppen und Recherche-Sitzungen mit 1 Klick wieder her.",
+    "empty": "Noch keine gesicherten Stashes. Sichere deine offenen Tabs, um deinen Arbeitsbereich aufzuräumen, ohne etwas zu verlieren.",
+    "noMatch": "Keine Stashes entsprechen deiner Suche.",
+    "stashAll": "Alle Tabs sichern",
+    "stashInactive": "Inaktive Tabs sichern",
+    "import": "JSON importieren",
+    "exportAll": "Alle als JSON exportieren",
+    "defaultTitle": "Tab-Stash",
+    "renameHint": "Klicken, um diesen Stash umzubenennen",
+    "tab": "Tab",
+    "tabs": "Tabs",
+    "restore": "Alle wiederherstellen",
+    "export": "Als JSON exportieren",
+    "delete": "Löschen",
+    "deleteConfirm": "Möchtest du diesen Stash wirklich löschen:"
   }
 }

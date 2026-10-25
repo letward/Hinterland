@@ -194,8 +194,22 @@ const api = {
     export: (note) => ipcRenderer.invoke('notes:export', note),
   },
 
+  stashes: {
+    get: () => ipcRenderer.invoke('stashes:get'),
+    stashCurrent: (options) => ipcRenderer.invoke('stashes:stashCurrent', options),
+    restore: (stashId, options) => ipcRenderer.invoke('stashes:restore', stashId, options),
+    delete: (stashId) => ipcRenderer.invoke('stashes:delete', stashId),
+    rename: (stashId, newTitle) => ipcRenderer.invoke('stashes:rename', stashId, newTitle),
+    removeTab: (stashId, tabIndex) => ipcRenderer.invoke('stashes:removeTab', stashId, tabIndex),
+    exportJson: (stashId) => ipcRenderer.invoke('stashes:exportJson', stashId),
+    importJson: () => ipcRenderer.invoke('stashes:importJson'),
+  },
+
   site: {
     clearData: (url) => ipcRenderer.invoke('site:clearData', url),
+    getPermissions: (url) => ipcRenderer.invoke('site:getPermissions', url),
+    setPermission: (url, permission, value) => ipcRenderer.invoke('site:setPermission', url, permission, value),
+    allPermissions: () => ipcRenderer.invoke('site:allPermissions'),
   },
 
   shell: {

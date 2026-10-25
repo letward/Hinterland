@@ -1336,3 +1336,170 @@
   color: var(--textDim);
 }
 
+/* ------------------------------------------------------------- tab stashes */
+
+.stashPage {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stashActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.stashList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stashCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.stashHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--borderSoft);
+}
+
+.stashTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stashTitle {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+}
+
+.stashTitle:hover {
+  border-bottom-color: var(--accent);
+}
+
+.stashTitleEdit {
+  font-size: 1em;
+  padding: 3px 8px;
+  max-width: 280px;
+}
+
+.stashTime {
+  font-size: 0.82em;
+  color: var(--textDim);
+}
+
+.stashCardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stashTabsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stashTabRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceAlt);
+  transition: background 0.15s ease;
+}
+
+.stashTabRow:hover {
+  filter: brightness(1.05);
+}
+
+.stashTabIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.stashTabInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stashTabTitle {
+  font-size: 0.9em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stashTabUrl {
+  font-size: 0.78em;
+  color: var(--textDim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stashTabActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* -------------------------------------------------------- site permissions */
+
+.siteInfoPermissions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.siteInfoPermissionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 6px;
+  border-radius: var(--radiusSmall);
+  font-size: 0.88em;
+}
+
+.siteInfoPermSelect {
+  font-size: 0.82em;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radiusSmall);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+

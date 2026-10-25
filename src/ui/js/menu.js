@@ -107,6 +107,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'notes' } })),
         }),
         row({
+          iconName: 'archive',
+          title: t('menu.tabStash'),
+          subtitle: 'Ctrl+Shift+U',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openstash')),
+        }),
+        row({
           iconName: 'trash',
           title: t('menu.clearBrowsingData'),
           subtitle: 'Ctrl+Shift+Del',
@@ -548,6 +554,30 @@ export function openTabstripMenu() {
           iconName: 'clock',
           title: t('menu.reopenClosed'),
           onSelect: () => api().tabs.reopen(),
+        }),
+        row({
+          iconName: 'archive',
+          title: t('menu.tabStash'),
+          subtitle: 'Ctrl+Shift+U',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openstash')),
+        }),
+        row({
+          iconName: 'archive',
+          title: t('menu.stashAllTabs'),
+          onSelect: async () => {
+            const res = await api().stashes.stashCurrent({ keepActive: false });
+            if (res?.ok) toast(t('toast.tabsStashed', { count: res.count }), 'success');
+            else if (res?.error === 'no_tabs') toast(t('toast.noTabsToStash'), 'warning');
+          },
+        }),
+        row({
+          iconName: 'archive',
+          title: t('menu.stashOtherTabs'),
+          onSelect: async () => {
+            const res = await api().stashes.stashCurrent({ keepActive: true });
+            if (res?.ok) toast(t('toast.tabsStashed', { count: res.count }), 'success');
+            else if (res?.error === 'no_tabs') toast(t('toast.noTabsToStash'), 'warning');
+          },
         }),
         row({
           iconName: 'reload',

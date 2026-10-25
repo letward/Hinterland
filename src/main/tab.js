@@ -99,6 +99,7 @@ export class Tab {
       this.url = url;
       this.canGoBack = contents.navigationHistory.canGoBack();
       this.canGoForward = contents.navigationHistory.canGoForward();
+      this.restoreHostZoom(url);
       refresh();
     });
 
@@ -303,6 +304,24 @@ export class Tab {
       return res || { success: false };
     } catch {
       return { success: false };
+    }
+  }
+
+  restoreHostZoom(url) {
+    if (!url || !url.startsWith('http') || !this.contents || this.contents.isDestroyed()) return;
+    try {
+      const host = new URL(url).hostname;
+      if (!host) return;
+      const levels = settings.value('site.zoomLevels') || {};
+      if (levels[host] && typeof levels[host] === 'number') {
+        const factor = levels[host];
+        if (Math.abs(this.zoom - factor) > 0.01) {
+          this.zoom = factor;
+          this.contents.setZoomFactor(factor);
+        }
+      }
+    } catch {
+      /* ignore */
     }
   }
 

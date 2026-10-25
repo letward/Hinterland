@@ -57,6 +57,45 @@ export function openSiteInfo() {
       card.append(header, description);
 
       if (!isInternal) {
+        const permSection = el('div', { class: 'siteInfoPermissions' });
+        const permsList = [
+          { key: 'camera', labelKey: 'siteInfo.permCamera', iconName: 'camera' },
+          { key: 'microphone', labelKey: 'siteInfo.permMicrophone', iconName: 'microphone' },
+          { key: 'geolocation', labelKey: 'siteInfo.permLocation', iconName: 'location' },
+          { key: 'notifications', labelKey: 'siteInfo.permNotifications', iconName: 'bell' },
+          { key: 'clipboardRead', labelKey: 'siteInfo.permClipboard', iconName: 'clipboard' },
+        ];
+
+        card.append(
+          separator(),
+          section('siteInfo.permissionsHeader'),
+          permSection,
+        );
+
+        api().site.getPermissions(url).then((savedPerms) => {
+          permSection.replaceChildren();
+          for (const item of permsList) {
+            const currentVal = savedPerms?.[item.key] || 'default';
+            const select = el('select', { class: 'siteInfoPermSelect' }, [
+              el('option', { value: 'default', selected: currentVal === 'default' }, [t('siteInfo.permDefault')]),
+              el('option', { value: 'allow', selected: currentVal === 'allow' }, [t('siteInfo.permAllow')]),
+              el('option', { value: 'deny', selected: currentVal === 'deny' }, [t('siteInfo.permBlock')]),
+            ]);
+
+            select.addEventListener('change', async () => {
+              await api().site.setPermission(url, item.key, select.value);
+              toast(t('toast.permissionUpdated'), 'success');
+            });
+
+            const rowNode = el('div', { class: 'siteInfoPermissionRow' }, [
+              el('span', { class: 'siteInfoProtectionIcon', html: icon(item.iconName) }),
+              el('span', { class: 'siteInfoProtectionText', text: t(item.labelKey) }),
+              select,
+            ]);
+            permSection.append(rowNode);
+          }
+        });
+
         card.append(
           separator(),
           section('siteInfo.protectionsHeader'),

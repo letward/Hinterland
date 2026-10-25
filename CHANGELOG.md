@@ -4,6 +4,32 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.14.0] - 2026-10-25
+
+### Added
+- **Tab Stash & Workspaces (`openTabStash`, `Ctrl+Shift+U`)**:
+  - Save, organize, and restore tab groups and research sessions with 1 click without losing your place.
+  - Stash Manager modal panel featuring instant search across stashes and tab titles/URLs, relative creation timestamps, and tab count badges.
+  - "Stash All Tabs" and "Stash Inactive Tabs" (keeps current working tab while clearing background tabs into a named stash).
+  - Stash management: 1-click "Restore All" (opens all tabs in the stash), inline renaming of stashes, deletion with confirmation dialog, and individual tab removal or direct opening.
+  - Full JSON backup and restore: Export single or all stashes to disk (`.json`) and import stashes from any JSON file.
+  - Accessible via `Ctrl+Shift+U`, Main Menu, Tabstrip Context Menu ("Stash all tabs", "Stash other tabs"), and Command Palette.
+- **Custom Search Engines & Omnibox Keywords (`@keyword`)**:
+  - Instant search engine keyword prefixing in the omnibox (e.g. `@gh electron`, `@w quantum`, `@yt lofi`, `@npm react`, `@ddg privacy`, `@g query`).
+  - Pre-configured search engines with curated keyword shortcuts: DuckDuckGo (`@ddg`), Google (`@g`), Mojeek (`@m`), GitHub (`@gh`), Wikipedia (`@w`), YouTube (`@yt`), and npm (`@npm`).
+  - Typing standalone keywords (e.g. `@gh` or `@yt`) navigates directly to the engine's homepage.
+  - Typing `@` in the omnibox presents an interactive search engine and keyword selector card.
+- **Per-Site Zoom Memory & Interactive Omnibox Zoom Reset**:
+  - Persistent per-host zoom factors saved in user settings (`site.zoomLevels`), automatically remembered and reapplied whenever navigating to or opening tabs on that domain.
+  - Interactive `#omniZoom` button in the address bar displaying current zoom percentage (e.g. `120%`, `80%`) whenever the page zoom differs from 100%.
+  - 1-click zoom reset on the omnibox badge restoring default zoom (100%), clearing the domain override, and providing visual toast feedback.
+- **Site Permissions & Security Inspector (`openSiteInfo`)**:
+  - Granular site permissions management inside the omnibox Site Info badge (`#omniIcon`) for any web page.
+  - Direct 3-way toggles ("Default", "Allow", "Block") for Camera, Microphone, Geolocation, Notifications, and Clipboard per origin.
+  - Persistent origin permission exceptions (`privacy.sitePermissions`) with automated precedence over global browser defaults.
+- **Unit Test Suite**:
+  - Comprehensive unit test coverage (`sdk/test/stashesAndSearch.test.mjs`) for shortcut registration, keyword search engine matching and URL resolution, tab stash state management, JSON export/import validation, per-site zoom factor storage, and origin-based site permission policy resolution.
+
 ## [1.13.0] - 2026-10-25
 
 ### Added

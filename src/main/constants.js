@@ -62,6 +62,7 @@ export const DEFAULT_SHORTCUTS = {
   notes: 'Ctrl+Shift+Y',
   togglePiP: 'Ctrl+Shift+X',
   mediaControls: 'Ctrl+Alt+M',
+  tabStash: 'Ctrl+Shift+U',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

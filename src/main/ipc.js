@@ -488,6 +488,19 @@ export function installIpc() {
     const steps = Math.max(-3, Math.min(5, Math.round(Math.log(Number(factor) || 1) / Math.log(1.1))));
     tab.zoom = Math.pow(1.1, steps);
     tab.contents.setZoomFactor(tab.zoom);
+    if (tab.url && tab.url.startsWith('http')) {
+      try {
+        const host = new URL(tab.url).hostname;
+        if (host) {
+          const levels = { ...(settings.value('site.zoomLevels') || {}) };
+          if (Math.abs(tab.zoom - 1) < 0.02) delete levels[host];
+          else levels[host] = tab.zoom;
+          settings.set('site.zoomLevels', levels);
+        }
+      } catch {
+        /* ignore invalid url */
+      }
+    }
     surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
     return tab.zoom;
   });
@@ -799,6 +812,40 @@ export function installIpc() {
     return clearSiteData(url);
   });
 
+  handle('site:getPermissions', (rawUrl) => {
+    try {
+      const url = new URL(rawUrl);
+      const origin = `${url.protocol}//${url.host}`;
+      const sites = settings.value('privacy.sitePermissions') ?? {};
+      return sites[origin] ?? {};
+    } catch {
+      return {};
+    }
+  });
+
+  handle('site:setPermission', (rawUrl, permission, value) => {
+    try {
+      const url = new URL(rawUrl);
+      const origin = `${url.protocol}//${url.host}`;
+      const sites = { ...(settings.value('privacy.sitePermissions') ?? {}) };
+      if (!sites[origin]) sites[origin] = {};
+      if (value === 'default' || !value) {
+        delete sites[origin][permission];
+        if (Object.keys(sites[origin]).length === 0) delete sites[origin];
+      } else {
+        sites[origin][permission] = value;
+      }
+      settings.set('privacy.sitePermissions', sites);
+      return { ok: true, permissions: sites[origin] ?? {} };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
+  handle('site:allPermissions', () => {
+    return settings.value('privacy.sitePermissions') ?? {};
+  });
+
   handle('bookmarks:exportHtml', async (items) => {
     const list = Array.isArray(items) ? items : (settings.value('data.bookmarks') ?? []);
     const result = await dialog.showSaveDialog(chromeWindow(), {
@@ -974,6 +1021,169 @@ export function installIpc() {
     await writeFile(result.filePath, note.content || '', 'utf8');
     surface.send('toast', { message: 'toast.noteExported', kind: 'success' });
     return { ok: true, path: result.filePath };
+  });
+
+  /* ------------------------------------------------------------- tab stashes */
+  handle('stashes:get', () => {
+    return settings.value('data.tabStashes') || [];
+  });
+
+  handle('stashes:stashCurrent', async ({ title, keepActive = false } = {}) => {
+    const currentTabs = tabs.list;
+    const active = tabs.active;
+    const tabsToStash = currentTabs.filter((t) => {
+      if (!t.url || t.url === NEW_TAB_URL || t.url === 'about:blank') return false;
+      if (keepActive && active && t.id === active.id) return false;
+      return true;
+    });
+
+    if (!tabsToStash.length) {
+      return { ok: false, error: 'no_tabs' };
+    }
+
+    const dateStr = new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date());
+
+    const newStash = {
+      id: `stash_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+      title: (title || '').trim() || `${translate(language(), 'stash.defaultTitle')} (${dateStr})`,
+      createdAt: Date.now(),
+      tabs: tabsToStash.map((t) => ({
+        url: t.url,
+        title: t.title || t.url,
+        favicon: t.favicon || '',
+      })),
+    };
+
+    const stashes = [...(settings.value('data.tabStashes') || [])];
+    stashes.unshift(newStash);
+    settings.set('data.tabStashes', stashes);
+
+    for (const t of tabsToStash) {
+      tabs.close(t.id);
+    }
+
+    if (!tabs.list.length) {
+      tabs.create({ url: NEW_TAB_URL });
+    }
+
+    surface.send('toast', {
+      message: translate(language(), 'toast.tabsStashed', { count: tabsToStash.length }),
+      kind: 'success',
+    });
+
+    return { ok: true, stash: newStash, count: tabsToStash.length };
+  });
+
+  handle('stashes:restore', async (stashId, { closeCurrent = false, removeStash = false } = {}) => {
+    const stashes = [...(settings.value('data.tabStashes') || [])];
+    const stash = stashes.find((s) => s.id === stashId);
+    if (!stash || !stash.tabs?.length) return { ok: false, error: 'not_found' };
+
+    if (closeCurrent) {
+      tabs.closeAll();
+    }
+
+    for (let i = 0; i < stash.tabs.length; i++) {
+      const entry = stash.tabs[i];
+      tabs.create({ url: entry.url, background: i > 0, title: entry.title });
+    }
+
+    if (removeStash) {
+      const updated = stashes.filter((s) => s.id !== stashId);
+      settings.set('data.tabStashes', updated);
+    }
+
+    surface.send('toast', {
+      message: translate(language(), 'toast.stashRestored', { count: stash.tabs.length }),
+      kind: 'success',
+    });
+
+    return { ok: true, count: stash.tabs.length };
+  });
+
+  handle('stashes:delete', (stashId) => {
+    const stashes = [...(settings.value('data.tabStashes') || [])];
+    const updated = stashes.filter((s) => s.id !== stashId);
+    settings.set('data.tabStashes', updated);
+    return { ok: true };
+  });
+
+  handle('stashes:rename', (stashId, newTitle) => {
+    const stashes = [...(settings.value('data.tabStashes') || [])];
+    const stash = stashes.find((s) => s.id === stashId);
+    if (stash) {
+      stash.title = newTitle.trim() || stash.title;
+      settings.set('data.tabStashes', stashes);
+      return { ok: true, stash };
+    }
+    return { ok: false };
+  });
+
+  handle('stashes:removeTab', (stashId, tabIndex) => {
+    const stashes = [...(settings.value('data.tabStashes') || [])];
+    const stash = stashes.find((s) => s.id === stashId);
+    if (stash && stash.tabs) {
+      stash.tabs.splice(tabIndex, 1);
+      if (stash.tabs.length === 0) {
+        const idx = stashes.indexOf(stash);
+        stashes.splice(idx, 1);
+      }
+      settings.set('data.tabStashes', stashes);
+      return { ok: true, stash };
+    }
+    return { ok: false };
+  });
+
+  handle('stashes:exportJson', async (stashId = null) => {
+    const stashes = settings.value('data.tabStashes') || [];
+    const exportData = stashId ? stashes.filter((s) => s.id === stashId) : stashes;
+    const json = JSON.stringify(exportData, null, 2);
+    const result = await dialog.showSaveDialog(chromeWindow(), {
+      title: 'Hinterland',
+      defaultPath: `hinterland-stashes-${Date.now()}.json`,
+      filters: [{ name: 'JSON Document', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false };
+    await writeFile(result.filePath, json, 'utf8');
+    surface.send('toast', { message: 'toast.stashExported', kind: 'success' });
+    return { ok: true, filePath: result.filePath };
+  });
+
+  handle('stashes:importJson', async () => {
+    const result = await dialog.showOpenDialog(chromeWindow(), {
+      title: 'Hinterland',
+      properties: ['openFile'],
+      filters: [{ name: 'JSON Document', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePaths.length) return { ok: false };
+    try {
+      const raw = await readFile(result.filePaths[0], 'utf8');
+      const imported = JSON.parse(raw);
+      const list = Array.isArray(imported) ? imported : [imported];
+      const valid = list.filter((s) => s && Array.isArray(s.tabs) && s.tabs.length > 0).map((s) => ({
+        id: s.id || `stash_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+        title: s.title || 'Imported Stash',
+        createdAt: s.createdAt || Date.now(),
+        tabs: s.tabs.map((t) => ({ url: t.url, title: t.title || t.url, favicon: t.favicon || '' })),
+      }));
+      if (!valid.length) return { ok: false, error: 'invalid_format' };
+      const existing = [...(settings.value('data.tabStashes') || [])];
+      existing.unshift(...valid);
+      settings.set('data.tabStashes', existing);
+      surface.send('toast', {
+        message: translate(language(), 'toast.stashImported', { count: valid.length }),
+        kind: 'success',
+      });
+      return { ok: true, count: valid.length };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
   });
 
   handle('shell:open', (url) => {
