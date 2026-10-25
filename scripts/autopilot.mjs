@@ -134,7 +134,7 @@ Rules:
   // 6. Append changelog bullet
   if (plan.changelog) {
     const cl = readFileSync('CHANGELOG.md', 'utf8');
-    const marker = '## [1.16.0]'; // append under current version's Added if present; fallback: prepend after header
+    const marker = '## [1.17.0]'; // append under current version's Added if present; fallback: prepend after header
     // Insert bullet into first "### Added" under the latest version
     const idx = cl.indexOf('### Added');
     if (idx !== -1) {

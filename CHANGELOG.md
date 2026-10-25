@@ -4,6 +4,31 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.0] - 2026-10-25
+
+### Added
+- **Unified Hinterland Design System (`design/tokens.css`, `docs/design.md`)**:
+  - Established canonical design token foundation shared across the browser UI, extensions, and web properties.
+  - Semantic color palette with full light and dark mode color scheme adaptability (`--accent`, `--surface`, `--surfaceAlt`, `--surfaceHover`, `--text`, `--textDim`, `--border`, `--borderSoft`).
+  - Standardized elevation shadows, border radii (`--radius`, `--radiusSmall`, `--radiusLarge`), spacing scale, typography, and motion timings (`--anim`).
+  - Accessibility and compact density modifiers (`data-theme="light"`, `data-animations="off"`, `data-density="compact"`).
+  - Published comprehensive architectural documentation and design philosophy in `docs/design.md`.
+- **Autonomous Autopilot Pipeline (`scripts/autopilot.mjs`)**:
+  - Implemented automated feedback triage, patch generation, and PR pipeline powered by LLM integration.
+  - Added scheduled and dispatchable GitHub Actions workflows (`.github/workflows/autopilot.yml`, `health.yml`, `auto-merge.yml`) for autonomous maintenance and health monitoring.
+- **Interactive Feedback System & Hardened Serverless API (`website/api/feedback.js`)**:
+  - Serverless feedback collection endpoint deployed on Vercel with automated GitHub issue creation.
+  - Multi-tier defense: Honeypot bot protection, in-memory IP rate limiting, control character sanitization, and strict length validation.
+  - Added client-side fallback to direct mailto links when backend services or tokens are unavailable.
+  - Configured strict web security policies (`website/vercel.json`): Content Security Policy (CSP), Permissions-Policy, X-Content-Type-Options, and X-Frame-Options.
+- **Automatic System Language Translation & Global Switcher**:
+  - Automatic browser/system language detection on the official portal with Google Translate engine integration.
+  - Interactive language switcher dropdown supporting 25+ global languages with persistent user preference storage in `localStorage` (`hl-lang`).
+- **Website Smoke Testing Suite (`scripts/website-smoke.mjs`, `.github/workflows/website-smoke.yml`)**:
+  - Automated smoke test runner verifying production homepage availability, design tokens, and feedback API validation rules.
+- **Unit Test Suite**:
+  - Added test suite `sdk/test/v117Features.test.mjs` covering design tokens consistency, feedback validation and sanitization boundaries, and language code mappings.
+
 ## [1.16.0] - 2026-10-25
 
 ### Added
