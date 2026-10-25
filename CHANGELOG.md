@@ -4,6 +4,17 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.1] - 2026-10-25
+
+### Fixed
+- **Fullscreen (F11) Black Screen Resolution**:
+  - Fixed a critical regression where pressing `F11` or triggering full screen resulted in a black screen.
+  - Corrected `BrowserSurface.layout` geometry: previously, entering fullscreen set the chrome boundary `edge` equal to window height, erroneously sizing the active tab's `contentView` to 0px height at off-screen coordinates while hiding `chromeView`.
+  - Content view is now properly allocated full window bounds (`{ x: 0, y: 0, width, height }`) upon entering fullscreen and on resize.
+  - Added keyboard focus handover to `contentView` upon entering fullscreen, enabling uninterrupted web navigation.
+  - Added support for the `Escape` key to smoothly exit fullscreen mode alongside `F11`.
+  - Added regression test suite in `sdk/test/v117Features.test.mjs` verifying fullscreen layout geometry, visibility toggling, and clean restoration.
+
 ## [1.17.0] - 2026-10-25
 
 ### Added

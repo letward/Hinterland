@@ -108,23 +108,21 @@ export class BrowserSurface {
     win.on('blur', () => this.send('window:state', this.state()));
 
     win.on('enter-full-screen', () => {
-      this.chromeView.setVisible(false);
-      this.layout(true);
+      this.layout();
       this.send('window:state', this.state());
+      this.focusContent();
     });
     win.on('leave-full-screen', () => {
-      this.chromeView.setVisible(true);
       this.layout();
       this.send('window:state', this.state());
     });
 
     win.on('enter-html-full-screen', () => {
-      this.chromeView.setVisible(false);
+      this.chromeView?.setVisible(false);
       const { width, height } = win.getContentBounds();
       this.contentView?.setBounds({ x: 0, y: 0, width, height });
     });
     win.on('leave-html-full-screen', () => {
-      this.chromeView.setVisible(true);
       this.layout();
     });
 
@@ -162,12 +160,31 @@ export class BrowserSurface {
 
   layout(fullWindow = false) {
     const win = this.window;
-    if (!win || win.isDestroyed()) return;
+    if (!win || win.isDestroyed() || !this.chromeView) return;
     const { width, height } = win.getContentBounds();
-    const edge = fullWindow || this.fullChrome || win.isFullScreen()
-      ? height
-      : Math.min(Math.max(this.chromeHeight, this.popupBottom), height);
 
+    if (win.isFullScreen() || fullWindow) {
+      if (this.fullChrome) {
+        this.chromeView.setVisible(true);
+        this.chromeView.setBounds({ x: 0, y: 0, width, height });
+        this.contentView?.setBounds({ x: 0, y: 0, width, height });
+      } else {
+        this.chromeView.setVisible(false);
+        this.chromeView.setBounds({ x: 0, y: 0, width, height: 0 });
+        this.contentView?.setBounds({ x: 0, y: 0, width, height });
+      }
+      return;
+    }
+
+    if (this.fullChrome) {
+      this.chromeView.setVisible(true);
+      this.chromeView.setBounds({ x: 0, y: 0, width, height });
+      this.contentView?.setBounds({ x: 0, y: this.chromeHeight, width, height: Math.max(0, height - this.chromeHeight) });
+      return;
+    }
+
+    this.chromeView.setVisible(true);
+    const edge = Math.min(Math.max(this.chromeHeight, this.popupBottom), height);
     this.chromeView.setBounds({ x: 0, y: 0, width, height: edge });
     this.contentView?.setBounds({ x: 0, y: edge, width, height: Math.max(0, height - edge) });
   }

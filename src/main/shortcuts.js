@@ -157,6 +157,11 @@ export function installShortcuts() {
 
     contents.on('before-input-event', (event, input) => {
       if (input.type !== 'keyDown') return;
+      if (input.key === 'Escape' && surface.window?.isFullScreen() && !surface.fullChrome) {
+        surface.toggleFullScreen();
+        event.preventDefault();
+        return;
+      }
       const action = lookup.get(comboFor(input));
       if (!action) return;
       if (run(action)) event.preventDefault();
