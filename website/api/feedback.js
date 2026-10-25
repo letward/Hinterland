@@ -49,8 +49,6 @@ module.exports = async function handler(req, res) {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (rateLimited(ip)) return res.status(429).json({ error: 'Too many requests. Please try again later.' });
 
-  if (!TOKEN) return res.status(500).json({ error: 'Service temporarily unavailable.' });
-
   const body = req.body || {};
   const message = sanitize(body.message).slice(0, 2000);
   const email = sanitize(body.email).slice(0, 200);
@@ -59,6 +57,8 @@ module.exports = async function handler(req, res) {
 
   if (message.length < 5 || message.length > 2000) return genericError(res);
   if (!isEmail(email)) return genericError(res);
+
+  if (!TOKEN) return res.status(500).json({ error: 'Service temporarily unavailable.' });
 
   const title = 'Website feedback: ' + message.slice(0, 60) + (message.length > 60 ? '…' : '');
   const issueBody = [
