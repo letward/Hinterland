@@ -119,6 +119,7 @@ const api = {
     wake: (id) => ipcRenderer.invoke('tab:wake', id),
     focus: (id) => ipcRenderer.invoke('tab:focus', id),
     copyUrl: (id) => ipcRenderer.invoke('tab:copyUrl', id),
+    copyCleanUrl: (id) => ipcRenderer.invoke('tab:copyCleanUrl', id),
     copyMarkdown: (id) => ipcRenderer.invoke('tab:copyMarkdown', id),
     copyLinkMarkdown: (text, url) => ipcRenderer.invoke('tab:copyLinkMarkdown', { text, url }),
     copyText: (text) => ipcRenderer.invoke('tab:copyText', text),

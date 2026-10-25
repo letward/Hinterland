@@ -12,7 +12,7 @@ import { hinterStore } from './store.js';
 import { history } from './history.js';
 import { resolveTarget, suggestionList, activeEngines } from './navigation.js';
 import { isInternalUrl } from './protocol.js';
-import { openExternal, blockedSummary, handOffToSystem } from './security.js';
+import { openExternal, blockedSummary, handOffToSystem, stripTracking } from './security.js';
 import updater from 'electron-updater';
 const { autoUpdater } = updater;
 import { applySettings, clearBrowsingData, downloadDirectory, clearSiteData } from './sessions.js';
@@ -575,6 +575,15 @@ export function installIpc() {
     const tab = activeTab(id);
     if (!tab) return false;
     clipboard.writeText(tab.url);
+    return true;
+  });
+
+  handle('tab:copyCleanUrl', (id) => {
+    const tab = activeTab(id);
+    if (!tab) return false;
+    const clean = stripTracking(tab.url);
+    clipboard.writeText(clean);
+    surface.send('toast', { message: 'toast.copiedCleanUrl', kind: 'info' });
     return true;
   });
 

@@ -219,6 +219,11 @@ export function openTabMenu(tab, x, y) {
           onSelect: () => api().tab.copyUrl(tab.id),
         }),
         row({
+          iconName: 'shield',
+          title: t('menu.copyCleanLink'),
+          onSelect: () => api().tab.copyCleanUrl(tab.id),
+        }),
+        row({
           iconName: 'copy',
           title: t('menu.copyMarkdown'),
           onSelect: () => api().tab.copyMarkdown(tab.id),
@@ -337,6 +342,16 @@ export function openTabMenu(tab, x, y) {
           iconName: 'minus',
           title: t('menu.closeOthers'),
           onSelect: () => api().tabs.closeOthers(tab.id),
+        }),
+        row({
+          iconName: 'minus',
+          title: t('menu.closeRight'),
+          onSelect: () => api().tabs.closeRight(tab.id),
+        }),
+        row({
+          iconName: 'minus',
+          title: t('menu.closeLeft'),
+          onSelect: () => api().tabs.closeLeft(tab.id),
         }),
         row({
           iconName: 'minus',

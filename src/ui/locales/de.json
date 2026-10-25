@@ -114,6 +114,7 @@
     "groupCollapse": "Gruppe einklappen",
     "groupDelete": "Gruppe löschen",
     "copyMarkdown": "Als Markdown kopieren",
+    "copyCleanLink": "Bereinigten Link kopieren",
     "saveAsPdf": "Als PDF speichern…",
     "sleepTab": "Tab schlafen legen",
     "wakeTab": "Tab aufwecken",
@@ -355,6 +356,7 @@
     "zoomReset": "Zoomstufe auf 100% zurückgesetzt",
     "permissionUpdated": "Website-Berechtigung aktualisiert",
     "copiedUrl": "Link in die Zwischenablage kopiert",
+    "copiedCleanUrl": "Bereinigter Link in die Zwischenablage kopiert",
     "failed": "Aktion konnte nicht ausgeführt werden",
     "qrCopied": "QR-Code in die Zwischenablage kopiert",
     "qrDownloaded": "QR-Code als PNG gespeichert"

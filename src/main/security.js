@@ -93,7 +93,12 @@ export function upgradeToSecure(raw) {
 export function stripTracking(raw) {
   try {
     const url = new URL(raw);
-    const junk = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'mc_cid', 'mc_eid', 'igshid', 'msclkid', 'ref_src'];
+    const junk = [
+      'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+      'utm_id', 'utm_source_platform', 'utm_creative_format', 'utm_marketing_tactic',
+      'gclid', 'fbclid', 'mc_cid', 'mc_eid', 'igshid', 'msclkid', 'ref_src',
+      'twclid', 'yclid', '_hsenc', '_hsmi', 'vero_id',
+    ];
     let changed = false;
     for (const key of junk) {
       if (url.searchParams.has(key)) {

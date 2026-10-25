@@ -114,6 +114,7 @@
     "groupCollapse": "Collapse group",
     "groupDelete": "Delete group",
     "copyMarkdown": "Copy as Markdown",
+    "copyCleanLink": "Copy clean link",
     "saveAsPdf": "Save as PDF…",
     "sleepTab": "Sleep tab",
     "wakeTab": "Wake tab",
@@ -355,6 +356,7 @@
     "zoomReset": "Zoom level reset to 100%",
     "permissionUpdated": "Site permission updated",
     "copiedUrl": "Link copied to clipboard",
+    "copiedCleanUrl": "Clean link copied to clipboard",
     "failed": "Action could not be executed",
     "qrCopied": "QR code copied to clipboard",
     "qrDownloaded": "QR code saved as PNG"

@@ -111,6 +111,13 @@ export function openCommandPalette() {
             run: () => { if (current) api().tab.copyUrl(current.id); },
           },
           {
+            id: 'copyCleanUrl',
+            title: t('menu.copyCleanLink'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'shield',
+            run: () => { if (current) api().tab.copyCleanUrl(current.id); },
+          },
+          {
             id: 'duplicateTab',
             title: t('menu.duplicate'),
             category: t('commandPalette.categoryCommand'),
