@@ -4,6 +4,31 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.12.0] - 2026-10-25
+
+### Added
+- Hinter Store Hub (`hinterland://store/` and Store Modal):
+  - Centralized store for discovering, installing, and managing official and community extensions and themes.
+  - Multi-tab navigation: "All", "Themes", "Extensions", "Installed", and "Theme Studio".
+  - Search, source filters ("All", "Official", "Community"), and sort controls (Recommended, Most Popular, Highest Rated, Alphabetical).
+- Official & Community Themes:
+  - Curated official themes: Hinterland Midnight, Pure Light, OLED Pitch, Nord Frost, Emerald Forest, and Sunset Glow.
+  - Community theme presets: Catppuccin Mocha, Tokyo Night, Dracula Pro, Gruvbox Warm Dark, Rosé Pine Dawn, Cyberpunk 2077 Neon, Solarized Horizon, and Bauhaus 1919.
+  - Interactive live browser mockup previews displaying real-time accent, background, surface, and text colors.
+  - Live Theme Customizer: Interactive accent color picker with quick swatches, border radius slider, density picker (Compact, Cosy, Roomy), and typography font stack selector.
+  - Theme Export & Import: Direct JSON export and import for community theme presets (`.hintertheme.json`).
+- Official & Community Extensions:
+  - Curated extension catalog featuring Hinterland Pass, Hinterland Focus, Hinterland Panel, Hinterland Shield, Hinterland Notes, Hinterland Translator, Dark Reader, Pomodoro Focus Timer, DevTools Plus, Vim Navigation, Tab Suspender Pro, and Markdown Web Clipper.
+  - One-click in-store installation and uninstallation of extensions.
+  - In-store extension configurator: Live toggles, numeric sliders, option selects, and direct action popup triggers.
+- Theme Studio & Creator:
+  - Built-in theme creator to design custom Hinterland themes from scratch with live preview mockup, custom branding, and JSON export/import.
+- Browser & Menu Integrations:
+  - Internal protocol support for `hinterland://store/`.
+  - Main menu item ("Hinter Store"), Extensions panel store button, Extensions popup quick link, and Command Palette shortcuts ("Open Hinter Store", "Store: Browse themes", "Store: Browse extensions", "Store: Theme Studio").
+  - Persistent settings schema for active theme, installed community themes, and extension preferences.
+  - Full English and German localization across all store views, tooltips, dialogs, and notifications.
+
 ## [1.11.0] - 2026-10-25
 
 ### Added
