@@ -4,11 +4,67 @@ import { pathToFileURL } from 'node:url';
 import { app, shell, BrowserWindow } from 'electron';
 import { defaultSession } from './sessions.js';
 import { settings } from './settings.js';
-import { EXTENSIONS_ROOT, CHROME_PRELOAD } from './resources.js';
+import { EXTENSIONS_ROOT, EXTENSION_PRELOAD, safeJoin } from './resources.js';
 import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 
 const REGISTRY_FILE = 'extensions.json';
+
+const FORBIDDEN_PERMISSIONS = new Set([
+  'debugger',
+  'nativeMessaging',
+  'management',
+  'privacy',
+  'proxy',
+  'vpnProvider',
+]);
+
+export function validateExtension(manifest, directory) {
+  if (!manifest || typeof manifest !== 'object') {
+    throw new Error('manifestInvalid');
+  }
+  if (manifest.manifest_version !== 3) {
+    throw new Error('manifestVersionNotSupported');
+  }
+  if (!manifest.name || typeof manifest.name !== 'string' || !manifest.name.trim()) {
+    throw new Error('nameMissing');
+  }
+
+  const permissions = Array.isArray(manifest.permissions) ? manifest.permissions : [];
+  for (const perm of permissions) {
+    if (FORBIDDEN_PERMISSIONS.has(perm)) {
+      throw new Error(`forbiddenPermission:${perm}`);
+    }
+  }
+
+  const csp = manifest.content_security_policy?.extension_pages;
+  if (typeof csp === 'string' && csp.includes("'unsafe-eval'")) {
+    throw new Error('insecureCspUnsafeEval');
+  }
+
+  const filesToCheck = [];
+  if (typeof manifest.background?.service_worker === 'string') {
+    filesToCheck.push(manifest.background.service_worker);
+  }
+  if (Array.isArray(manifest.content_scripts)) {
+    for (const cs of manifest.content_scripts) {
+      if (Array.isArray(cs.js)) filesToCheck.push(...cs.js);
+      if (Array.isArray(cs.css)) filesToCheck.push(...cs.css);
+    }
+  }
+  if (typeof manifest.action?.default_popup === 'string') {
+    filesToCheck.push(manifest.action.default_popup);
+  }
+
+  for (const file of filesToCheck) {
+    const resolved = safeJoin(directory, file);
+    if (!resolved || !existsSync(resolved)) {
+      throw new Error(`fileNotFoundOrEscapes:${file}`);
+    }
+  }
+
+  return true;
+}
 
 function readManifest(directory) {
   const file = join(directory, 'manifest.json');
@@ -200,7 +256,9 @@ const extension = await ses.extensions.loadExtension(entry.path, {
         parent: surface.window,
         modal: true,
         webPreferences: {
-          preload: CHROME_PRELOAD,
+          preload: EXTENSION_PRELOAD,
+          webSecurity: true,
+          allowRunningInsecureContent: false,
           sandbox: true,
           contextIsolation: true,
           nodeIntegration: false,
@@ -214,7 +272,7 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     try {
       await tab.contents.executeJavaScript(`
         (function() {
-          const event = new CustomEvent('hinterland:extension-action', { detail: { extensionId: '${id}' } });
+          const event = new CustomEvent('hinterland:extension-action', { detail: { extensionId: ${JSON.stringify(id)} } });
           window.dispatchEvent(event);
         })();
       `);
@@ -240,6 +298,7 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     if (!statSync(path).isDirectory()) throw new Error('notADirectory');
     const manifest = readManifest(path);
     if (!manifest) throw new Error('manifestMissing');
+    validateExtension(manifest, path);
     if (!manifest.name) throw new Error('nameMissing');
 
     const id = manifest.name.toLowerCase().replace(/[^a-z0-9]+/g, '') || basename(path).toLowerCase();
@@ -276,6 +335,18 @@ const extension = await ses.extensions.loadExtension(entry.path, {
     if (!entry) return false;
     shell.openPath(entry.path).catch(() => {});
     return true;
+  }
+
+  manifestForUrl(url) {
+    if (!url || typeof url !== 'string') return null;
+    for (const [id, ext] of this.live.entries()) {
+      if (ext.id && url.includes(ext.id)) return ext.manifest ?? null;
+      const entry = this.installed.get(id);
+      if (entry && url.startsWith(pathToFileURL(entry.path).href)) {
+        return ext.manifest || readManifest(entry.path);
+      }
+    }
+    return null;
   }
 
   list() {

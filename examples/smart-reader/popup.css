@@ -1,0 +1,118 @@
+:root {
+  --ht-bg: #111317;
+  --ht-surface: #181b22;
+  --ht-border: #2d3340;
+  --ht-text: #e6edf3;
+  --ht-text-dim: #8b949e;
+  --ht-accent: #388bfd;
+  --ht-radius: 8px;
+}
+
+body {
+  width: 280px;
+  margin: 0;
+  padding: 14px;
+  background: var(--ht-bg);
+  color: var(--ht-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  user-select: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.badge {
+  font-size: 10px;
+  background: var(--ht-border);
+  color: var(--ht-text-dim);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.card {
+  background: var(--ht-surface);
+  border: 1px solid var(--ht-border);
+  border-radius: var(--ht-radius);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ht-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  padding: 8px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ht-accent);
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--ht-text-dim);
+  margin-top: 2px;
+}
+
+.footer {
+  margin-top: 10px;
+}
+
+.btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--ht-surface);
+  color: var(--ht-text);
+  border: 1px solid var(--ht-border);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}

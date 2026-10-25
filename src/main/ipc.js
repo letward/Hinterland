@@ -734,6 +734,20 @@ handle('tab:confirmClose', (id, answer) => {
   handle('extensions:info', (id) => extensions.info(id));
   handle('extensions:action', (id) => extensions.executeAction(id));
 
+  ipcMain.handle('extension:closePopup', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win && !win.isDestroyed()) {
+      win.close();
+      return true;
+    }
+    return false;
+  });
+
+  ipcMain.handle('extension:getSelfManifest', (event) => {
+    const url = event.sender.getURL();
+    return extensions.manifestForUrl(url);
+  });
+
   /* --------------------------------------------------------------- history */
   handle('history:search', (query) => history.search(query, 60));
   handle('history:clear', () => {

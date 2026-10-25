@@ -1,0 +1,36 @@
+{
+  "name": "@hinterland/extension-sdk",
+  "version": "1.0.0",
+  "description": "Official SDK for creating secure, modern extensions for the Hinterland browser.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./types/index.d.ts",
+  "bin": {
+    "hinterland-sdk": "./bin/hinterland-sdk.mjs",
+    "hinterland-ext": "./bin/hinterland-sdk.mjs"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./manifest": "./src/manifest.js",
+    "./security": "./src/security.js",
+    "./messaging": "./src/messaging.js",
+    "./content": "./src/content.js",
+    "./ui": "./src/ui.js",
+    "./extension": "./src/extension.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "hinterland",
+    "browser",
+    "extensions",
+    "sdk",
+    "security",
+    "privacy",
+    "webextension",
+    "manifest-v3"
+  ],
+  "author": "Hinterland",
+  "license": "MIT"
+}

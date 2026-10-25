@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Reading Companion</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#388bfd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      <span class="title">Smart Reader</span>
+    </div>
+    <span class="badge">v1.0.0</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Settings</div>
+    <label class="switch-row">
+      <span>Show Reading Time HUD</span>
+      <input type="checkbox" id="toggleEnabled" checked>
+    </label>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your Reading Stats</div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="articlesCount">0</div>
+        <div class="stat-label">Articles Read</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="wordsCount">0</div>
+        <div class="stat-label">Total Words</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button type="button" id="btnClose" class="btn">Close</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

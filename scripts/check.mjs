@@ -23,6 +23,8 @@ function walk(directory, filter) {
 
 const sources = walk(join(ROOT, 'src'), (ext) => ['.js', '.mjs', '.cjs'].includes(ext));
 sources.push(...walk(join(ROOT, 'scripts'), (ext) => ['.mjs'].includes(ext)));
+sources.push(...walk(join(ROOT, 'sdk'), (ext) => ['.js', '.mjs', '.cjs'].includes(ext)));
+sources.push(...walk(join(ROOT, 'examples'), (ext) => ['.js', '.mjs', '.cjs'].includes(ext)));
 
 for (const file of sources) {
   checked += 1;
@@ -36,6 +38,8 @@ for (const file of sources) {
 /* -------------------------------------------------------------------- json */
 
 const jsonFiles = walk(join(ROOT, 'src'), (ext) => ext === '.json');
+jsonFiles.push(...walk(join(ROOT, 'sdk'), (ext) => ext === '.json'));
+jsonFiles.push(...walk(join(ROOT, 'examples'), (ext) => ext === '.json'));
 for (const file of jsonFiles) {
   checked += 1;
   try {

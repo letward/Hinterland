@@ -4,7 +4,25 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.10.0] - 2026-10-25
+
+### Added
+- Official Hinterland Extension SDK (`@hinterland/extension-sdk`): Comprehensive developer toolkit for creating secure, Manifest V3 extensions for Hinterland.
+  - Manifest Builder & Validator (`defineManifest`): Enforces MV3 compliance, permission tier auditing, and secure Content Security Policies.
+  - Hardened Secure Storage (`createSecureStorage`): Namespaced, prototype-pollution resistant key-value store with hardware-accelerated AES-GCM encryption and automatic sanitization.
+  - XSS Prevention & Sanitization (`sanitizeHtml`, `safeHtml`): Built-in zero-dependency HTML sanitizer and tagged template literals to prevent DOM XSS and script injections.
+  - Safe Message Bus (`createMessageBus`): Typed, promise-based IPC between background service workers, content scripts, and popups with origin verification and timeout management.
+  - Content Script Isolation (`ContentHelper`): Closed Shadow DOM encapsulation preventing host page scripts from inspecting or hijacking extension UI elements, plus privacy-safe article text extraction.
+  - Hinterland UI Kit (`UIHelper`, `createStore`): Pre-styled accessible components (`createSwitch`, `createButton`, `createCard`, `createBadge`) matching Hinterland dark/light design tokens.
+  - Developer CLI (`hinterland-sdk` / `hinterland-ext`): Instant project scaffolding (`init`), security and manifest auditing (`validate`), and pure Node zip packager (`pack`).
+  - Full TypeScript Definitions: Complete `.d.ts` declaration file with comprehensive JSDoc annotations for IDE autocompletion.
+  - Showcase Example Extension: Fully functional Smart Reading Companion extension in `examples/smart-reader`.
+  - Comprehensive Documentation: Developer Guide & API Reference (`docs/extensions-sdk.md`) and Security Specification (`docs/extensions-security.md`).
+
+### Security
+- Extension Preload Sandbox Isolation: Replaced privileged `CHROME_PRELOAD` in extension popup windows with a dedicated sandboxed `EXTENSION_PRELOAD` (`window.hinterlandExtension`), preventing untrusted extensions from accessing internal browser controls, settings, or user history.
+- Extension Action Injection Hardening: Serialized extension ID parameters safely in tab action dispatches to prevent code injection.
+- Unpacked Extension Permission Auditing: Runtime rejection of dangerous permissions (`debugger`, `nativeMessaging`, `management`, `privacy`, `proxy`) and verification of safe directory file bounds.
 
 ## [1.9.0] - 2026-10-25
 

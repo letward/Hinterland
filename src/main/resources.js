@@ -14,6 +14,7 @@ export const PRELOAD_ROOT = join(ROOT, 'src', 'preload');
 
 export const CHROME_PRELOAD = join(PRELOAD_ROOT, 'chrome.cjs');
 export const PAGE_PRELOAD = join(PRELOAD_ROOT, 'page.cjs');
+export const EXTENSION_PRELOAD = join(PRELOAD_ROOT, 'extension.cjs');
 
 export function appIconPath() {
   const candidates = [

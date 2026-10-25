@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Smart Reading Companion",
+  "version": "1.0.0",
+  "description": "Calculates reading time, highlights key paragraphs, and formats articles into a clean reading view using the Hinterland Extension SDK.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "action": {
+    "default_title": "Smart Reader",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none';"
+  }
+}

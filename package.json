@@ -15,6 +15,9 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "check": "node scripts/check.mjs",
+    "test:sdk": "node --test sdk/test/*.test.mjs",
+    "test": "node scripts/check.mjs && node --test sdk/test/*.test.mjs",
+    "sdk": "node sdk/bin/hinterland-sdk.mjs",
     "icons": "node scripts/makeicon.mjs",
     "dist": "electron-builder"
   },
