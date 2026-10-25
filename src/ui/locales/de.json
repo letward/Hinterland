@@ -734,6 +734,9 @@
   "store": {
     "title": "Hinter Store",
     "subtitle": "Offizielle Erweiterungen, Community-Designs, individuelle Stile und Add-ons für Hinterland.",
+    "weeklyPickBadge": "Fokus der Woche",
+    "whatIsIt": "Was es ist",
+    "whyInFocus": "Wieso im Fokus",
     "all": "Alle",
     "themes": "Designs",
     "extensions": "Erweiterungen",

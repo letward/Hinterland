@@ -26,8 +26,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'system',
     blur: 18,
     tags: ['official', 'dark', 'balanced', 'blue'],
-    rating: 5.0,
-    downloads: '48.2k',
     description: 'Das offizielle Flaggschiff-Design von Hinterland. Ausgewogene Kontraste, modernes Nachtblau und elegantes Fokus-Styling.',
   },
   {
@@ -50,8 +48,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'system',
     blur: 12,
     tags: ['official', 'light', 'clean', 'bright'],
-    rating: 4.9,
-    downloads: '32.1k',
     description: 'Helles, klares Studio-Design mit hoher Lesbarkeit und frischem königsblauem Akzent für lichtdurchflutete Umgebungen.',
   },
   {
@@ -74,8 +70,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'mono',
     blur: 0,
     tags: ['official', 'dark', 'oled', 'battery-saver', 'high-contrast'],
-    rating: 4.9,
-    downloads: '27.4k',
     description: 'Tiefstes Schwarz für OLED-Displays. Maximale Akkulaufzeit, messerscharfe Typografie und neon-cyan Akzentstreifen.',
   },
   {
@@ -98,8 +92,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'humanist',
     blur: 20,
     tags: ['official', 'dark', 'nordic', 'calm'],
-    rating: 4.8,
-    downloads: '21.8k',
     description: 'Inspiriert von arktischen Polarnächten und eisblauem Gletscherlicht. Sanft zu den Augen und harmonisch ruhig.',
   },
   {
@@ -122,8 +114,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'geometric',
     blur: 16,
     tags: ['official', 'dark', 'nature', 'green'],
-    rating: 4.8,
-    downloads: '18.3k',
     description: 'Tiefes Nadelwald-Grün mit leuchtendem Smaragdfokus. Natürlich, beruhigend und ermüdungsfrei.',
   },
   {
@@ -146,8 +136,6 @@ export const OFFICIAL_THEMES = [
     fontStack: 'geometric',
     blur: 24,
     tags: ['official', 'dark', 'warm', 'purple', 'orange'],
-    rating: 4.9,
-    downloads: '24.6k',
     description: 'Warme Dämmerungsfarben mit Sonnenuntergangs-Orange auf sanftem Amethyst. Gemütlich und einladend.',
   },
 ];
@@ -173,8 +161,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'humanist',
     blur: 20,
     tags: ['community', 'dark', 'pastel', 'aesthetic'],
-    rating: 4.9,
-    downloads: '64.5k',
     description: 'Das geliebte Community-Farbschema: Beruhigende Pastelltöne, sanftes Lavendel und wohlige Farbkontraste für stundenlanges Surfen.',
   },
   {
@@ -197,8 +183,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'geometric',
     blur: 18,
     tags: ['community', 'dark', 'neon', 'cyberpunk', 'tokyo'],
-    rating: 4.9,
-    downloads: '52.1k',
     description: 'Ein beliebtes dunkles Thema, das die Lichter der Tokioter Innenstadt bei Nacht feiert. Klares Blau, feines Slate und Neon-Akzente.',
   },
   {
@@ -221,8 +205,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'mono',
     blur: 14,
     tags: ['community', 'dark', 'gothic', 'purple'],
-    rating: 4.9,
-    downloads: '78.9k',
     description: 'Das berühmte Theme für Entwickler und Kreative: Gotisches Vampir-Violett mit pinken und türkisen Glanzlichtern.',
   },
   {
@@ -245,8 +227,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'humanist',
     blur: 10,
     tags: ['community', 'dark', 'retro', 'warm', 'vintage'],
-    rating: 4.8,
-    downloads: '41.3k',
     description: 'Retro-Ästhetik mit erdigen Vintage-Tönen, sanftem Bernstein-Orange und gemütlicher Pergament-Wärme.',
   },
   {
@@ -269,8 +249,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'humanist',
     blur: 22,
     tags: ['community', 'light', 'aesthetic', 'rose', 'minimal'],
-    rating: 4.9,
-    downloads: '38.4k',
     description: 'Sanfte Eleganz mit zartem Rosé, Kiefernholz-Untertönen und verträumter Atmosphäre. Eines der beliebtesten hellen Themes.',
   },
   {
@@ -293,8 +271,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'mono',
     blur: 8,
     tags: ['community', 'dark', 'neon', 'cyberpunk', 'futuristic'],
-    rating: 4.7,
-    downloads: '36.2k',
     description: 'Explosives Neon-Gelb und Laser-Cyan auf chromatischem Nachtschwarz. Für Fans von Hi-Tech und futuristischen UIs.',
   },
   {
@@ -317,8 +293,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'geometric',
     blur: 12,
     tags: ['community', 'dark', 'scientific', 'contrast'],
-    rating: 4.8,
-    downloads: '29.7k',
     description: 'Wissenschaftlich abgestimmte Farbkontraste für langes ermüdungsfreies Arbeiten. Solar-Cyan auf samtigem Petrol.',
   },
   {
@@ -341,8 +315,6 @@ export const COMMUNITY_THEMES = [
     fontStack: 'geometric',
     blur: 0,
     tags: ['community', 'light', 'bauhaus', 'art', 'minimal'],
-    rating: 4.8,
-    downloads: '19.5k',
     description: 'Hommage an die klassische Moderne: Konsequenter Minimalismus, scharfe geometrische Kanten und kräftiges Bauhaus-Rot.',
   },
 ];
@@ -357,8 +329,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'security',
     iconName: 'lock',
     bundled: true,
-    rating: 5.0,
-    downloads: '85.4k',
     permissions: ['storage', 'activeTab'],
     description: 'Ende-zu-Ende verschlüsselter nativer Passwortmanager mit AES-256 GCM, Passwort-Generator und sicherem Autofill.',
     configOptions: [
@@ -376,8 +346,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'productivity',
     iconName: 'eye',
     bundled: true,
-    rating: 4.9,
-    downloads: '62.1k',
     permissions: ['activeTab', 'storage'],
     description: 'Ablenkungsfreies Leseerlebnis mit zentrierter Lesespalte, gedämpftem Hintergrund und optimierter Zeilenbreite.',
     configOptions: [
@@ -394,8 +362,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'utilities',
     iconName: 'layout',
     bundled: true,
-    rating: 4.8,
-    downloads: '44.3k',
     permissions: ['activeTab', 'storage'],
     description: 'Blendet störende Header und Footer auf Webseiten aus und zeigt eine elegante, schmale Titelleiste.',
     configOptions: [
@@ -412,8 +378,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'security',
     iconName: 'shield',
     bundled: false,
-    rating: 5.0,
-    downloads: '71.2k',
     permissions: ['activeTab', 'storage'],
     description: 'Erweiterter Privatsphären-Schutz: Blockiert aggressive Tracker, verwehrt Fingerprinting und bereinigt Tracking-Parameter in URLs.',
     configOptions: [
@@ -431,8 +395,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'productivity',
     iconName: 'edit',
     bundled: false,
-    rating: 4.9,
-    downloads: '39.8k',
     permissions: ['activeTab', 'storage'],
     description: 'Schnellnotizen & Web-Clipping direkt im Browser. Synchronisiert sich automatisch und unterstützt Markdown.',
     configOptions: [
@@ -450,8 +412,6 @@ export const OFFICIAL_EXTENSIONS = [
     category: 'utilities',
     iconName: 'globe',
     bundled: false,
-    rating: 4.9,
-    downloads: '56.7k',
     permissions: ['activeTab', 'storage'],
     description: 'Blitzschnelle Inline-Übersetzung von markierten Textabschnitten und Webseiten mit automatischer Spracherkennung.',
     configOptions: [
@@ -471,8 +431,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'appearance',
     iconName: 'moon',
     bundled: false,
-    rating: 4.9,
-    downloads: '94.2k',
     permissions: ['activeTab', 'storage'],
     description: 'Hochwertiger intelligenter Dunkelmodus für das gesamte Web mit individueller Helligkeits-, Kontrast- und Sepia-Steuerung.',
     configOptions: [
@@ -490,8 +448,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'productivity',
     iconName: 'clock',
     bundled: false,
-    rating: 4.8,
-    downloads: '48.9k',
     permissions: ['activeTab', 'storage'],
     description: 'Steigere deine Konzentration mit dem Pomodoro-Timer: 25-Minuten-Fokuszyklen, kurze & lange Pausen mit sanften Klangsignalen.',
     configOptions: [
@@ -510,8 +466,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'developer',
     iconName: 'code',
     bundled: false,
-    rating: 4.9,
-    downloads: '33.5k',
     permissions: ['activeTab', 'storage'],
     description: 'Power-Tools für Webentwickler: Live-CSS-Inspektor, Responsive-Ansichten-Leiste, Farbpipette und Grid-Overlay.',
     configOptions: [
@@ -528,8 +482,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'productivity',
     iconName: 'keyboard',
     bundled: false,
-    rating: 4.8,
-    downloads: '28.1k',
     permissions: ['activeTab'],
     description: 'Surfe im Web ganz ohne Maus mit Vim-Tasten: j/k für Scrollen, f für visuelle Link-Kürzel und d/u für halbe Seiten.',
     configOptions: [
@@ -546,8 +498,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'utilities',
     iconName: 'cpu',
     bundled: false,
-    rating: 4.9,
-    downloads: '61.4k',
     permissions: ['activeTab', 'storage'],
     description: 'Spart bis zu 70% RAM und schont den Akku, indem ungenutzte Hintergrund-Tabs nach einer einstellbaren Zeit pausiert werden.',
     configOptions: [
@@ -565,8 +515,6 @@ export const COMMUNITY_EXTENSIONS = [
     category: 'productivity',
     iconName: 'copy',
     bundled: false,
-    rating: 4.8,
-    downloads: '22.6k',
     permissions: ['activeTab'],
     description: 'Erfasst Artikel und Dokumentationen blitzsauber als formatiertes Markdown mit Titel, Metadaten und Quell-Link.',
     configOptions: [
@@ -965,6 +913,108 @@ console.log('[TabSuspender] Active.');`,
 
 /* ------------------------------------------------------------- Hinter Store Service */
 
+
+export const WEEKLY_PICKS = [
+  {
+    id: 'hinterlandpass',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Hinterland Pass',
+    whatIsIt: {
+      de: 'Nativer, Ende-zu-Ende verschlüsselter Passwortmanager mit AES-256 GCM Vault, sicherem Formular-Autofill und Master-Passwort-Schutz.',
+      en: 'Native, end-to-end encrypted password manager with AES-256 GCM vault, in-page credential autofill, and master password security.',
+    },
+    focusReason: {
+      de: 'Sichere Authentifizierung ohne Cloud-Zwang ist das Fundament digitaler Privatsphäre. Hinterland Pass verwahrt alle Anmeldedaten rein lokal und isoliert.',
+      en: 'Zero-knowledge credential security without external cloud dependence is fundamental to privacy. Hinterland Pass keeps your vault local and hardened.',
+    },
+  },
+  {
+    id: 'darkreader',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Dark Reader for Hinterland',
+    whatIsIt: {
+      de: 'Intelligenter Dunkelmodus mit individueller Kontrast-, Helligkeits- und Sepia-Steuerung für jede beliebige Webseite im Netz.',
+      en: 'Intelligent dark mode with custom contrast, brightness, and sepia warmth controls for every website on the web.',
+    },
+    focusReason: {
+      de: 'Reduziert die Augenbelastung bei nächtlichem Surfen drastisch und spart gleichzeitig wertvolle Akkukapazität auf OLED-Bildschirmen.',
+      en: 'Dramatically reduces visual fatigue when browsing in low-light environments while conserving battery on OLED displays.',
+    },
+  },
+  {
+    id: 'hinterlandshield',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Hinterland Shield',
+    whatIsIt: {
+      de: 'Erweiterter Privatsphären-Schutzschirm: Filtert aggressive Tracker, entfernt URL-Tracking-Parameter (utm, fbclid) und blockiert WebRTC-IP-Leaks.',
+      en: 'Advanced privacy protection shield: blocks intrusive trackers, strips tracking query parameters (utm, fbclid), and prevents WebRTC leaks.',
+    },
+    focusReason: {
+      de: 'Cross-Site-Tracking nimmt stetig zu. Hinterland Shield bereinigt Links noch vor dem Absenden und bewahrt deine digitale Privatsphäre ohne Geschwindigkeitsverlust.',
+      en: 'Cross-site trackers increasingly weaponize link URLs. Hinterland Shield sanitizes outbound links transparently without slowing down navigation.',
+    },
+  },
+  {
+    id: 'catppuccin-mocha',
+    type: 'theme',
+    badge: { de: 'Design der Woche', en: 'Theme Spotlight' },
+    title: 'Catppuccin Mocha',
+    whatIsIt: {
+      de: 'Weltweit beliebtes Community-Farbschema mit weichen Pastelltönen, samtigem Lavendel und sorgfältig abgestimmten Kontrastwerten.',
+      en: 'World-renowned community color palette featuring soothing pastels, warm lavender accents, and balanced readability.',
+    },
+    focusReason: {
+      de: 'Vereint minimalistische Ästhetik mit optimaler Lesbarkeit für langes, ermüdungsfreies Arbeiten und Surfen am Bildschirm.',
+      en: 'Combines elegant aesthetics with optimal contrast for extended, distraction-free reading and desktop harmony.',
+    },
+  },
+  {
+    id: 'pomodoro',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Pomodoro Focus Timer',
+    whatIsIt: {
+      de: 'Strukturierter Fokus-Timer mit 25-Minuten-Arbeitsblöcken, kurzen und langen Erholungspausen und dezenten Benachrichtigungen.',
+      en: 'Structured productivity timer with 25-minute focus intervals, short and long breaks, and gentle chime notifications.',
+    },
+    focusReason: {
+      de: 'Unterstützt effektives Zeitmanagement und hilft dabei, Unterbrechungen zu minimieren und konzentriert an anspruchsvollen Projekten zu bleiben.',
+      en: 'Fosters deep work habits and helps minimize context-switching on complex research and coding tasks.',
+    },
+  },
+  {
+    id: 'hinterlandfocus',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Hinterland Focus',
+    whatIsIt: {
+      de: 'Lesemodus für konzentriertes Arbeiten: Zentriert Textspalten, dämpft störende Seitenränder ab und sorgt für angenehme Zeilenbreiten.',
+      en: 'Distraction-free reading environment: centers article columns, dims busy sidebars, and optimizes line widths.',
+    },
+    focusReason: {
+      de: 'Verwandelt unruhige, überladene Nachrichtenseiten und Blogs in ein ruhiges, buchähnliches Leseerlebnis ohne Ablenkungen.',
+      en: 'Transforms cluttered news sites into a peaceful, typography-focused reading canvas with zero visual noise.',
+    },
+  },
+  {
+    id: 'tabsuspender',
+    type: 'extension',
+    badge: { de: 'Tipp der Woche', en: 'Weekly Pick' },
+    title: 'Tab Suspender Pro',
+    whatIsIt: {
+      de: 'Ressourcensparender Tab-Manager, der inaktive Hintergrund-Tabs automatisch schlafen legt und bis zu 70% Arbeitsspeicher freigibt.',
+      en: 'Resource-saving background tab manager that snoozes idle tabs after an inactivity period, freeing up to 70% RAM.',
+    },
+    focusReason: {
+      de: 'Hält den Browser selbst bei Dutzenden gleichzeitig geöffneten Tabs reaktionsschnell und flüssig, besonders auf leistungsschwächeren Laptops.',
+      en: 'Keeps the browser responsive and snappy during heavy multi-tab workflows while noticeably saving laptop battery.',
+    },
+  },
+];
+
 export class HinterStore {
   constructor() {
     this.userDataExtensions = join(app.getPath('userData'), 'extensions');
@@ -978,6 +1028,12 @@ export class HinterStore {
     } catch (e) {
       console.warn('[HinterStore] Could not create extensions dir', e);
     }
+  }
+
+  getWeeklyPick() {
+    const epochWeeks = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const pick = WEEKLY_PICKS[Math.abs(epochWeeks) % WEEKLY_PICKS.length];
+    return pick;
   }
 
   catalog() {
@@ -1013,10 +1069,22 @@ export class HinterStore {
       };
     });
 
+    const weeklyPickDef = this.getWeeklyPick();
+    let weeklyPickItem = null;
+    if (weeklyPickDef.type === 'extension') {
+      weeklyPickItem = allExtensions.find((e) => e.id === weeklyPickDef.id);
+    } else if (weeklyPickDef.type === 'theme') {
+      weeklyPickItem = allThemes.find((t) => t.id === weeklyPickDef.id);
+    }
+
     return {
       themes: allThemes,
       extensions: allExtensions,
       activeThemeId,
+      weeklyPick: {
+        ...weeklyPickDef,
+        item: weeklyPickItem,
+      },
       installedCount: {
         themes: allThemes.length,
         extensions: allExtensions.filter((e) => e.installed).length,
@@ -1133,8 +1201,6 @@ export class HinterStore {
       source: 'community',
       version: theme.version || '1.0.0',
       author: theme.author || 'Community',
-      downloads: theme.downloads || '1',
-      rating: theme.rating || 5.0,
       tags: theme.tags || ['community', 'custom'],
     };
 

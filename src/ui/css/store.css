@@ -776,3 +776,159 @@
   max-width: 400px;
   margin: 0;
 }
+
+/* ------------------------------------------------------------- Weekly Pick Banner */
+
+.storeWeeklyPick {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(79, 124, 255, 0.12) 0%, rgba(122, 92, 255, 0.08) 50%, rgba(254, 128, 25, 0.07) 100%), var(--surface);
+  border: 1px solid rgba(79, 124, 255, 0.28);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.storeWeeklyPick::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #fe8019 0%, transparent 70%);
+  opacity: 0.12;
+  pointer-events: none;
+  filter: blur(35px);
+}
+
+.weeklyPickHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.weeklyPickPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #fe8019 0%, #ff6b4a 100%);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(254, 128, 25, 0.35);
+}
+
+.weeklyPickPill svg {
+  width: 14px;
+  height: 14px;
+}
+
+.weeklyPickCategory {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--textDim);
+  font-weight: 600;
+}
+
+.weeklyPickCategory svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+}
+
+.weeklyPickTitleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.weeklyPickTitle {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.weeklyPickAuthor {
+  font-size: 0.82rem;
+  color: var(--textDim);
+}
+
+.weeklyPickBody {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 4px 0;
+}
+
+.weeklyPickSection {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weeklyPickHighlight {
+  border-left: 3px solid #fe8019;
+  background: linear-gradient(90deg, rgba(254, 128, 25, 0.08) 0%, rgba(0, 0, 0, 0.15) 100%);
+}
+
+.weeklyPickSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.weeklyPickHighlight .weeklyPickSectionHeader {
+  color: #fe8019;
+}
+
+.weeklyPickSectionHeader svg {
+  width: 14px;
+  height: 14px;
+}
+
+.weeklyPickText,
+.weeklyPickHighlightText {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.48;
+  color: var(--text);
+}
+
+.weeklyPickActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 680px) {
+  .weeklyPickBody {
+    grid-template-columns: 1fr;
+  }
+}

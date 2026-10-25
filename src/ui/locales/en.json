@@ -734,6 +734,9 @@
   "store": {
     "title": "Hinter Store",
     "subtitle": "Official extensions, community themes, custom styles and curated add-ons for Hinterland.",
+    "weeklyPickBadge": "Weekly Pick",
+    "whatIsIt": "What it is",
+    "whyInFocus": "Why it's in focus",
     "all": "All",
     "themes": "Themes",
     "extensions": "Extensions",

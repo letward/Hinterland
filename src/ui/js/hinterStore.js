@@ -1,6 +1,6 @@
 import { el, clear } from './util.js';
 import { icon } from './icons.js';
-import { t } from './i18n.js';
+import { t, currentLanguage } from './i18n.js';
 import { toast } from './toast.js';
 import { openModal, closeModal } from './modal.js';
 import { applyTheme } from './theme.js';
@@ -12,7 +12,7 @@ export function renderHinterStore(initialTab = 'all') {
   let currentTab = initialTab;
   let searchQuery = '';
   let sourceFilter = 'all'; // 'all' | 'official' | 'community'
-  let sortBy = 'recommended'; // 'recommended' | 'popular' | 'rating' | 'name'
+  let sortBy = 'recommended'; // 'recommended' | 'name'
   let catalogData = null;
 
   // Header & Hero
@@ -94,8 +94,6 @@ export function renderHinterStore(initialTab = 'all') {
     },
   }, [
     el('option', { value: 'recommended', text: t('store.sortRecommended') }),
-    el('option', { value: 'popular', text: t('store.sortPopular') }),
-    el('option', { value: 'rating', text: t('store.sortRating') }),
     el('option', { value: 'name', text: t('store.sortName') }),
   ]);
 
@@ -189,13 +187,153 @@ export function renderHinterStore(initialTab = 'all') {
       return true;
     }).sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name);
-      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-      if (sortBy === 'popular') return parseFloat(b.downloads || '0') - parseFloat(a.downloads || '0');
-      return 0; // recommended preserves default order
+      return 0; // recommended preserves curated default order
     });
   }
 
+  function renderWeeklyPickBanner(weeklyPick) {
+    if (!weeklyPick || !weeklyPick.item) return null;
+    const item = weeklyPick.item;
+    const isExtension = weeklyPick.type === 'extension';
+    const isTheme = weeklyPick.type === 'theme';
+    const isInstalled = isExtension ? item.installed : false;
+    const isEnabled = isExtension ? item.enabled : false;
+    const isActiveTheme = isTheme ? item.active : false;
+
+    const lang = currentLanguage();
+    const badgeText = weeklyPick.badge?.[lang] || weeklyPick.badge?.de || weeklyPick.badge || t('store.weeklyPickBadge');
+    const whatText = weeklyPick.whatIsIt?.[lang] || weeklyPick.whatIsIt?.de || weeklyPick.whatIsIt || item.description;
+    const reasonText = weeklyPick.focusReason?.[lang] || weeklyPick.focusReason?.de || weeklyPick.focusReason || '';
+
+    const banner = el('div', { class: 'storeWeeklyPick' });
+
+    // Badge Row
+    const badgeRow = el('div', { class: 'weeklyPickHeader' }, [
+      el('span', { class: 'weeklyPickPill' }, [
+        el('span', { html: icon('sparkles') }),
+        badgeText,
+      ]),
+      el('span', { class: 'weeklyPickCategory' }, [
+        el('span', { html: icon(isExtension ? (item.iconName || 'puzzle') : 'palette') }),
+        isExtension ? t('store.extensions') : t('store.themes'),
+      ]),
+    ]);
+
+    // Title Row
+    const titleRow = el('div', { class: 'weeklyPickTitleRow' }, [
+      el('h2', { class: 'weeklyPickTitle', text: item.name }),
+      el('span', { class: 'weeklyPickAuthor', text: `von ${item.author} • v${item.version}` }),
+    ]);
+
+    // Body: Was es ist & Wieso im Fokus
+    const body = el('div', { class: 'weeklyPickBody' }, [
+      el('div', { class: 'weeklyPickSection' }, [
+        el('div', { class: 'weeklyPickSectionHeader' }, [
+          el('span', { html: icon('info') }),
+          el('span', { class: 'weeklyPickSectionLabel', text: t('store.whatIsIt') }),
+        ]),
+        el('p', { class: 'weeklyPickText', text: whatText }),
+      ]),
+      el('div', { class: 'weeklyPickSection weeklyPickHighlight' }, [
+        el('div', { class: 'weeklyPickSectionHeader' }, [
+          el('span', { html: icon('eye') }),
+          el('span', { class: 'weeklyPickSectionLabel', text: t('store.whyInFocus') }),
+        ]),
+        el('p', { class: 'weeklyPickHighlightText', text: reasonText }),
+      ]),
+    ]);
+
+    // Actions
+    const actions = el('div', { class: 'weeklyPickActions' });
+
+    if (isExtension) {
+      if (!isInstalled) {
+        actions.append(
+          el('button', {
+            class: 'btnPrimary',
+            type: 'button',
+            onclick: async () => {
+              try {
+                await api().store.installExtension(item.id);
+                toast(t('store.extensionInstalled', { name: item.name }), 'success');
+                await loadData();
+                renderContent();
+              } catch (err) {
+                toast(err.message || 'Installation fehlgeschlagen', 'error');
+              }
+            },
+          }, [el('span', { html: icon('download') }), t('store.installExtension')]),
+        );
+      } else {
+        const toggle = el('button', {
+          class: 'switch',
+          type: 'button',
+          role: 'switch',
+          'aria-checked': String(isEnabled),
+          onclick: async () => {
+            toggle.disabled = true;
+            await api().extensions.toggle(item.id, !isEnabled);
+            await loadData();
+            renderContent();
+          },
+        });
+        actions.append(
+          toggle,
+          el('button', {
+            class: 'btnSecondary',
+            type: 'button',
+            onclick: () => openExtensionConfigurator(item, () => {
+              loadData().then(renderContent);
+            }),
+          }, [el('span', { html: icon('gear') }), t('store.configure')]),
+        );
+      }
+    } else if (isTheme) {
+      if (isActiveTheme) {
+        actions.append(
+          el('span', { class: 'cardBadge badgeActive', style: { padding: '6px 12px', fontSize: '0.85rem' }, text: t('store.activeTheme') }),
+          el('button', {
+            class: 'btnSecondary',
+            type: 'button',
+            onclick: () => openThemeCustomizer(item, () => {
+              loadData().then(renderContent);
+            }),
+          }, [el('span', { html: icon('brush') }), t('store.customizeTheme')]),
+        );
+      } else {
+        actions.append(
+          el('button', {
+            class: 'btnPrimary',
+            type: 'button',
+            onclick: async () => {
+              await api().store.applyTheme(item);
+              applyTheme();
+              toast(t('store.themeApplied', { name: item.name }), 'success');
+              await loadData();
+              renderContent();
+            },
+          }, [el('span', { html: icon('check') }), t('store.applyTheme')]),
+          el('button', {
+            class: 'btnSecondary',
+            type: 'button',
+            onclick: () => openThemeCustomizer(item, () => {
+              loadData().then(renderContent);
+            }),
+          }, [el('span', { html: icon('brush') }), t('store.customizeTheme')]),
+        );
+      }
+    }
+
+    banner.append(badgeRow, titleRow, body, actions);
+    return banner;
+  }
+
   function renderAllView() {
+    if (!searchQuery && sourceFilter === 'all' && catalogData?.weeklyPick) {
+      const pickBanner = renderWeeklyPickBanner(catalogData.weeklyPick);
+      if (pickBanner) contentArea.append(pickBanner);
+    }
+
     const filteredThemes = filterItems(catalogData.themes);
     const filteredExts = filterItems(catalogData.extensions);
 
@@ -365,13 +503,10 @@ export function renderHinterStore(initialTab = 'all') {
       el('span', { class: 'paletteDot', style: { background: text }, title: `Text: ${text}` }),
     ]);
 
-    // Meta (Rating & Downloads)
+    // Meta (Palette & Style Tag)
     const meta = el('div', { class: 'cardMeta' }, [
       palette,
-      el('div', { style: { display: 'flex', gap: '8px' } }, [
-        el('span', { class: 'cardRating', html: `${icon('star', true)} ${theme.rating}` }),
-        el('span', { text: `↓ ${theme.downloads}` }),
-      ]),
+      el('span', { class: 'cardTag', text: isDark ? 'Dark Theme' : 'Light Theme' }),
     ]);
 
     // Actions
@@ -469,11 +604,8 @@ export function renderHinterStore(initialTab = 'all') {
 
     const meta = el('div', { class: 'cardMeta' }, [
       el('div', { class: 'cardTags' }, [
-        ...(ext.permissions || []).map((p) => el('span', { class: 'cardTag', text: p })),
-      ]),
-      el('div', { style: { display: 'flex', gap: '8px' } }, [
-        el('span', { class: 'cardRating', html: `${icon('star', true)} ${ext.rating}` }),
-        el('span', { text: `↓ ${ext.downloads}` }),
+        el('span', { class: 'cardTag', style: { textTransform: 'capitalize' }, text: ext.category || 'Erweiterung' }),
+        ...(ext.permissions || []).slice(0, 2).map((p) => el('span', { class: 'cardTag', text: p })),
       ]),
     ]);
 
