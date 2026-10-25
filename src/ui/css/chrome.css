@@ -571,6 +571,12 @@ html[data-closeButton="always"] .tabClose {
   color: var(--text);
 }
 
+.extensionButton.actionTriggered {
+  transform: scale(0.88);
+  background: var(--surfaceHover);
+  color: var(--accent);
+}
+
 .extensionButton svg {
   width: 14px;
   height: 14px;

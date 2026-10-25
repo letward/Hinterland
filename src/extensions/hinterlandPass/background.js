@@ -106,7 +106,8 @@ async function updateBadgeForActiveTab() {
   if (typeof chrome === 'undefined' || !chrome.action?.setBadgeText) return;
 
   try {
-    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await chrome.tabs.query({});
+    const activeTab = tabs[0];
     if (!activeTab?.url) {
       await chrome.action.setBadgeText({ text: '' });
       return;
@@ -173,8 +174,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
           let activeTabDomain = '';
           try {
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (tab?.url) activeTabDomain = normalizeDomain(tab.url);
+            const tabs = await chrome.tabs.query({});
+            if (tabs[0]?.url) activeTabDomain = normalizeDomain(tabs[0].url);
           } catch {
             // Ignore tab lookup error
           }
@@ -387,13 +388,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         case 'HP_AUTOFILL_ACTIVE_TAB': {
-          const { username, password } = payload || {};
-          const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-          if (!activeTab?.id) {
+          const { username, password, tabId: passedTabId } = payload || {};
+          let targetTabId = passedTabId;
+          if (!targetTabId) {
+            try {
+              const tabs = await chrome.tabs.query({});
+              targetTabId = tabs[0]?.id;
+            } catch {}
+          }
+          if (!targetTabId) {
             throw new Error('No active tab found.');
           }
 
-          await chrome.tabs.sendMessage(activeTab.id, {
+          await chrome.tabs.sendMessage(targetTabId, {
             type: 'HP_DO_AUTOFILL',
             payload: { username, password },
           });

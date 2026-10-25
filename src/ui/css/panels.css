@@ -1555,5 +1555,86 @@
   height: auto;
 }
 
+/* ------------------------------------------------ omnibox search engine chips */
+
+.omniChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--borderSoft);
+  scrollbar-width: none;
+}
+
+.omniChipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.omniChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radiusSmall, 6px);
+  background: var(--surfaceHover, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--borderSoft);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.omniChip:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.omniChip.isSelected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.omniChipShortcut {
+  font-size: 10px;
+  opacity: 0.75;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* ------------------------------------------------ group color picker */
+
+.groupColorGrid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  flex-wrap: wrap;
+}
+
+.groupColorSwatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.groupColorSwatch:hover {
+  transform: scale(1.15);
+}
+
+.groupColorSwatch.active {
+  border-color: var(--text);
+  transform: scale(1.1);
+}
+
+
 
 

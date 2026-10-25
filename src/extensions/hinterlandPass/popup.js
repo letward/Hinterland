@@ -152,7 +152,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const { isInitialized, isUnlocked, activeTabDomain } = res.status;
-    activeSiteDomain = activeTabDomain || '';
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramUrl = urlParams.get('activeUrl');
+    const paramDomain = paramUrl ? normalizeDomain(paramUrl) : '';
+    activeSiteDomain = paramDomain || activeTabDomain || '';
 
     if (!isInitialized) {
       showSetupView();
@@ -455,9 +458,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnAutofill.className = 'btn small primary';
     btnAutofill.textContent = '⚡ Autofill';
     btnAutofill.onclick = async () => {
+      const tabId = Number(new URLSearchParams(window.location.search).get('tabId')) || undefined;
       await sendMessage('HP_AUTOFILL_ACTIVE_TAB', {
         username: item.username,
         password: item.password,
+        tabId,
       });
       showToast('Autofilled active tab!');
       if (window.hinterlandExtension?.closePopup) {
@@ -535,7 +540,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   btnFillGenerated.addEventListener('click', async () => {
     const pwd = genPasswordDisplay.textContent;
-    await sendMessage('HP_AUTOFILL_ACTIVE_TAB', { password: pwd });
+    const tabId = Number(new URLSearchParams(window.location.search).get('tabId')) || undefined;
+    await sendMessage('HP_AUTOFILL_ACTIVE_TAB', { password: pwd, tabId });
     showToast('Filled into active tab!');
     if (window.hinterlandExtension?.closePopup) {
       setTimeout(() => window.hinterlandExtension.closePopup(), 300);

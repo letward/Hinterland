@@ -4,6 +4,26 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.3] - 2026-10-25
+
+### Fixed
+- **Extension System Full Overhaul & Service Worker Compatibility**:
+  - **Hinterland Pass Service Worker**: Added `"type": "module"` under `background` in `manifest.json`. Resolves `Uncaught SyntaxError: Cannot use import statement outside a module` and service worker initialization failure (status code 15) in Chromium MV3.
+  - **Tab Query & Electron Active Tab Resolution**: Fixed `chrome.tabs.query({ active: true, currentWindow: true })` returning empty arrays inside Electron MV3 extensions. In Electron, `WebContentsView` tab contents lack Chromium native tab strip flags. The background service worker now safely queries all session tabs, and popup windows forward active site URL and tab ID via query parameters (`?activeUrl=...&tabId=...`).
+  - **Hinterland Pass Autofill Reliability**: `HP_AUTOFILL_ACTIVE_TAB` now respects explicitly targeted tab IDs from the popup, falling back gracefully to query lookup without throwing `Error: No active tab found.`.
+  - **Extension Action Content Script Dispatching**: Fixed toolbar button clicks failing for content script-based extensions (`hinterlandFocus`, `hinterlandPanel`, `markdownclipper`). Added listeners for `hinterland:extension-action` in content scripts and dispatched events directly into target web contents upon toolbar action invocation.
+  - **Packaged Electron ASAR Unpacking**: Added `"asarUnpack": ["src/extensions/**/*"]` to `package.json` and updated `src/main/resources.js` to dynamically resolve `app.asar.unpacked/src/extensions`. This ensures the Chromium C++ extension loader can read unpacked extensions directly from the physical filesystem when running in packaged Windows builds.
+  - **Extension Toolbar Interaction & Context Menus**: Left-clicking an extension toolbar button now seamlessly opens the extension popup dialog if action handling returns false or is not handled in-page. Right-clicking an extension toolbar button now triggers a context menu to inspect and manage extension details.
+  - **Electron Session Extension API Version Fallbacks**: Hardened `getSessionExtensions`, `removeSessionExtension`, and `loadSessionExtension` in `src/main/extensions.js` with defensive fallbacks across `session.extensions` and `session` root methods, alongside case-insensitive path normalization on Windows.
+
+### Added
+- **Extension SDK Toolbar Helper (`ContentHelper.onExtensionAction`)**: Added high-level listener method in `sdk/src/content.js` allowing custom extensions to subscribe to Hinterland toolbar action clicks.
+- **Manifest Validator Type Enforcement**: Updated `validateManifest` in `sdk/src/manifest.js` to ensure `"background.type"` is verified when service workers use ES module syntax.
+- **Automated Extension Regression Test Suite**: Added automated tests verifying service worker module declarations, action content script event subscriptions, packaged ASAR unpack configuration, and popup parameter passing.
+- **Search Engine Omnibox Chips**: Fast switching between configured search engines (@google, @duckduckgo, etc.) with clickable chips in the omnibox popup.
+- **Visual Tab Group Color Swatches**: Visual color palette picker popup when clicking a tab group's color indicator.
+- **Reading List "Open All Unread" Action**: One-click action in the Reading List panel to open all unread reading list articles in background tabs and mark them as read.
+
 ## [1.17.2] - 2026-10-25
 
 ### Fixed

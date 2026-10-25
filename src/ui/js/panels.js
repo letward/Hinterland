@@ -1016,11 +1016,27 @@ function readingListPage(mode = 'unread') {
               await api().readingList.add({ url: cur.url, title: cur.title, favicon: cur.favicon });
               refresh();
             } else {
-              toast(t('toast.noSearchEngine'), 'warning');
+              toast(t('toast.cannotAddSpecialPage'), 'warning');
             }
           },
         }, [el('span', { html: icon('plus') }), ` ${t('readingList.addCurrentTab')}`]),
       ]);
+
+      if (mode === 'unread') {
+        actionRow.append(
+          el('button', {
+            class: 'button',
+            type: 'button',
+            onclick: async () => {
+              const res = await api().readingList.openAllUnread();
+              if (res?.count > 0) {
+                toast(t('toast.allUnreadOpened', { count: res.count }), 'info');
+                refresh();
+              }
+            },
+          }, [el('span', { html: icon('external') }), ` ${t('readingList.openAllUnread')}`])
+        );
+      }
 
       if (mode !== 'unread') {
         actionRow.append(

@@ -111,6 +111,9 @@ export function validateManifest(manifest, options = {}) {
         errors.push('"background.service_worker" must be a relative path and must not escape the extension directory.');
       }
     }
+    if (manifest.background.type !== undefined && manifest.background.type !== 'module') {
+      errors.push('"background.type" if specified must be "module".');
+    }
   }
 
   // 6. Content scripts

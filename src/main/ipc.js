@@ -1020,6 +1020,19 @@ export function installIpc() {
     return { ok: true, list };
   });
 
+  handle('readingList:openAllUnread', () => {
+    const list = [...(settings.value('data.readingList') || [])];
+    const unread = list.filter((e) => !e.read);
+    for (const item of unread) {
+      item.read = true;
+      tabs.create({ url: item.url, background: true });
+    }
+    if (unread.length > 0) {
+      settings.set('data.readingList', list);
+    }
+    return { ok: true, count: unread.length };
+  });
+
   /* ---------------------------------------------------------------- notes */
   handle('notes:get', () => {
     return settings.value('data.notes') || [];

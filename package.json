@@ -1,7 +1,7 @@
 {
   "name": "hinterland",
   "productName": "Hinterland",
-  "version": "1.17.2",
+  "version": "1.17.3",
   "description": "Ein schneller, sicherer und frei anpassbarer Browser. A fast, secure and freely customisable browser.",
   "main": "src/main/main.js",
   "type": "module",
@@ -37,6 +37,9 @@
       "owner": "letward",
       "repo": "Hinterland"
     },
+    "asarUnpack": [
+      "src/extensions/**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "build/icons/icon.ico"

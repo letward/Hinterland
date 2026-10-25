@@ -1,5 +1,5 @@
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, statSync } from 'node:fs';
-import { join, dirname, basename, isAbsolute } from 'node:path';
+import { join, dirname, basename, isAbsolute, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { app, shell, BrowserWindow } from 'electron';
 import { defaultSession } from './sessions.js';
@@ -132,12 +132,36 @@ function resolveIcons(directory, manifest) {
   };
 }
 
+const normPath = (p) => (typeof p === 'string' ? resolve(p).toLowerCase() : '');
+
+function getSessionExtensions(ses) {
+  return ses.extensions?.getAllExtensions?.() ?? ses.getAllExtensions?.() ?? [];
+}
+
+async function removeSessionExtension(ses, id) {
+  try {
+    if (ses.extensions?.removeExtension) await ses.extensions.removeExtension(id);
+    else if (ses.removeExtension) await ses.removeExtension(id);
+  } catch {}
+}
+
+async function loadSessionExtension(ses, path, options) {
+  if (ses.extensions?.loadExtension) {
+    return await ses.extensions.loadExtension(path, options);
+  }
+  if (ses.loadExtension) {
+    return await ses.loadExtension(path, options);
+  }
+  throw new Error('extensionsApiUnavailable');
+}
+
 export class ExtensionManager {
   constructor() {
     this.filePath = join(app.getPath('userData'), REGISTRY_FILE);
     this.installed = new Map();
     this.live = new Map();
     this.errors = new Map();
+    this.currentPopup = null;
   }
 
   registry() {
@@ -200,16 +224,14 @@ export class ExtensionManager {
   async loadAll() {
     const enabled = this.enabledIds();
     const ses = defaultSession();
-    const loadedExtensions = ses.extensions.getAllExtensions?.() ?? [];
+    const loadedExtensions = getSessionExtensions(ses);
 
     for (const loaded of loadedExtensions) {
-      const entry = [...this.installed.values()].find((e) => e.path === loaded.path || this.live.get(e.id)?.id === loaded.id);
+      const entry = [...this.installed.values()].find(
+        (e) => normPath(e.path) === normPath(loaded.path) || this.live.get(e.id)?.id === loaded.id,
+      );
       if (!entry || !enabled.has(entry.id)) {
-        try {
-          await ses.extensions.removeExtension(loaded.id);
-        } catch (error) {
-          console.warn('[Hinterland] Could not remove extension from session:', loaded.id, error?.message ?? error);
-        }
+        await removeSessionExtension(ses, loaded.id);
         if (entry) {
           this.live.delete(entry.id);
           this.errors.delete(entry.id);
@@ -220,9 +242,7 @@ export class ExtensionManager {
     for (const [id, liveExt] of this.live.entries()) {
       if (!enabled.has(id)) {
         if (liveExt?.id) {
-          try {
-            await ses.extensions.removeExtension(liveExt.id);
-          } catch {}
+          await removeSessionExtension(ses, liveExt.id);
         }
         this.live.delete(id);
         this.errors.delete(id);
@@ -233,8 +253,10 @@ export class ExtensionManager {
       if (!enabled.has(entry.id)) continue;
 
       const currentLive = this.live.get(entry.id);
-      const allNow = ses.extensions.getAllExtensions?.() ?? [];
-      const alreadyInSession = allNow.find((e) => e.path === entry.path || (currentLive && e.id === currentLive.id));
+      const allNow = getSessionExtensions(ses);
+      const alreadyInSession = allNow.find(
+        (e) => normPath(e.path) === normPath(entry.path) || (currentLive && e.id === currentLive.id),
+      );
 
       if (currentLive && alreadyInSession) {
         this.errors.delete(entry.id);
@@ -242,13 +264,11 @@ export class ExtensionManager {
       }
 
       if (alreadyInSession?.id) {
-        try {
-          await ses.extensions.removeExtension(alreadyInSession.id);
-        } catch {}
+        await removeSessionExtension(ses, alreadyInSession.id);
       }
 
       try {
-        const extension = await ses.extensions.loadExtension(entry.path, {
+        const extension = await loadSessionExtension(ses, entry.path, {
           allowFileAccess: false,
           observeWindowCreation: false,
         });
@@ -284,9 +304,7 @@ export class ExtensionManager {
     }
     const ses = defaultSession();
     if (extension?.id) {
-      try {
-        await ses.extensions.removeExtension(extension.id);
-      } catch {}
+      await removeSessionExtension(ses, extension.id);
     }
     this.live.delete(id);
     return this.loadOne(id);
@@ -296,15 +314,13 @@ export class ExtensionManager {
     const entry = this.installed.get(id);
     if (!entry) return false;
     const ses = defaultSession();
-    const all = ses.extensions.getAllExtensions?.() ?? [];
-    const stale = all.find((e) => e.path === entry.path);
+    const all = getSessionExtensions(ses);
+    const stale = all.find((e) => normPath(e.path) === normPath(entry.path));
     if (stale?.id) {
-      try {
-        await ses.extensions.removeExtension(stale.id);
-      } catch {}
+      await removeSessionExtension(ses, stale.id);
     }
     try {
-      const extension = await ses.extensions.loadExtension(entry.path, {
+      const extension = await loadSessionExtension(ses, entry.path, {
         allowFileAccess: false,
         observeWindowCreation: false,
       });
@@ -329,6 +345,7 @@ export class ExtensionManager {
     const extension = this.live.get(id);
     const manifest = extension ? extension.manifest : readManifest(entry.path);
     const iconData = resolveIcons(entry.path, manifest);
+    const action = manifest?.action || manifest?.browser_action;
     return {
       id: entry.id,
       name: manifest?.name ?? entry.name,
@@ -338,9 +355,9 @@ export class ExtensionManager {
       bundled: entry.bundled,
       error: this.errors.get(entry.id) ?? null,
       path: entry.path,
-      action: manifest?.action ? {
-        defaultTitle: manifest.action.default_title ?? '',
-        defaultPopup: manifest.action.default_popup ?? null,
+      action: action ? {
+        defaultTitle: action.default_title ?? '',
+        defaultPopup: action.default_popup ?? null,
         defaultIcon: iconData.defaultIcon,
       } : null,
       icons: iconData.icons,
@@ -356,24 +373,30 @@ export class ExtensionManager {
     const extension = this.live.get(id);
     if (!extension) return false;
     const manifest = extension.manifest || readManifest(entry.path);
-    const action = manifest?.action;
-    if (!action) return false;
+    const action = manifest?.action || manifest?.browser_action || manifest?.page_action;
     const tab = tabs.active;
-    if (!tab) return false;
-    const popup = action.default_popup;
+    const popup = action?.default_popup;
+
     if (popup) {
+      if (this.currentPopup && !this.currentPopup.isDestroyed()) {
+        this.currentPopup.close();
+      }
       const base = pathToFileURL(entry.path).href;
       const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
       const popupClean = popup.replace(/^\/+/, '');
-      const popupUrl = extension?.id
+      const query = tab
+        ? `?activeUrl=${encodeURIComponent(tab.url || '')}&tabId=${tab.contents?.id || ''}`
+        : '';
+      const popupUrl = (extension?.id
         ? `chrome-extension://${extension.id}/${popupClean}`
-        : new URL(popup, baseWithSlash).toString();
+        : new URL(popup, baseWithSlash).toString()) + query;
+
       const win = new BrowserWindow({
         width: 380,
         height: 560,
         show: false,
         frame: false,
-        parent: surface.window,
+        parent: surface.window && !surface.window.isDestroyed() ? surface.window : undefined,
         modal: false,
         resizable: false,
         webPreferences: {
@@ -385,11 +408,16 @@ export class ExtensionManager {
           nodeIntegration: false,
         },
       });
+      this.currentPopup = win;
       win.loadURL(popupUrl).catch(() => {});
       win.center();
       win.show();
       win.on('blur', () => {
-        if (!win.isDestroyed()) win.close();
+        setTimeout(() => {
+          if (!win.isDestroyed() && !win.isFocused()) {
+            win.close();
+          }
+        }, 150);
       });
       win.webContents.on('before-input-event', (event, input) => {
         if (input.key === 'Escape' && !win.isDestroyed()) {
@@ -398,17 +426,22 @@ export class ExtensionManager {
       });
       return true;
     }
-    try {
-      await tab.contents.executeJavaScript(`
-        (function() {
-          const event = new CustomEvent('hinterland:extension-action', { detail: { extensionId: ${JSON.stringify(id)} } });
-          window.dispatchEvent(event);
-        })();
-      `);
-      return true;
-    } catch {
-      return false;
+
+    if (tab?.contents && !tab.contents.isDestroyed()) {
+      try {
+        await tab.contents.executeJavaScript(`
+          (function() {
+            const detail = { extensionId: ${JSON.stringify(id)} };
+            window.dispatchEvent(new CustomEvent('hinterland:extension-action', { detail }));
+            window.dispatchEvent(new CustomEvent('hinterland:clip-markdown', { detail }));
+          })();
+        `);
+        return true;
+      } catch {
+        return false;
+      }
     }
+    return false;
   }
 
   async setEnabled(id, enabled) {

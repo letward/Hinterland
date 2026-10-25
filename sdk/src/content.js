@@ -124,4 +124,23 @@ export class ContentHelper {
     observer.observe(target, options);
     return () => observer.disconnect();
   }
+
+  /**
+   * Registers a handler for the Hinterland extension action toolbar trigger.
+   *
+   * @param {string} [extensionId] - Optional extension ID to filter events
+   * @param {(detail: object) => void} callback - Handler called when action button is triggered
+   * @returns {() => void} Cleanup function to remove event listener
+   */
+  static onExtensionAction(extensionId, callback) {
+    if (typeof window === 'undefined') return () => {};
+    const handler = (event) => {
+      const detail = event?.detail;
+      if (!extensionId || detail?.extensionId?.toLowerCase() === String(extensionId).toLowerCase()) {
+        callback(detail);
+      }
+    };
+    window.addEventListener('hinterland:extension-action', handler);
+    return () => window.removeEventListener('hinterland:extension-action', handler);
+  }
 }

@@ -189,6 +189,7 @@ const api = {
     remove: (idOrUrl) => ipcRenderer.invoke('readingList:remove', idOrUrl),
     toggleRead: (id) => ipcRenderer.invoke('readingList:toggleRead', id),
     clearRead: () => ipcRenderer.invoke('readingList:clearRead'),
+    openAllUnread: () => ipcRenderer.invoke('readingList:openAllUnread'),
   },
 
   notes: {

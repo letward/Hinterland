@@ -1,10 +1,10 @@
-import { el, clear } from './util.js';
+import { el, clear, isInternal, prettyUrl } from './util.js';
 import { icon } from './icons.js';
 import { get } from './store.js';
 import { t } from './i18n.js';
+import { openPopup, closePopup, section } from './popup.js';
 
 const GROUP_COLORS = ['#4f7cff', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4', '#ec4899', '#64748b'];
-import { prettyUrl } from './util.js';
 
 const api = () => window.hinterland;
 
@@ -29,6 +29,48 @@ function groupColorDot(group) {
   return el('span', { class: 'groupColorDot', style: { background: group.color } });
 }
 
+function openGroupColorPicker(group) {
+  openPopup({
+    key: 'groupColor',
+    align: 'right',
+    render: (card) => {
+      card.append(section('menu.groupColorPick'));
+      const swatches = el('div', { class: 'groupColorGrid' });
+      for (const color of GROUP_COLORS) {
+        const swatch = el('button', {
+          class: `groupColorSwatch${group.color === color ? ' active' : ''}`,
+          type: 'button',
+          style: { backgroundColor: color },
+          title: color,
+          onclick: () => {
+            api().tabs.groupRecolor(group.id, color);
+            closePopup();
+          },
+        });
+        swatches.append(swatch);
+      }
+      card.append(swatches);
+      const customBtn = el('button', {
+        class: 'row',
+        type: 'button',
+        onclick: () => {
+          closePopup();
+          const value = prompt(t('menu.groupColorPrompt') || 'Colour (hex):', group.color);
+          if (value && /^#[0-9a-fA-F]{3,8}$/.test(value.trim())) {
+            api().tabs.groupRecolor(group.id, value.trim());
+          }
+        },
+      }, [
+        el('span', { class: 'rowIcon', html: icon('brush') }),
+        el('span', { class: 'rowBody' }, [
+          el('span', { class: 'rowTitle', text: t('menu.groupRecolor') }),
+        ]),
+      ]);
+      card.append(customBtn);
+    },
+  });
+}
+
 function buildGroupHeader(group, tabsInGroup) {
   const node = el('div', {
     class: `groupHeader${group.collapsed ? ' groupCollapsed' : ''}`,
@@ -38,18 +80,15 @@ function buildGroupHeader(group, tabsInGroup) {
 
   const colorDot = groupColorDot(group);
   colorDot.style.cursor = 'pointer';
-  colorDot.title = t('menu.groupRecolor') || 'Change colour';
+  colorDot.title = t('menu.groupColorPick') || 'Change colour';
   colorDot.addEventListener('click', (event) => {
     event.stopPropagation();
-    const currentIndex = GROUP_COLORS.indexOf(group.color);
-    const next = GROUP_COLORS[(currentIndex + 1) % GROUP_COLORS.length];
-    api().tabs.groupRecolor(group.id, next);
+    openGroupColorPicker(group);
   });
   colorDot.addEventListener('contextmenu', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const value = prompt(t('menu.groupColorPrompt') || 'Colour (hex):', group.color);
-    if (value) api().tabs.groupRecolor(group.id, value.trim());
+    openGroupColorPicker(group);
   });
 
   const toggle = el('button', {
@@ -350,8 +389,4 @@ export function allTabs() {
 
 export function bindTabs(node) {
   container = node;
-}
-
-function isInternal(url) {
-  return typeof url === 'string' && url.startsWith('hinterland://');
 }

@@ -17,4 +17,15 @@ chrome.runtime.onMessage.addListener((message) => {
   return undefined;
 });
 
+window.addEventListener('hinterland:extension-action', async (event) => {
+  if (event.detail?.extensionId === 'hinterlandfocus') {
+    const isCurrentlyOn = document.documentElement.getAttribute('data-hinterland-focus') === 'true';
+    const next = !isCurrentlyOn;
+    try {
+      await chrome.storage?.local?.set({ [KEY]: next });
+    } catch {}
+    apply(next);
+  }
+});
+
 chrome.storage?.local?.get(KEY).then((stored) => apply(Boolean(stored[KEY])));

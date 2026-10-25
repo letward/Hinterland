@@ -896,10 +896,14 @@ console.log('[TabSuspender] Active.');`,
           ],
         }, null, 2),
         'content.js': `(function() {
-  window.addEventListener('hinterland:clip-markdown', () => {
+  function clip() {
     const title = document.title || 'Artikel';
     const text = '# ' + title + '\\n\\n' + (document.querySelector('article, main, body')?.innerText || '') + '\\n\\n*Quelle: ' + location.href + '*';
     navigator.clipboard?.writeText?.(text);
+  }
+  window.addEventListener('hinterland:clip-markdown', clip);
+  window.addEventListener('hinterland:extension-action', (e) => {
+    if (e.detail?.extensionId === 'markdownclipper') clip();
   });
 })();`,
         'description.txt': 'Cleans and extracts webpage content into clean Markdown format with one click.',

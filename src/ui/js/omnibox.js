@@ -171,6 +171,35 @@ async function render(value, suggestions) {
   const engines = await api().search.engines();
   const trimmed = value.trim();
 
+  if (engines && engines.length > 0) {
+    const chipsRow = el('div', { class: 'omniChipsRow' });
+    for (const eng of engines) {
+      const isSelected = trimmed.startsWith(eng.shortcut || `@${eng.name.toLowerCase()}`);
+      const chip = el('button', {
+        class: `omniChip${isSelected ? ' isSelected' : ''}`,
+        type: 'button',
+        title: eng.shortcut ? `${eng.name} (${eng.shortcut})` : eng.name,
+        onclick: (e) => {
+          e.stopPropagation();
+          const shortcut = eng.shortcut || `@${eng.name.toLowerCase()}`;
+          let queryPart = input.value.trim();
+          if (queryPart.startsWith('@')) {
+            const spaceIdx = queryPart.indexOf(' ');
+            queryPart = spaceIdx !== -1 ? queryPart.slice(spaceIdx + 1).trim() : '';
+          }
+          input.value = queryPart ? `${shortcut} ${queryPart}` : `${shortcut} `;
+          input.focus();
+          fetchSuggestions(input.value);
+        },
+      }, [
+        el('span', { class: 'omniChipLabel', text: eng.name }),
+        eng.shortcut ? el('span', { class: 'omniChipShortcut', text: eng.shortcut }) : null,
+      ]);
+      chipsRow.append(chip);
+    }
+    card.append(chipsRow);
+  }
+
   if (trimmed) {
     const target = await api().search.resolve(trimmed);
     if (target.kind === 'url') {

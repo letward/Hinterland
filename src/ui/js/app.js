@@ -183,8 +183,22 @@ function bind() {
     if (!button) return;
     const id = button.dataset.extension;
     if (!id) return;
-    await api().extensions.action(id);
-    closeExtensionPopup();
+    const handled = await api().extensions.action(id);
+    if (!handled) {
+      openExtensionPopup(id);
+    } else {
+      closeExtensionPopup();
+      button.classList.add('actionTriggered');
+      setTimeout(() => button.classList.remove('actionTriggered'), 350);
+    }
+  });
+
+  $('#extensionToolbar').addEventListener('contextmenu', (event) => {
+    const button = event.target.closest('.extensionButton');
+    if (!button) return;
+    event.preventDefault();
+    const id = button.dataset.extension;
+    if (id) openExtensionPopup(id);
   });
 }
 

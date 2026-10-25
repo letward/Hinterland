@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const EXTENSIONS_DIR = join(ROOT, 'src', 'extensions');
+const BUNDLED_DIRS = ['hinterlandFocus', 'hinterlandPanel', 'hinterlandPass'];
 
 const PNG_HEADER = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
 
@@ -175,5 +176,65 @@ test('Extension Default Enablement & Lifecycle Logic', async (t) => {
     enabled.add('hinterlandpanel');
     assert.equal(enabled.has('hinterlandpanel'), true);
     assert.equal(enabled.size, 3);
+  });
+
+  await t.test('all bundled service workers declare type: module in manifest.json when using ES modules', () => {
+    for (const dirName of BUNDLED_DIRS) {
+      const dirPath = join(EXTENSIONS_DIR, dirName);
+      const manifest = JSON.parse(readFileSync(join(dirPath, 'manifest.json'), 'utf8'));
+      if (manifest.background?.service_worker) {
+        const swContent = readFileSync(join(dirPath, manifest.background.service_worker), 'utf8');
+        if (swContent.includes('import ') || swContent.includes('export ')) {
+          assert.equal(
+            manifest.background.type,
+            'module',
+            `${dirName} background service worker uses ES imports and must declare "type": "module" in manifest.json`,
+          );
+        }
+      }
+    }
+  });
+
+  await t.test('action content scripts declare listeners for hinterland:extension-action', () => {
+    const focusContent = readFileSync(join(EXTENSIONS_DIR, 'hinterlandFocus', 'content.js'), 'utf8');
+    assert.ok(
+      focusContent.includes("hinterland:extension-action") && focusContent.includes('hinterlandfocus'),
+      'hinterlandFocus content.js must listen for hinterland:extension-action',
+    );
+
+    const panelContent = readFileSync(join(EXTENSIONS_DIR, 'hinterlandPanel', 'content.js'), 'utf8');
+    assert.ok(
+      panelContent.includes("hinterland:extension-action") && panelContent.includes('hinterlandpanel'),
+      'hinterlandPanel content.js must listen for hinterland:extension-action',
+    );
+  });
+
+  await t.test('package.json declares asarUnpack for src/extensions', () => {
+    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+    assert.ok(Array.isArray(pkg.build?.asarUnpack), 'package.json build defines asarUnpack array');
+    assert.ok(
+      pkg.build.asarUnpack.some((pattern) => pattern.includes('src/extensions')),
+      'package.json asarUnpack includes src/extensions',
+    );
+  });
+
+  await t.test('extension popup URL builder correctly appends activeUrl and tabId parameters', () => {
+    function buildPopupUrl(extensionId, popupPath, tab) {
+      const popupClean = popupPath.replace(/^\/+/, '');
+      const query = tab
+        ? `?activeUrl=${encodeURIComponent(tab.url || '')}&tabId=${tab.contents?.id || ''}`
+        : '';
+      return `chrome-extension://${extensionId}/${popupClean}${query}`;
+    }
+
+    const url = buildPopupUrl('abc123ext', 'popup.html', {
+      url: 'https://github.com/login',
+      contents: { id: 42 },
+    });
+
+    assert.ok(url.startsWith('chrome-extension://abc123ext/popup.html?'));
+    const parsed = new URL(url);
+    assert.equal(parsed.searchParams.get('activeUrl'), 'https://github.com/login');
+    assert.equal(parsed.searchParams.get('tabId'), '42');
   });
 });

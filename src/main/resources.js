@@ -10,7 +10,16 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(here, '..', '..');
 export const UI_ROOT = join(ROOT, 'src', 'ui');
 export const I18N_ROOT = join(UI_ROOT, 'locales');
-export const EXTENSIONS_ROOT = join(ROOT, 'src', 'extensions');
+export function getExtensionsRoot() {
+  const direct = join(ROOT, 'src', 'extensions');
+  if (direct.includes('app.asar')) {
+    const unpacked = direct.replace('app.asar', 'app.asar.unpacked');
+    if (existsSync(unpacked)) return unpacked;
+  }
+  return direct;
+}
+
+export const EXTENSIONS_ROOT = getExtensionsRoot();
 export const ASSETS_ROOT = join(UI_ROOT, 'assets');
 export const PRELOAD_ROOT = join(ROOT, 'src', 'preload');
 
