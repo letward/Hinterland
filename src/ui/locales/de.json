@@ -66,6 +66,7 @@
     "tab": "Tab",
     "tools": "Werkzeuge",
     "copyLink": "Link kopieren",
+    "copyCleanLink": "Bereinigten Link kopieren",
     "addBookmark": "Lesezeichen setzen",
     "removeBookmark": "Lesezeichen entfernen",
     "openExternal": "Im Systembrowser öffnen",
@@ -310,9 +311,11 @@
     "runtime": "Laufzeitumgebung",
     "blocked": "Kürzlich blockierte Anfragen",
     "openFolder": "Datenordner öffnen",
-    "openDownloads": "Downloadordner öffnen"
+    "openDownloads": "Downloadordner öffnen",
+    "website": "Offizielle Website"
   },
   "toast": {
+    "copiedCleanUrl": "Bereinigter Link in die Zwischenablage kopiert",
     "noSearchEngine": "Es ist keine Suchmaschine eingerichtet. Füge eine in den Einstellungen hinzu.",
     "noTranslator": "Es ist kein Übersetzungsdienst eingerichtet.",
     "dataCleared": "Browserdaten gelöscht",

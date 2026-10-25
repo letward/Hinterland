@@ -425,6 +425,34 @@ export class SecureStorage {
 }
 
 /**
+ * Strips common tracking, campaign and affiliate query parameters from a URL.
+ *
+ * @param {string} raw - URL string to strip
+ * @returns {string} Clean URL without tracking parameters
+ */
+export function stripTracking(raw) {
+  try {
+    const url = new URL(raw);
+    const junk = [
+      'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+      'utm_id', 'utm_source_platform', 'utm_creative_format', 'utm_marketing_tactic',
+      'gclid', 'fbclid', 'mc_cid', 'mc_eid', 'igshid', 'msclkid', 'ref_src',
+      'twclid', 'yclid', '_hsenc', '_hsmi', 'vero_id',
+    ];
+    let changed = false;
+    for (const key of junk) {
+      if (url.searchParams.has(key)) {
+        url.searchParams.delete(key);
+        changed = true;
+      }
+    }
+    return changed ? url.toString() : raw;
+  } catch {
+    return raw;
+  }
+}
+
+/**
  * Factory helper for creating an isolated SecureStorage instance.
  *
  * @param {object} [options]

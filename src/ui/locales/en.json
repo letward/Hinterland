@@ -66,6 +66,7 @@
     "tab": "Tab",
     "tools": "Tools",
     "copyLink": "Copy link",
+    "copyCleanLink": "Copy clean link",
     "addBookmark": "Add bookmark",
     "removeBookmark": "Remove bookmark",
     "openExternal": "Open in the system browser",
@@ -310,9 +311,11 @@
     "runtime": "Engine",
     "blocked": "Recently blocked requests",
     "openFolder": "Open data folder",
-    "openDownloads": "Open downloads folder"
+    "openDownloads": "Open downloads folder",
+    "website": "Official Website"
   },
   "toast": {
+    "copiedCleanUrl": "Clean link copied to clipboard",
     "noSearchEngine": "No search engine is configured. Add one in the settings.",
     "noTranslator": "No translation service is configured.",
     "dataCleared": "Browsing data cleared",

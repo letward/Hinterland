@@ -4,6 +4,25 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.16.0] - 2026-10-25
+
+### Added
+- **Dedicated Website & Changelog Portal (Vercel)**:
+  - Added dedicated `website/` deployment package configured for Vercel with clean URLs and strict security headers.
+  - Interactive marketing and download portal featuring real-time release status, direct Windows installer download links, dark/light theme switching, and client-side markdown changelog parser fetching latest updates directly from GitHub.
+  - Added 1-click "Official Website" navigation button in the "About Hinterland" panel (`openAbout`), allowing users to visit the portal directly from within the browser.
+  - Added "About Hinterland" entry directly to the Main Menu for instant access to version details, diagnostic folders, and portal links.
+- **Privacy: Clean Link Sharing (`copyCleanUrl`)**:
+  - Added "Copy clean link" to the Tab context menu, Command Palette, and tab actions.
+  - Automatically strips invasive tracking parameters (`utm_*`, `gclid`, `fbclid`, `msclkid`, `yclid`, `twclid`, `igshid`, `mc_eid`, `_hsenc`, etc.) from URLs before copying to clipboard.
+  - Toast confirmation informs the user whenever a sanitized link has been copied.
+  - Exposed `stripTracking` in the Hinterland Extension SDK (`sdk/src/security.js`) and root export for third-party extensions.
+- **Tabstrip Management: Directional Tab Closing**:
+  - Added "Close tabs to the right" and "Close tabs to the left" directly to the Tabstrip context menu (`openTabMenu`).
+  - Seamlessly closes unpinned tabs in the chosen direction while preserving pinned tabs and the selected active tab.
+- **Test Suite**:
+  - Added unit test suite `sdk/test/v116Features.test.mjs` verifying clean link stripping, tracker parameter removal, and directional tab closing retention policies.
+
 ## [1.15.1] - 2026-10-25
 
 ### Added

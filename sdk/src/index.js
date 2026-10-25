@@ -16,6 +16,7 @@ export {
   rawSafeHtml,
   validateOrigin,
   maskSensitiveText,
+  stripTracking,
   encryptData,
   decryptData,
   SecureStorage,
