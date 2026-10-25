@@ -1,8 +1,3 @@
-// Vercel Serverless Function: collects website feedback and opens a GitHub Issue.
-// Required env vars (set in Vercel project settings):
-//   GITHUB_TOKEN  - PAT with `repo` scope
-//   GITHUB_REPO   - "owner/repo" (default: letward/Hinterland)
-
 const REPO = process.env.GITHUB_REPO || 'letward/Hinterland';
 const TOKEN = process.env.GITHUB_TOKEN;
 
@@ -18,7 +13,7 @@ function rateLimited(ip) {
   return entry.count > max;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -67,4 +62,4 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: String(e) });
   }
-}
+};
