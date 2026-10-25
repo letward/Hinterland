@@ -6,8 +6,9 @@ export const SCHEME_VERSION = 1;
 export const NEW_TAB_URL = `${SCHEME}://newtab/`;
 export const HISTORY_URL = `${SCHEME}://history/`;
 export const STORE_URL = `${SCHEME}://store/`;
-export const INTERNAL_HOSTS = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'assets', 'app', 'strings', 'store']);
-export const INTERNAL_PAGES = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'store']);
+export const PASSWORDS_URL = `${SCHEME}://passwords/`;
+export const INTERNAL_HOSTS = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'assets', 'app', 'strings', 'store', 'passwords']);
+export const INTERNAL_PAGES = new Set(['newtab', 'history', 'bookmarks', 'extensions', 'settings', 'store', 'passwords']);
 
 export const PARTITION = '';
 export const PRIVATE_PARTITION = 'hinterland:private';
@@ -63,6 +64,7 @@ export const DEFAULT_SHORTCUTS = {
   togglePiP: 'Ctrl+Shift+X',
   mediaControls: 'Ctrl+Alt+M',
   tabStash: 'Ctrl+Shift+U',
+  passwords: 'Ctrl+Alt+P',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

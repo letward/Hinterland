@@ -4,6 +4,24 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.4] - 2026-10-25
+
+### Added
+- **Password Manager Complete Overhaul & Zero-Knowledge Architecture**:
+  - **Zero-Knowledge Cryptographic Vault Engine**: Implemented `src/main/passwords.js` leveraging PBKDF2 (100,000 iterations of SHA-256) key derivation and authenticated AES-256-GCM encryption at rest (`data.passwordsVault` in settings schema). Decrypted vault items and keys are held strictly in memory only while unlocked and purged immediately on lock.
+  - **Inactivity Auto-Lock Timer**: Automatic vault locking with configurable timeout (default 15 minutes), wiping cached keys and decrypted credentials from memory upon inactivity.
+  - **Native Browser Passwords Panel**: Added dedicated Passwords panel (`Ctrl+Alt+P` or `hinterland://passwords/`) with 4 focused tabs:
+    - **This Site**: Instantly view, autofill, copy username/password, edit, or delete logins matching the active tab's domain.
+    - **All Passwords**: Filterable search across title, username, domain, and notes with quick reveal toggles and modal login editor.
+    - **Generator**: Interactive password generator with live entropy/strength scoring, length slider, character presets, and instant clipboard copy.
+    - **Settings**: Master password change, auto-lock timeout adjustment, autofill and prompt toggles, never-save domain management, and encrypted vault export/import.
+  - **Native Save Password Prompt**: Embedded prompt card below the omnibox toolbar triggered upon credential submission across web forms (`passwords:promptSave`), persisting across redirects with "Save", "Never for this site", and dismiss actions.
+  - **In-Page Autofill & Credential Capture**: Isolated preload form listener captures submitted credentials before navigation occurs, and autofill engine dispatches synthetic `input` and `change` events for full compatibility with modern web frameworks (React, Vue, Angular).
+  - **Clipboard Auto-Clearing**: Sensitive credentials copied to the clipboard are automatically wiped after 30 seconds for enhanced desktop security.
+  - **Never-Save Blacklist**: Blacklist management preventing save prompts on specific domains.
+  - **UI Integration**: Integrated into Main Menu (`menu.passwords` with `key` icon), Tabstrip context menu, Settings panel Data section, and Command Palette (`commandPalette.passwords`).
+  - **Automated Password Manager Test Suite**: Added `sdk/test/passwordManager.test.mjs` verifying setup, unlock, CRUD, search filtering, memory wiping on lock, master password changes, domain blacklists, export/import JSON, and generator entropy across 11 automated test cases.
+
 ## [1.17.3] - 2026-10-25
 
 ### Fixed

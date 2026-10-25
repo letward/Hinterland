@@ -301,6 +301,14 @@ export function openCommandPalette() {
             run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'notes' } })),
           },
           {
+            id: 'passwords',
+            title: t('commandPalette.passwords'),
+            category: t('commandPalette.categoryNavigation'),
+            shortcut: 'Ctrl+Alt+P',
+            icon: 'key',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
+          },
+          {
             id: 'clearData',
             title: t('commandPalette.clearData'),
             category: t('commandPalette.categoryCommand'),

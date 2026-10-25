@@ -28,6 +28,7 @@ const PATHS = {
   info: '<circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8.2v.1" />',
   globe: '<circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z" />',
   lock: '<rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" />',
+  key: '<circle cx="7.5" cy="15.5" r="4.5" /><path d="M21 3l-9.9 9.9M15 9l2 2M18 6l2 2" />',
   keyboard: '<rect x="3" y="6" width="18" height="12" rx="2" /><path d="M7 10h.1M11 10h.1M15 10h.1M17 10h.1M7 14h10" />',
   sliders: '<path d="M5 6h14M5 12h14M5 18h14" /><circle cx="9" cy="6" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="8" cy="18" r="2" />',
   archive: '<rect x="4" y="5" width="16" height="4" rx="1" /><path d="M6 9v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9" /><path d="M10 13h4" />',

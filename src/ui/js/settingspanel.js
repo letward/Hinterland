@@ -426,6 +426,10 @@ function sectionFooter(definition) {
   );
   if (definition.id === 'data') {
     wrapper.append(
+      el('button', { class: 'button primary', type: 'button', onclick: () => {
+        closeModal();
+        window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } }));
+      } }, [t('menu.passwords')]),
       el('button', { class: 'button', type: 'button', onclick: exportSettings }, [t('action.export')]),
       el('button', { class: 'button', type: 'button', onclick: importSettings }, [t('action.import')]),
       el('button', { class: 'button', type: 'button', onclick: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'about' } })) }, [t('action.about')]),

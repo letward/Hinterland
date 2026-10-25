@@ -747,6 +747,17 @@ export const SCHEMA = [
     descKey: 'settings.data.tabStashesDesc',
     section: 'data',
   }),
+  option('data.passwordsVault', 'object', null, {
+    internal: true,
+  }),
+  option('data.passwordsSettings', 'object', {
+    autoLockMinutes: 15,
+    autofillEnabled: true,
+    savePromptEnabled: true,
+    neverDomains: [],
+  }, {
+    internal: true,
+  }),
 
   /* --------------------------------------------------------------- shortcuts */
   option('shortcuts', 'keyvalue', {}, {

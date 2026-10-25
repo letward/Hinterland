@@ -114,6 +114,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openstash')),
         }),
         row({
+          iconName: 'key',
+          title: t('menu.passwords'),
+          subtitle: 'Ctrl+Alt+P',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
+        }),
+        row({
           iconName: 'trash',
           title: t('menu.clearBrowsingData'),
           subtitle: 'Ctrl+Shift+Del',
@@ -603,6 +609,12 @@ export function openTabstripMenu() {
           title: t('menu.tabStash'),
           subtitle: 'Ctrl+Shift+U',
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openstash')),
+        }),
+        row({
+          iconName: 'key',
+          title: t('menu.passwords'),
+          subtitle: 'Ctrl+Alt+P',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
         }),
         row({
           iconName: 'archive',

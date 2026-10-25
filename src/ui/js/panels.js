@@ -1,4 +1,4 @@
-import { el, clear, formatBytes, formatTime } from './util.js';
+import { el, clear, formatBytes, formatTime, copyToClipboard, prettyUrl } from './util.js';
 import { icon } from './icons.js';
 import { t, currentLanguage } from './i18n.js';
 import { openModal, closeModal } from './modal.js';
@@ -1754,5 +1754,737 @@ function tabStashPage() {
     },
   };
 }
+
+/* ------------------------------------------------------------- passwords */
+
+export function openPasswords(initialTab = 'passwords-current') {
+  const activeId = initialTab.startsWith('passwords-') ? initialTab : `passwords-${initialTab}`;
+  openModal({
+    title: t('passwords.title'),
+    iconName: 'key',
+    activeId,
+    nav: [
+      passwordsCurrentSitePage(),
+      passwordsAllLoginsPage(),
+      passwordsGeneratorPage(),
+      passwordsSettingsPage(),
+    ],
+  });
+}
+
+function renderVaultLockHeader(container, onLock) {
+  const bar = el('div', { class: 'actionRow', style: { marginBottom: '14px', justifyContent: 'space-between' } }, [
+    el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+      el('span', { class: 'groupColorDot', style: { background: '#22c55e' } }),
+      el('span', { style: { fontSize: '13px', fontWeight: '500', color: 'var(--textDim)' }, text: t('passwords.title') }),
+    ]),
+    el('button', {
+      class: 'button small',
+      type: 'button',
+      title: t('passwords.lock'),
+      onclick: async () => {
+        await api().passwords.lock();
+        toast(t('toast.vaultLocked'), 'info');
+        if (onLock) onLock();
+      },
+    }, [el('span', { html: icon('lock') }), ` ${t('passwords.lock')}`]),
+  ]);
+  container.append(bar);
+}
+
+function renderUnlockOrSetup(container, onUnlocked) {
+  clear(container);
+  (async () => {
+    const status = await api().passwords.getStatus();
+    if (status.isUnlocked) {
+      onUnlocked();
+      return;
+    }
+
+    const hero = el('div', { class: 'passwordsHero' });
+
+    if (!status.isInitialized) {
+      // First-time setup
+      hero.append(
+        el('div', { class: 'passwordsHeroIcon', html: icon('shield') }),
+        el('h2', { style: { margin: '0 0 6px 0', fontSize: '1.25em' }, text: t('passwords.setupTitle') }),
+        el('p', { class: 'pageDesc', style: { marginBottom: '18px' }, text: t('passwords.setupDesc') }),
+      );
+
+      const passInput = el('input', { class: 'textInput', type: 'password', required: true, minlength: '8', placeholder: t('passwords.enterMaster') });
+      const confirmInput = el('input', { class: 'textInput', type: 'password', required: true, minlength: '8', placeholder: t('passwords.confirmMaster') });
+      const errorMsg = el('div', { class: 'form-error', style: { color: 'var(--danger, #ef4444)', fontSize: '12px', minHeight: '16px' } });
+
+      const form = el('form', { class: 'passwordsForm' }, [
+        el('div', { class: 'passwordsField' }, [
+          el('label', { text: t('passwords.masterPassword') }),
+          el('div', { class: 'passwordsInputWrap' }, [passInput]),
+        ]),
+        el('div', { class: 'passwordsField' }, [
+          el('label', { text: t('passwords.confirmMaster') }),
+          el('div', { class: 'passwordsInputWrap' }, [confirmInput]),
+        ]),
+        errorMsg,
+        el('button', { class: 'button primary', type: 'submit' }, [t('passwords.createVault')]),
+      ]);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.textContent = '';
+        if (passInput.value.length < 8) {
+          errorMsg.textContent = t('passwords.minChars');
+          return;
+        }
+        if (passInput.value !== confirmInput.value) {
+          errorMsg.textContent = t('passwords.noMatch');
+          return;
+        }
+        try {
+          const res = await api().passwords.setup(passInput.value);
+          if (res?.ok) {
+            toast(t('toast.vaultUnlocked'), 'success');
+            onUnlocked();
+          } else {
+            errorMsg.textContent = res?.error || 'Setup failed';
+          }
+        } catch (err) {
+          errorMsg.textContent = err.message;
+        }
+      });
+
+      hero.append(form);
+    } else {
+      // Unlock existing vault
+      hero.append(
+        el('div', { class: 'passwordsHeroIcon', html: icon('lock') }),
+        el('h2', { style: { margin: '0 0 6px 0', fontSize: '1.25em' }, text: t('passwords.locked') }),
+        el('p', { class: 'pageDesc', style: { marginBottom: '18px' }, text: t('passwords.enterMaster') }),
+      );
+
+      const passInput = el('input', { class: 'textInput', type: 'password', required: true, autofocus: true, placeholder: t('passwords.masterPassword') });
+      const eyeBtn = el('button', {
+        class: 'passwordsEyeBtn',
+        type: 'button',
+        html: icon('eye'),
+        onclick: () => {
+          passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        },
+      });
+
+      const errorMsg = el('div', { style: { color: 'var(--danger, #ef4444)', fontSize: '12px', minHeight: '16px' } });
+
+      const form = el('form', { class: 'passwordsForm' }, [
+        el('div', { class: 'passwordsField' }, [
+          el('div', { class: 'passwordsInputWrap' }, [passInput, eyeBtn]),
+        ]),
+        errorMsg,
+        el('button', { class: 'button primary', type: 'submit' }, [t('passwords.unlock')]),
+      ]);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.textContent = '';
+        try {
+          const res = await api().passwords.unlock(passInput.value);
+          if (res?.ok) {
+            toast(t('toast.vaultUnlocked'), 'success');
+            onUnlocked();
+          } else {
+            errorMsg.textContent = t('passwords.incorrect');
+          }
+        } catch (err) {
+          errorMsg.textContent = err.message;
+        }
+      });
+
+      hero.append(form);
+    }
+
+    container.append(hero);
+  })();
+}
+
+function renderLoginEditor(container, item, onSaved, onCancel) {
+  clear(container);
+
+  const isEdit = Boolean(item?.id);
+  const titleInput = el('input', { class: 'textInput', type: 'text', required: true, value: item?.title || '', placeholder: 'z.B. GitHub' });
+  const domainInput = el('input', { class: 'textInput', type: 'text', required: true, value: item?.domain || item?.url || '', placeholder: 'z.B. github.com' });
+  const userInput = el('input', { class: 'textInput', type: 'text', value: item?.username || '', placeholder: 'z.B. user@example.com' });
+  const passInput = el('input', { class: 'textInput', type: 'password', required: true, value: item?.password || '', placeholder: t('passwords.password') });
+
+  const eyeBtn = el('button', {
+    class: 'passwordsEyeBtn',
+    type: 'button',
+    html: icon('eye'),
+    onclick: () => {
+      passInput.type = passInput.type === 'password' ? 'text' : 'password';
+    },
+  });
+
+  const notesInput = el('textarea', { class: 'textInput', rows: 2, placeholder: t('passwords.notes') });
+  notesInput.value = item?.notes || '';
+
+  const form = el('form', { class: 'passwordsForm', style: { maxWidth: '520px', margin: '0 auto' } }, [
+    el('h2', { style: { margin: '0 0 12px 0', fontSize: '1.2em' }, text: isEdit ? t('passwords.editLogin') : t('passwords.addLogin') }),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.titleField') }),
+      titleInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.domain') }),
+      domainInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.username') }),
+      userInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.password') }),
+      el('div', { class: 'passwordsInputWrap' }, [passInput, eyeBtn]),
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.notes') }),
+      notesInput,
+    ]),
+    el('div', { class: 'actionRow', style: { marginTop: '12px', justifyContent: 'flex-end' } }, [
+      el('button', { class: 'button', type: 'button', onclick: onCancel }, [t('action.cancel')]),
+      el('button', { class: 'button primary', type: 'submit' }, [t('passwords.save')]),
+    ]),
+  ]);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+      ...(item || {}),
+      title: titleInput.value.trim(),
+      domain: domainInput.value.trim(),
+      url: domainInput.value.trim().startsWith('http') ? domainInput.value.trim() : `https://${domainInput.value.trim()}`,
+      username: userInput.value.trim(),
+      password: passInput.value,
+      notes: notesInput.value.trim(),
+    };
+    const res = await api().passwords.saveLogin(payload);
+    if (res?.ok) {
+      toast(t(isEdit ? 'toast.passwordUpdated' : 'toast.passwordSaved'), 'success');
+      onSaved();
+    } else {
+      toast(res?.error || 'Save failed', 'danger');
+    }
+  });
+
+  container.append(form);
+}
+
+function passwordsCurrentSitePage() {
+  return {
+    id: 'passwords-current',
+    icon: 'globe',
+    labelKey: 'passwords.thisSite',
+    render: () => {
+      const container = el('div');
+
+      const renderSiteLogins = async () => {
+        clear(container);
+        renderVaultLockHeader(container, () => renderUnlockOrSetup(container, renderSiteLogins));
+
+        const tab = currentTab();
+        const activeUrl = tab?.url || '';
+        const status = await api().passwords.getStatus(activeUrl);
+
+        const domain = status.activeTabDomain || (tab?.url ? prettyUrl(tab.url).split('/')[0] : '');
+
+        container.append(
+          head(
+            domain ? `Logins: ${domain}` : t('passwords.thisSite'),
+            t('passwords.desc')
+          )
+        );
+
+        const topActions = el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+          el('button', {
+            class: 'button primary',
+            type: 'button',
+            onclick: () => {
+              renderLoginEditor(
+                container,
+                { domain, title: domain, url: tab?.url || '' },
+                () => renderSiteLogins(),
+                () => renderSiteLogins()
+              );
+            },
+          }, [el('span', { html: icon('plus') }), ` ${t('passwords.addLogin')}`]),
+        ]);
+        container.append(topActions);
+
+        const res = await api().passwords.getLoginsForUrl(domain);
+        const logins = res.logins || [];
+
+        const list = el('div', { class: 'card' });
+
+        if (!logins.length) {
+          list.append(el('div', { class: 'empty', text: t('passwords.noLoginsSite') }));
+        } else {
+          for (const item of logins) {
+            const row = el('div', { class: 'passwordsItemRow' });
+
+            const meta = el('div', { class: 'passwordsItemMeta' }, [
+              el('span', { class: 'passwordsItemTitle' }, [
+                el('span', { html: icon('key') }),
+                item.title || item.domain,
+              ]),
+              el('span', { class: 'passwordsItemUser', text: item.username || '—' }),
+            ]);
+
+            const actions = el('div', { class: 'passwordsItemActions' }, [
+              el('button', {
+                class: 'button small primary',
+                type: 'button',
+                title: t('passwords.fill'),
+                onclick: async () => {
+                  const filled = await api().passwords.autofillActiveTab({ username: item.username, password: item.password });
+                  if (filled?.ok) toast(t('toast.autofillSuccess'), 'success');
+                  else toast(t('passwords.fill'), 'info');
+                },
+              }, [el('span', { html: icon('sparkles') }), ` ${t('passwords.fill')}`]),
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('passwords.copyUser'),
+                onclick: () => {
+                  copyToClipboard(item.username);
+                  toast(t('toast.usernameCopied'), 'info');
+                },
+              }, [el('span', { html: icon('copy') })]),
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('passwords.copyPass'),
+                onclick: () => {
+                  copyToClipboard(item.password, 30);
+                  toast(t('toast.passwordCopied'), 'info');
+                },
+              }, [el('span', { html: icon('lock') })]),
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('action.edit'),
+                onclick: () => {
+                  renderLoginEditor(container, item, () => renderSiteLogins(), () => renderSiteLogins());
+                },
+              }, [el('span', { html: icon('edit') })]),
+              el('button', {
+                class: 'iconButton small danger',
+                type: 'button',
+                title: t('passwords.delete'),
+                onclick: async () => {
+                  const confirmed = await api().dialog.confirm({
+                    title: t('passwords.delete'),
+                    message: `${t('passwords.delete')} "${item.title || item.domain}"?`,
+                  });
+                  if (confirmed) {
+                    await api().passwords.deleteLogin(item.id);
+                    toast(t('toast.passwordDeleted'), 'info');
+                    renderSiteLogins();
+                  }
+                },
+              }, [el('span', { html: icon('trash') })]),
+            ]);
+
+            row.append(meta, actions);
+            list.append(row);
+          }
+        }
+
+        container.append(list);
+      };
+
+      renderUnlockOrSetup(container, renderSiteLogins);
+      return container;
+    },
+  };
+}
+
+function passwordsAllLoginsPage() {
+  return {
+    id: 'passwords-all',
+    icon: 'lock',
+    labelKey: 'passwords.allLogins',
+    render: () => {
+      const container = el('div');
+
+      const renderAll = async () => {
+        clear(container);
+        renderVaultLockHeader(container, () => renderUnlockOrSetup(container, renderAll));
+        container.append(head(t('passwords.allLogins'), t('passwords.desc')));
+
+        let currentSearch = '';
+
+        const listContainer = el('div', { class: 'card' });
+
+        const refreshList = async () => {
+          clear(listContainer);
+          const res = await api().passwords.getAllLogins(currentSearch);
+          const logins = res?.logins || [];
+
+          if (!logins.length) {
+            listContainer.append(el('div', { class: 'empty', text: t('passwords.noLogins') }));
+            return;
+          }
+
+          for (const item of logins) {
+            const row = el('div', { class: 'passwordsItemRow' });
+
+            const meta = el('div', { class: 'passwordsItemMeta' }, [
+              el('span', { class: 'passwordsItemTitle' }, [
+                el('span', { html: icon('key') }),
+                item.title || item.domain,
+              ]),
+              el('span', { class: 'passwordsItemUser', text: `${item.username ? item.username + ' • ' : ''}${item.domain || ''}` }),
+            ]);
+
+            const actions = el('div', { class: 'passwordsItemActions' }, [
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('passwords.copyUser'),
+                onclick: () => {
+                  copyToClipboard(item.username);
+                  toast(t('toast.usernameCopied'), 'info');
+                },
+              }, [el('span', { html: icon('copy') })]),
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('passwords.copyPass'),
+                onclick: () => {
+                  copyToClipboard(item.password, 30);
+                  toast(t('toast.passwordCopied'), 'info');
+                },
+              }, [el('span', { html: icon('lock') })]),
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                title: t('action.edit'),
+                onclick: () => {
+                  renderLoginEditor(container, item, () => renderAll(), () => renderAll());
+                },
+              }, [el('span', { html: icon('edit') })]),
+              el('button', {
+                class: 'iconButton small danger',
+                type: 'button',
+                title: t('passwords.delete'),
+                onclick: async () => {
+                  const confirmed = await api().dialog.confirm({
+                    title: t('passwords.delete'),
+                    message: `${t('passwords.delete')} "${item.title || item.domain}"?`,
+                  });
+                  if (confirmed) {
+                    await api().passwords.deleteLogin(item.id);
+                    toast(t('toast.passwordDeleted'), 'info');
+                    refreshList();
+                  }
+                },
+              }, [el('span', { html: icon('trash') })]),
+            ]);
+
+            row.append(meta, actions);
+            listContainer.append(row);
+          }
+        };
+
+        const { field } = searchBox((val) => {
+          currentSearch = val;
+          refreshList();
+        });
+
+        const topActions = el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+          el('button', {
+            class: 'button primary',
+            type: 'button',
+            onclick: () => {
+              renderLoginEditor(container, null, () => renderAll(), () => renderAll());
+            },
+          }, [el('span', { html: icon('plus') }), ` ${t('passwords.addLogin')}`]),
+        ]);
+
+        container.append(topActions, field, listContainer);
+        refreshList();
+      };
+
+      renderUnlockOrSetup(container, renderAll);
+      return container;
+    },
+  };
+}
+
+function passwordsGeneratorPage() {
+  return {
+    id: 'passwords-generator',
+    icon: 'sparkles',
+    labelKey: 'passwords.generator',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('passwords.generator'), t('passwords.desc')));
+
+      let currentPassword = '';
+
+      const display = el('div', { class: 'passwordsGenDisplay' });
+
+      const strengthBarFill = el('div', { class: 'passwordsStrengthBarFill' });
+      const strengthBarBg = el('div', { class: 'passwordsStrengthBarBg' }, [strengthBarFill]);
+      const strengthLabel = el('span', { text: '' });
+      const entropyLabel = el('span', { text: '' });
+      const strengthWrap = el('div', { class: 'passwordsStrengthWrap' }, [
+        strengthBarBg,
+        el('div', { class: 'passwordsStrengthMeta' }, [strengthLabel, entropyLabel]),
+      ]);
+
+      const lengthVal = el('span', { style: { fontWeight: '600' }, text: '20' });
+      const slider = el('input', { type: 'range', min: '8', max: '64', value: '20', class: 'slider', style: { width: '100%' } });
+
+      const chkUpper = el('input', { type: 'checkbox', checked: true });
+      const chkLower = el('input', { type: 'checkbox', checked: true });
+      const chkNum = el('input', { type: 'checkbox', checked: true });
+      const chkSym = el('input', { type: 'checkbox', checked: true });
+      const chkAmb = el('input', { type: 'checkbox', checked: false });
+
+      const refreshGen = async () => {
+        const len = Number(slider.value) || 20;
+        lengthVal.textContent = String(len);
+        const res = await api().passwords.generatePassword({
+          length: len,
+          uppercase: chkUpper.checked,
+          lowercase: chkLower.checked,
+          numbers: chkNum.checked,
+          symbols: chkSym.checked,
+          avoidAmbiguous: chkAmb.checked,
+        });
+
+        currentPassword = res.password;
+        display.textContent = currentPassword;
+
+        const str = res.strength;
+        strengthBarFill.style.width = `${str.score}%`;
+        strengthBarFill.style.backgroundColor = str.color;
+
+        let labelText = t('passwords.strengthStrong');
+        if (str.score >= 100) labelText = t('passwords.strengthExcellent');
+        else if (str.score >= 60) labelText = t('passwords.strengthGood');
+        else if (str.score >= 40) labelText = t('passwords.strengthFair');
+        else if (str.score <= 20) labelText = t('passwords.strengthWeak');
+
+        strengthLabel.textContent = labelText;
+        entropyLabel.textContent = `${str.entropy} Bits`;
+      };
+
+      slider.addEventListener('input', refreshGen);
+      [chkUpper, chkLower, chkNum, chkSym, chkAmb].forEach((c) => c.addEventListener('change', refreshGen));
+
+      const actions = el('div', { class: 'actionRow', style: { marginTop: '12px' } }, [
+        el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: () => {
+            copyToClipboard(currentPassword, 30);
+            toast(t('toast.passwordCopied'), 'info');
+          },
+        }, [el('span', { html: icon('copy') }), ` ${t('passwords.copyGenerated')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: refreshGen,
+        }, [el('span', { html: icon('reload') }), ` ${t('passwords.generate')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            const filled = await api().passwords.autofillActiveTab({ password: currentPassword });
+            if (filled?.ok) toast(t('toast.autofillSuccess'), 'success');
+            else toast(t('passwords.fillGenerated'), 'info');
+          },
+        }, [el('span', { html: icon('sparkles') }), ` ${t('passwords.fillGenerated')}`]),
+      ]);
+
+      const optionsBox = el('div', { class: 'card', style: { padding: '16px', marginTop: '14px' } }, [
+        el('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '8px' } }, [
+          el('span', { style: { fontSize: '13px', color: 'var(--textDim)' }, text: t('passwords.length') }),
+          lengthVal,
+        ]),
+        slider,
+        el('div', { class: 'passwordsOptionsGrid' }, [
+          el('label', { class: 'passwordsCheckLabel' }, [chkUpper, t('passwords.uppercase')]),
+          el('label', { class: 'passwordsCheckLabel' }, [chkLower, t('passwords.lowercase')]),
+          el('label', { class: 'passwordsCheckLabel' }, [chkNum, t('passwords.numbers')]),
+          el('label', { class: 'passwordsCheckLabel' }, [chkSym, t('passwords.symbols')]),
+          el('label', { class: 'passwordsCheckLabel', style: { gridColumn: '1 / -1' } }, [chkAmb, t('passwords.avoidAmbiguous')]),
+        ]),
+      ]);
+
+      container.append(display, strengthWrap, actions, optionsBox);
+      refreshGen();
+      return container;
+    },
+  };
+}
+
+function passwordsSettingsPage() {
+  return {
+    id: 'passwords-settings',
+    icon: 'gear',
+    labelKey: 'passwords.settings',
+    render: () => {
+      const container = el('div');
+
+      const renderSettings = async () => {
+        clear(container);
+        renderVaultLockHeader(container, () => renderUnlockOrSetup(container, renderSettings));
+        container.append(head(t('passwords.settings'), t('passwords.desc')));
+
+        const status = await api().passwords.getStatus();
+        const conf = status.settings || {};
+
+        const list = el('div', { class: 'card' });
+
+        // Auto-lock option
+        const selectLock = el('select', { class: 'siteInfoPermSelect' }, [
+          el('option', { value: '5', text: '5 min' }),
+          el('option', { value: '15', text: '15 min' }),
+          el('option', { value: '30', text: '30 min' }),
+          el('option', { value: '60', text: '1 h' }),
+          el('option', { value: '0', text: 'Nie' }),
+        ]);
+        selectLock.value = String(conf.autoLockMinutes ?? 15);
+        selectLock.addEventListener('change', async () => {
+          await api().passwords.updateSettings({ autoLockMinutes: Number(selectLock.value) });
+          toast(t('toast.passwordUpdated'), 'success');
+        });
+
+        const autoLockRow = el('div', { class: 'optionRow' }, [
+          el('div', { class: 'optionText' }, [
+            el('div', { class: 'optionTitle', text: t('passwords.autoLock') }),
+            el('div', { class: 'optionHint', text: t('passwords.autoLockDesc') }),
+          ]),
+          el('div', { class: 'optionControl' }, [selectLock]),
+        ]);
+
+        // Change master password
+        const changePassBtn = el('button', {
+          class: 'button small',
+          type: 'button',
+          onclick: () => {
+            renderChangePasswordView(container, () => renderSettings());
+          },
+        }, [t('passwords.changeMaster')]);
+
+        const changePassRow = el('div', { class: 'optionRow' }, [
+          el('div', { class: 'optionText' }, [
+            el('div', { class: 'optionTitle', text: t('passwords.changeMaster') }),
+            el('div', { class: 'optionHint', text: t('passwords.setupDesc') }),
+          ]),
+          el('div', { class: 'optionControl' }, [changePassBtn]),
+        ]);
+
+        // Export Vault
+        const exportBtn = el('button', {
+          class: 'button small',
+          type: 'button',
+          onclick: async () => {
+            await api().passwords.exportVault();
+          },
+        }, [el('span', { html: icon('download') }), ` ${t('passwords.export')}`]);
+
+        const exportRow = el('div', { class: 'optionRow' }, [
+          el('div', { class: 'optionText' }, [
+            el('div', { class: 'optionTitle', text: t('passwords.export') }),
+            el('div', { class: 'optionHint', text: 'JSON Backup' }),
+          ]),
+          el('div', { class: 'optionControl' }, [exportBtn]),
+        ]);
+
+        // Import Vault
+        const importBtn = el('button', {
+          class: 'button small',
+          type: 'button',
+          onclick: async () => {
+            const res = await api().passwords.importVault();
+            if (res?.ok) renderSettings();
+          },
+        }, [el('span', { html: icon('upload') }), ` ${t('passwords.import')}`]);
+
+        const importRow = el('div', { class: 'optionRow' }, [
+          el('div', { class: 'optionText' }, [
+            el('div', { class: 'optionTitle', text: t('passwords.import') }),
+            el('div', { class: 'optionHint', text: 'JSON Backup' }),
+          ]),
+          el('div', { class: 'optionControl' }, [importBtn]),
+        ]);
+
+        list.append(autoLockRow, changePassRow, exportRow, importRow);
+        container.append(list);
+      };
+
+      renderUnlockOrSetup(container, renderSettings);
+      return container;
+    },
+  };
+}
+
+function renderChangePasswordView(container, onDone) {
+  clear(container);
+  container.append(head(t('passwords.changeMaster'), t('passwords.setupDesc')));
+
+  const currInput = el('input', { class: 'textInput', type: 'password', required: true, placeholder: t('passwords.currentMaster') });
+  const newInput = el('input', { class: 'textInput', type: 'password', required: true, minlength: '8', placeholder: t('passwords.newMaster') });
+  const confirmInput = el('input', { class: 'textInput', type: 'password', required: true, minlength: '8', placeholder: t('passwords.confirmMaster') });
+  const errorMsg = el('div', { style: { color: 'var(--danger, #ef4444)', fontSize: '12px', minHeight: '16px' } });
+
+  const form = el('form', { class: 'passwordsForm', style: { maxWidth: '480px', margin: '0 auto' } }, [
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.currentMaster') }),
+      currInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.newMaster') }),
+      newInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('passwords.confirmMaster') }),
+      confirmInput,
+    ]),
+    errorMsg,
+    el('div', { class: 'actionRow', style: { marginTop: '12px', justifyContent: 'flex-end' } }, [
+      el('button', { class: 'button', type: 'button', onclick: onDone }, [t('action.cancel')]),
+      el('button', { class: 'button primary', type: 'submit' }, [t('passwords.save')]),
+    ]),
+  ]);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = '';
+    if (newInput.value.length < 8) {
+      errorMsg.textContent = t('passwords.minChars');
+      return;
+    }
+    if (newInput.value !== confirmInput.value) {
+      errorMsg.textContent = t('passwords.noMatch');
+      return;
+    }
+    try {
+      const res = await api().passwords.changeMasterPassword(currInput.value, newInput.value);
+      if (res?.ok) {
+        toast(t('toast.passwordUpdated'), 'success');
+        onDone();
+      } else {
+        errorMsg.textContent = res?.error || 'Update failed';
+      }
+    } catch (err) {
+      errorMsg.textContent = err.message;
+    }
+  });
+
+  container.append(form);
+}
+
 
 export { openQrCode } from './qrcode.js';

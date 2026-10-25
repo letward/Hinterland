@@ -153,3 +153,24 @@ export function uid() {
 export function nextFrame() {
   return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
+
+export async function copyToClipboard(text, autoClearSeconds = 0) {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    if (autoClearSeconds > 0) {
+      setTimeout(async () => {
+        try {
+          const current = await navigator.clipboard.readText();
+          if (current === text) {
+            await navigator.clipboard.writeText('');
+          }
+        } catch {
+          // Ignore read permissions or blur errors
+        }
+      }, autoClearSeconds * 1000);
+    }
+  } catch (e) {
+    console.warn('[Hinterland] Clipboard write failed:', e);
+  }
+}

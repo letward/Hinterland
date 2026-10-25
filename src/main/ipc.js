@@ -4,7 +4,9 @@ import { join } from 'node:path';
 import { NEW_TAB_URL, DEFAULT_SHORTCUTS } from './constants.js';
 import { settings } from './settings.js';
 import { exportSchema } from './schema.js';
-import { translations, availableLanguages, resolveLanguage } from './i18n.js';
+import { translations, availableLanguages, resolveLanguage, translate } from './i18n.js';
+import { passwords } from './passwords.js';
+import { normalizeDomain } from '../extensions/hinterlandPass/crypto.js';
 import { tabs } from './tabs.js';
 import { surface } from './windows.js';
 import { extensions } from './extensions.js';
@@ -1305,6 +1307,131 @@ handle('dialog:confirm', async ({ title, message, detail, confirmLabel, cancelLa
     detail: detail || '',
   });
   return result.response === 0;
+  });
+
+  /* ------------------------------------------------------------ passwords */
+  handle('passwords:getStatus', (activeUrl) => {
+    return passwords.getStatus(activeUrl || tabs.active?.url || '');
+  });
+
+  handle('passwords:setup', (masterPassword) => {
+    return passwords.setup(masterPassword);
+  });
+
+  handle('passwords:unlock', (masterPassword) => {
+    return passwords.unlock(masterPassword);
+  });
+
+  handle('passwords:lock', () => {
+    return passwords.lock();
+  });
+
+  handle('passwords:changeMasterPassword', (currentPassword, newPassword) => {
+    return passwords.changeMasterPassword(currentPassword, newPassword);
+  });
+
+  handle('passwords:getLoginsForUrl', (urlOrDomain) => {
+    return passwords.getLoginsForUrl(urlOrDomain || tabs.active?.url || '');
+  });
+
+  handle('passwords:getAllLogins', (searchQuery) => {
+    return passwords.getAllLogins(searchQuery);
+  });
+
+  handle('passwords:saveLogin', (item) => {
+    return passwords.saveLogin(item);
+  });
+
+  handle('passwords:deleteLogin', (id) => {
+    return passwords.deleteLogin(id);
+  });
+
+  handle('passwords:generatePassword', (options) => {
+    return passwords.generatePassword(options);
+  });
+
+  handle('passwords:neverSaveDomain', (domain) => {
+    return passwords.neverSaveDomain(domain || tabs.active?.url || '');
+  });
+
+  handle('passwords:exportVault', async () => {
+    const res = passwords.exportVault();
+    if (!res.ok) return res;
+    const json = JSON.stringify(res.data, null, 2);
+    const result = await dialog.showSaveDialog(chromeWindow(), {
+      title: 'Hinterland',
+      defaultPath: `hinterland-passwords-${Date.now()}.json`,
+      filters: [{ name: 'JSON Document', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false };
+    await writeFile(result.filePath, json, 'utf8');
+    surface.send('toast', { message: 'toast.vaultExported', kind: 'success' });
+    return { ok: true, filePath: result.filePath };
+  });
+
+  handle('passwords:importVault', async () => {
+    const result = await dialog.showOpenDialog(chromeWindow(), {
+      title: 'Hinterland',
+      properties: ['openFile'],
+      filters: [{ name: 'JSON Document', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePaths.length) return { ok: false };
+    try {
+      const raw = await readFile(result.filePaths[0], 'utf8');
+      const data = JSON.parse(raw);
+      const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+      const res = await passwords.importVault(items);
+      if (res.ok) {
+        surface.send('toast', {
+          message: translate(language(), 'toast.vaultImported', { count: res.importedCount }),
+          kind: 'success',
+        });
+      }
+      return res;
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
+  handle('passwords:updateSettings', (patch) => {
+    return passwords.updateSettings(patch);
+  });
+
+  handle('passwords:autofillActiveTab', async (payload) => {
+    const tab = tabs.active;
+    if (!tab) return { ok: false, error: 'No active tab' };
+    const ok = await passwords.autofillTab(tab, payload || {});
+    return { ok };
+  });
+
+  /* ------------------------------ credentials submitted from web content view */
+  ipcMain.on('tab:credentialsSubmitted', (_event, creds) => {
+    if (!creds || typeof creds !== 'object') return;
+    const { username, password, url } = creds;
+    if (!password || password.length < 3) return;
+
+    const domain = normalizeDomain(url);
+    if (!domain) return;
+
+    const conf = passwords.getSettings();
+    if (conf.savePromptEnabled === false) return;
+    if (conf.neverDomains && conf.neverDomains.includes(domain)) return;
+
+    // Check if matching credential already saved
+    if (passwords.isUnlocked()) {
+      const matches = passwords.getLoginsForUrl(domain);
+      const alreadySaved = matches.logins?.some(
+        (l) => l.username === (username || '') && l.password === password,
+      );
+      if (alreadySaved) return;
+    }
+
+    surface.send('passwords:promptSave', {
+      domain,
+      url,
+      username: username || '',
+      password,
+    });
   });
 }
 

@@ -1635,6 +1635,222 @@
   transform: scale(1.1);
 }
 
+/* ------------------------------------------------ password manager */
+
+.passwordsHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 16px 24px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.passwordsHeroIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radiusLarge, 12px);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surfaceAlt));
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.passwordsHeroIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.passwordsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.passwordsField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.passwordsField label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--textDim);
+}
+
+.passwordsInputWrap {
+  display: flex;
+  position: relative;
+  align-items: center;
+}
+
+.passwordsInputWrap input {
+  width: 100%;
+  padding-right: 36px;
+}
+
+.passwordsEyeBtn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--textDim);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radiusSmall);
+}
+
+.passwordsEyeBtn:hover {
+  color: var(--text);
+  background: var(--surfaceHover);
+}
+
+.passwordsEyeBtn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.passwordsItemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--borderSoft);
+  transition: background 0.15s ease;
+}
+
+.passwordsItemRow:last-child {
+  border-bottom: none;
+}
+
+.passwordsItemRow:hover {
+  background: var(--surfaceHover);
+}
+
+.passwordsItemMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.passwordsItemTitle {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.passwordsItemUser {
+  font-size: 12.5px;
+  color: var(--textDim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.passwordsItemActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.passwordsGenDisplay {
+  background: var(--surfaceAlt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 8px);
+  padding: 16px;
+  text-align: center;
+  font-family: var(--fontMono, monospace);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text);
+  word-break: break-all;
+  user-select: all;
+  margin-bottom: 12px;
+}
+
+.passwordsStrengthWrap {
+  margin: 8px 0 14px;
+}
+
+.passwordsStrengthBarBg {
+  height: 6px;
+  background: var(--borderSoft);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.passwordsStrengthBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.passwordsStrengthMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--textDim);
+}
+
+.passwordsOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.passwordsCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.passwordsCheckLabel input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.passwordsPromptBox {
+  padding: 12px 14px;
+  min-width: 290px;
+  max-width: 360px;
+}
+
+.passwordsPromptHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.passwordsPromptTitle {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+
 
 
 

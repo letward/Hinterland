@@ -18,6 +18,7 @@ const PAGE_ROOTS = {
   extensions: UI_ROOT,
   settings: UI_ROOT,
   store: UI_ROOT,
+  passwords: UI_ROOT,
 };
 
 const UI_SECURITY = [

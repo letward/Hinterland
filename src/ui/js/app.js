@@ -9,7 +9,7 @@ import { bindTabs, renderTabs, updateTab, setActive, activeTab, allTabs } from '
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
 import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus, openMediaControls } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
-import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList, openClearData, openNotes, openTabStash } from './panels.js';
+import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList, openClearData, openNotes, openTabStash, openPasswords } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
 import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
@@ -34,6 +34,7 @@ const PANELS = {
   clearData: openClearData,
   notes: openNotes,
   stash: openTabStash,
+  passwords: openPasswords,
 };
 
 let activeTabSnapshot = null;
@@ -308,6 +309,8 @@ function wireEvents() {
 
   listen('tab:confirmClose', ({ id, title }) => showCloseConfirm(id, title));
 
+  listen('passwords:promptSave', (creds) => showSavePasswordPrompt(creds));
+
   listen('shortcut', ({ action }) => handleShortcut(action));
 }
 
@@ -357,6 +360,7 @@ function handleShortcut(action) {
   if (action === 'clearData') return openClearData();
   if (action === 'notes') return openNotes();
   if (action === 'tabStash') return openTabStash();
+  if (action === 'passwords') return openPasswords();
   if (action === 'togglePiP') return toggleActivePiP();
   if (action === 'mediaControls') return openMediaControls();
   if (action === 'copyMarkdown') {
@@ -636,6 +640,95 @@ function showPermission(request) {
             closePopup();
           } }, [t('permission.deny')]),
         ]),
+      );
+    },
+  });
+}
+
+function showSavePasswordPrompt(creds) {
+  const { domain, url, username, password } = creds;
+  openPopup({
+    key: `savePassword:${domain}`,
+    align: 'center',
+    render: (card) => {
+      const userInput = el('input', {
+        class: 'textInput',
+        type: 'text',
+        value: username || '',
+        placeholder: t('passwords.username'),
+        style: { width: '100%', marginBottom: '8px', fontSize: '13px' },
+      });
+
+      const passInput = el('input', {
+        class: 'textInput',
+        type: 'password',
+        value: password || '',
+        style: { width: '100%', fontSize: '13px' },
+      });
+
+      const eyeBtn = el('button', {
+        class: 'passwordsEyeBtn',
+        type: 'button',
+        html: icon('eye'),
+        onclick: () => {
+          passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        },
+      });
+
+      const passWrap = el('div', { class: 'passwordsInputWrap', style: { marginBottom: '12px' } }, [
+        passInput,
+        eyeBtn,
+      ]);
+
+      const actions = el('div', { class: 'actionRow', style: { justifyContent: 'flex-end', gap: '6px' } }, [
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            await api().passwords.neverSaveDomain(domain);
+            closePopup();
+          },
+        }, [t('passwords.neverForSite')]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: () => closePopup(),
+        }, [t('passwords.notNow')]),
+        el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: async () => {
+            const status = await api().passwords.getStatus();
+            if (!status.isUnlocked) {
+              closePopup();
+              openPasswords('passwords-current');
+              return;
+            }
+            const res = await api().passwords.saveLogin({
+              domain,
+              url,
+              title: domain,
+              username: userInput.value.trim(),
+              password: passInput.value,
+            });
+            if (res?.ok) {
+              toast(t('toast.passwordSaved'), 'success');
+            }
+            closePopup();
+          },
+        }, [t('passwords.save')]),
+      ]);
+
+      card.append(
+        el('div', { class: 'passwordsPromptBox' }, [
+          el('div', { class: 'passwordsPromptHeader' }, [
+            el('span', { class: 'rowIcon', html: icon('key') }),
+            el('span', { class: 'passwordsPromptTitle', text: t('passwords.promptSaveTitle', { domain }) }),
+          ]),
+          userInput,
+          passWrap,
+          actions,
+        ])
       );
     },
   });

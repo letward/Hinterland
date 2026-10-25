@@ -19,6 +19,7 @@ const EVENTS = [
   'update:available',
   'update:progress',
   'update:downloaded',
+  'passwords:promptSave',
 ];
 
 function listen(channel, handler) {
@@ -227,6 +228,24 @@ const api = {
 
   dialog: {
     confirm: (options) => ipcRenderer.invoke('dialog:confirm', options),
+  },
+
+  passwords: {
+    getStatus: (activeUrl) => ipcRenderer.invoke('passwords:getStatus', activeUrl),
+    setup: (masterPassword) => ipcRenderer.invoke('passwords:setup', masterPassword),
+    unlock: (masterPassword) => ipcRenderer.invoke('passwords:unlock', masterPassword),
+    lock: () => ipcRenderer.invoke('passwords:lock'),
+    changeMasterPassword: (currentPassword, newPassword) => ipcRenderer.invoke('passwords:changeMasterPassword', currentPassword, newPassword),
+    getLoginsForUrl: (urlOrDomain) => ipcRenderer.invoke('passwords:getLoginsForUrl', urlOrDomain),
+    getAllLogins: (searchQuery) => ipcRenderer.invoke('passwords:getAllLogins', searchQuery),
+    saveLogin: (item) => ipcRenderer.invoke('passwords:saveLogin', item),
+    deleteLogin: (id) => ipcRenderer.invoke('passwords:deleteLogin', id),
+    generatePassword: (options) => ipcRenderer.invoke('passwords:generatePassword', options),
+    autofillActiveTab: (payload) => ipcRenderer.invoke('passwords:autofillActiveTab', payload),
+    neverSaveDomain: (domain) => ipcRenderer.invoke('passwords:neverSaveDomain', domain),
+    exportVault: () => ipcRenderer.invoke('passwords:exportVault'),
+    importVault: (items) => ipcRenderer.invoke('passwords:importVault', items),
+    updateSettings: (patch) => ipcRenderer.invoke('passwords:updateSettings', patch),
   },
 };
 
