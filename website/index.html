@@ -324,6 +324,29 @@
     </div>
   </section>
 
+  <!-- Feedback -->
+  <section id="feedback">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Feedback</span>
+        <h2>Share your feedback</h2>
+        <p>Help us improve Hinterland. Your message becomes a GitHub issue.</p>
+      </div>
+      <div class="changelog-wrap reveal">
+        <div class="cl-card">
+          <form id="feedbackForm" style="display:flex;flex-direction:column;gap:12px;">
+            <input class="select" type="email" id="fbEmail" placeholder="Email (optional)" style="width:100%;" />
+            <textarea id="fbMsg" rows="4" placeholder="Your feedback…" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radiusSmall);background:var(--surfaceAlt);color:var(--text);font:inherit;resize:vertical;"></textarea>
+            <div style="display:flex;justify-content:flex-end;">
+              <button type="submit" class="btn-primary" style="padding:10px 22px;font-size:14px;">Send feedback</button>
+            </div>
+            <div id="fbStatus" style="font-size:13px;color:var(--textDim);min-height:18px;"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="site-foot">
     <div class="foot-links">
       <a href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">Source code</a>
@@ -431,6 +454,31 @@
       return html;
     }
     function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+    // ---------- Feedback form ----------
+    const fbForm = document.getElementById('feedbackForm');
+    if (fbForm) {
+      fbForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = document.getElementById('fbStatus');
+        const msg = document.getElementById('fbMsg').value.trim();
+        const email = document.getElementById('fbEmail').value.trim();
+        status.textContent = 'Sending…';
+        try {
+          const r = await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg, email }),
+          });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error || 'Failed');
+          status.textContent = 'Thanks! Issue #' + data.number + ' created.';
+          fbForm.reset();
+        } catch (err) {
+          status.textContent = 'Error: ' + err.message;
+        }
+      });
+    }
 
     // ---------- Google Translate: auto-detect system language + manual switch ----------
     function googleTranslateElementInit() {
