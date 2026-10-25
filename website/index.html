@@ -420,7 +420,15 @@
       } catch (e) {
         el.classList.remove("cl-loading");
         el.classList.add("cl-error");
-        el.textContent = "Changelog could not be loaded: " + e.message;
+        el.textContent = "Changelog could not be loaded. See GitHub for the full history.";
+        // Do not leave a stale download link as a silent failure state.
+        const btn = document.getElementById("dlBtn");
+        if (btn) {
+          btn.href = "https://github.com/letward/Hinterland/releases/latest";
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> View latest release';
+        }
+        const badge = document.querySelector('.badge');
+        if (badge) badge.innerHTML = '<span class="dot"></span> Latest Release';
       }
     })();
 
