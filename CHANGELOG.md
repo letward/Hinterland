@@ -4,6 +4,21 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.11.0] - 2026-10-25
+
+### Added
+- Native Browser Password Manager ("Hinterland Pass", `hinterlandPass`):
+  - End-to-End Zero-Knowledge Encryption: Hardware-accelerated AES-GCM 256-bit vault encryption derived via PBKDF2 (100,000 iterations of SHA-256) with verification token validation and auto-locking.
+  - In-Page Form Detection & Autofill: Automatically scans web pages for login and registration forms, attaching an in-field shield badge with a closed Shadow DOM menu to view and autofill matching credentials.
+  - Native "Save Password?" In-Page Banner: Intercepts form submissions and Enter key presses, detecting newly entered or changed credentials and prompting users with an isolated Shadow DOM top-right prompt banner.
+  - Action Popup UI (`popup.html`): Designed with Hinterland design tokens and dark/light modes, featuring Master Password Setup, Vault Unlock, Current Site quick actions, All Logins live search and editing, and Vault Settings.
+  - Built-in Password Generator & Strength Meter: Shannon entropy calculation and strength grading (Weak to Excellent) with configurable length (8–64) and character set filtering (A-Z, a-z, 0-9, symbols, ambiguous characters).
+  - Backup & Migration: Full JSON vault export and import for backups and migration.
+  - Unit Tests: Comprehensive test coverage (`sdk/test/hinterlandPass.test.mjs`) for encryption round-trip, incorrect master password rejection, password generation constraints, entropy calculation, and domain normalization.
+
+### Changed
+- Extension Action Popup Isolation & Navigation: Enhanced `executeAction` in `src/main/extensions.js` to load popups with native `chrome-extension://${extension.id}/...` URLs and automatic closing on blur and Escape.
+
 ## [1.10.0] - 2026-10-25
 
 ### Added
