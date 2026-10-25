@@ -95,6 +95,9 @@ export class TabManager extends EventEmitter {
 
     this.emit('list', this.snapshot());
     this.emit('detach', { id });
+    if (this.tabs.length === 0) {
+      this.create({ url: NEW_TAB_URL });
+    }
     this.scheduleSave();
     return true;
   }

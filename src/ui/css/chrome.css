@@ -94,6 +94,8 @@ html[data-tabbar="bottom"] .tabstrip {
 }
 
 .tabs {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   gap: 3px;
@@ -102,6 +104,7 @@ html[data-tabbar="bottom"] .tabstrip {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
+  -webkit-app-region: no-drag;
 }
 
 .tabs::-webkit-scrollbar {
@@ -110,6 +113,7 @@ html[data-tabbar="bottom"] .tabstrip {
 
 .tab {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -122,9 +126,10 @@ html[data-tabbar="bottom"] .tabstrip {
   border-bottom: 0;
   border-radius: var(--radius) var(--radius) 0 0;
   color: var(--textDim);
-  cursor: default;
+  cursor: pointer;
   overflow: hidden;
   transition: background var(--anim), color var(--anim), flex var(--anim);
+  -webkit-app-region: no-drag;
 }
 
 .tab:hover {
@@ -232,6 +237,8 @@ html[data-tabbar="bottom"] .tabstrip {
 }
 
 .tabSound {
+  position: relative;
+  z-index: 2;
   color: var(--textDim);
   display: grid;
   place-items: center;
@@ -243,6 +250,7 @@ html[data-tabbar="bottom"] .tabstrip {
   background: transparent;
   cursor: pointer;
   transition: background var(--anim), color var(--anim);
+  -webkit-app-region: no-drag;
 }
 
 .tabSound:hover {
@@ -256,6 +264,8 @@ html[data-tabbar="bottom"] .tabstrip {
 }
 
 .tabClose {
+  position: relative;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 18px;
@@ -265,10 +275,11 @@ html[data-tabbar="bottom"] .tabstrip {
   border-radius: 50%;
   background: transparent;
   color: inherit;
-  cursor: default;
+  cursor: pointer;
   opacity: 0;
   flex: none;
   transition: background var(--anim), opacity var(--anim);
+  -webkit-app-region: no-drag;
 }
 
 .tabClose svg {
@@ -321,6 +332,8 @@ html[data-closeButton="always"] .tabClose {
 }
 
 .tabAction {
+  position: relative;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 30px;
@@ -331,9 +344,10 @@ html[data-closeButton="always"] .tabClose {
   border-radius: var(--radiusSmall);
   background: transparent;
   color: var(--textDim);
-  cursor: default;
+  cursor: pointer;
   flex: none;
   transition: background var(--anim), color var(--anim);
+  -webkit-app-region: no-drag;
 }
 
 .tabAction:hover {
@@ -344,12 +358,15 @@ html[data-closeButton="always"] .tabClose {
 /* ------------------------------------------------------------------- tab groups */
 
 .groupHeader {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 2px 8px 0;
   height: var(--tabHeight);
   background: var(--bg);
+  -webkit-app-region: no-drag;
 }
 
 .groupHeader.groupCollapsed {

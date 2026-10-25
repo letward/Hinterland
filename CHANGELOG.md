@@ -4,6 +4,20 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.12.2] - 2026-10-25
+
+### Fixed
+- **New Tab Button & Click Interception**:
+  - Resolved an issue where clicking the `+` (`#newTab`) button was intercepted by the titlebar's `-webkit-app-region: drag` overlay, preventing `click` events from registering on Windows.
+  - Added `-webkit-app-region: no-drag;` and proper stacking context (`z-index: 2; cursor: pointer;`) to tab action buttons and tab close buttons.
+- **Tab Closing**:
+  - Resolved an issue where clicking the tab close button (`.tabClose`) was intercepted by titlebar dragging or race conditions with tab activation.
+  - Added `mousedown` event stopping on `.tabClose` to ensure clean tab closure without triggering tab selection or drag sequences.
+  - Ensured that closing the sole active tab gracefully creates a fresh new tab rather than leaving the browser in a zero-tab state.
+- **Universal Tab Shortcuts (`Ctrl+T`, `Ctrl+W`)**:
+  - Removed field focus restrictions (`!inField`) so `Ctrl+T` and `Ctrl+W` reliably trigger regardless of whether focus is inside the omnibox, a webpage input, or a search field.
+  - Fixed shortcut key combination parsing in main process (`shortcuts.js`) to cleanly handle modifier keys and accelerators across WebContents.
+
 ## [1.12.1] - 2026-10-25
 
 ### Added

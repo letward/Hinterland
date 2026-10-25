@@ -13,15 +13,24 @@ function normaliseCombo(combo) {
     .map((part) => part.trim())
     .filter(Boolean);
   if (!parts.length) return '';
-  const key = parts.pop();
+  const key = parts.pop().toLowerCase();
   const modifiers = new Set(parts.map((part) => part.toLowerCase()));
-  return `${modifiers.has('ctrl') || modifiers.has('control') ? 'ctrl' : ''}+${modifiers.has('alt') || modifiers.has('option') ? 'alt' : ''}+${modifiers.has('shift') ? 'shift' : ''}+${modifiers.has('meta') || modifiers.has('cmd') || modifiers.has('command') ? 'meta' : ''}+${key.toLowerCase()}`;
+  const mods = [];
+  if (modifiers.has('ctrl') || modifiers.has('control')) mods.push('ctrl');
+  if (modifiers.has('alt') || modifiers.has('option')) mods.push('alt');
+  if (modifiers.has('shift')) mods.push('shift');
+  if (modifiers.has('meta') || modifiers.has('cmd') || modifiers.has('command')) mods.push('meta');
+  return [...mods, key].join('+');
 }
 
 function comboFor(input) {
-  return normaliseCombo(
-    `${input.control ? 'Ctrl' : ''}${input.alt ? 'Alt' : ''}${input.shift ? 'Shift' : ''}${input.meta ? 'Meta' : ''}+${input.key}`,
-  );
+  const mods = [];
+  if (input.control) mods.push('ctrl');
+  if (input.alt) mods.push('alt');
+  if (input.shift) mods.push('shift');
+  if (input.meta) mods.push('meta');
+  const key = String(input.key ?? '').toLowerCase();
+  return [...mods, key].join('+');
 }
 
 function table() {

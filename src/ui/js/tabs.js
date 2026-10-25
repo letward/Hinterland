@@ -184,7 +184,10 @@ function buildTab(tab) {
     node.append(soundBtn);
   }
 
-  const close = el('button', { class: 'tabClose', type: 'button', html: icon('close'), title: 'Close' });
+  const close = el('button', { class: 'tabClose', type: 'button', html: icon('close'), title: t('action.close') || 'Close' });
+  close.addEventListener('mousedown', (event) => {
+    event.stopPropagation();
+  });
   close.addEventListener('click', (event) => {
     event.stopPropagation();
     api().tabs.close(tab.id);

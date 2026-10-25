@@ -392,7 +392,7 @@ function wireShortcuts() {
       return;
     }
 
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 't' && !inField) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 't') {
       event.preventDefault();
       api().tabs.create({ url: 'hinterland://newtab/' });
       return;
@@ -463,7 +463,7 @@ function wireShortcuts() {
       return;
     }
 
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'w' && !inField) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'w') {
       event.preventDefault();
       api().tabs.close(activeTab()?.id);
       return;
