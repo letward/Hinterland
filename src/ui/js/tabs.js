@@ -169,13 +169,16 @@ function buildTab(tab) {
     node.append(sleepBadge);
   }
 
-  if (tab.audible) {
+  if (tab.audible || tab.muted) {
     const soundBtn = el('button', {
-      class: 'tabSound',
+      class: `tabSound ${tab.muted ? 'isMuted' : 'isPlaying'}`,
       type: 'button',
       html: icon(tab.muted ? 'volumeOff' : 'volume'),
       title: t(tab.muted ? 'menu.unmute' : 'menu.mute'),
       'aria-label': t(tab.muted ? 'menu.unmute' : 'menu.mute'),
+    });
+    soundBtn.addEventListener('mousedown', (event) => {
+      event.stopPropagation();
     });
     soundBtn.addEventListener('click', (event) => {
       event.stopPropagation();

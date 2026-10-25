@@ -3,6 +3,7 @@ import { t } from './i18n.js';
 import { hostOf, el } from './util.js';
 import { icon } from './icons.js';
 import { currentTab, currentSettings } from './state.js';
+import { allTabs } from './tabs.js';
 import { toast } from './toast.js';
 
 const api = () => window.hinterland;
@@ -98,6 +99,24 @@ export function openMainMenu() {
           title: t('menu.readingList'),
           subtitle: 'Ctrl+Shift+L',
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'readingList' } })),
+        }),
+        row({
+          iconName: 'notes',
+          title: t('menu.notes'),
+          subtitle: 'Ctrl+Shift+Y',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'notes' } })),
+        }),
+        row({
+          iconName: 'trash',
+          title: t('menu.clearBrowsingData'),
+          subtitle: 'Ctrl+Shift+Del',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'clearData' } })),
+        }),
+        row({
+          iconName: 'volume',
+          title: t('menu.mediaControls'),
+          subtitle: 'Ctrl+Alt+M',
+          onSelect: () => openMediaControls(),
         }),
         row({
           iconName: 'store',
@@ -200,6 +219,16 @@ export function openTabMenu(tab, x, y) {
           onSelect: () => api().tab.capture(tab.id, { saveAs: false }),
         }),
         row({
+          iconName: 'pip',
+          title: t('menu.pictureInPicture'),
+          subtitle: 'Ctrl+Shift+X',
+          onSelect: async () => {
+            const res = await api().tab.togglePiP(tab.id);
+            if (res?.success) toast(res.active ? t('toast.pipEntered') : t('toast.pipExited'), 'info');
+            else toast(t('toast.noVideoFound'), 'warning');
+          },
+        }),
+        row({
           iconName: 'bookmark',
           title: t('menu.addToReadingList'),
           onSelect: () => api().readingList.add({ url: tab.url, title: tab.title, favicon: tab.favicon }),
@@ -293,6 +322,30 @@ export function openTabMenu(tab, x, y) {
           iconName: 'minus',
           title: t('menu.closeDuplicates'),
           onSelect: () => api().tabs.closeDuplicates(),
+        }),
+        row({
+          iconName: 'bookmark',
+          title: t('menu.bookmarkAllTabs'),
+          onSelect: async () => {
+            const tabsList = allTabs().filter((item) => item.url && item.url.startsWith('http'));
+            if (!tabsList.length) {
+              toast(t('toast.noTabsToBookmark'), 'warning');
+              return;
+            }
+            const dateStr = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+            const folder = `${t('bookmarks.savedSession')} - ${dateStr}`;
+            const existing = [...((await api().settings.get('data.bookmarks')) || [])];
+            for (const tab of tabsList) {
+              existing.push({
+                url: tab.url,
+                title: tab.title || tab.url,
+                addedAt: Date.now(),
+                folder,
+              });
+            }
+            await api().settings.set('data.bookmarks', existing);
+            toast(t('toast.allTabsBookmarked'), 'success');
+          },
         }),
         row({
           iconName: 'minus',
@@ -523,4 +576,83 @@ export function openTabstripMenu() {
 
 export function closeMenus() {
   closePopup();
+}
+
+export function openMediaControls() {
+  const tabsList = allTabs().filter((t) => t.audible || t.muted);
+  openPopup({
+    key: 'media',
+    align: 'right',
+    render: (card) => {
+      card.append(section('media.title'));
+      if (!tabsList.length) {
+        card.append(empty(t('media.noActiveMedia')));
+        return;
+      }
+      for (const tab of tabsList) {
+        const item = el('div', { class: 'mediaItem' });
+        const info = el('div', { class: 'mediaInfo' }, [
+          el('div', { class: 'mediaTitle', text: tab.title || tab.url }),
+          el('div', { class: 'mediaHost', text: hostOf(tab.url) }),
+        ]);
+
+        const playBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon(tab.audible ? 'pause' : 'play'),
+          title: t('media.playPause'),
+          onclick: async (e) => {
+            e.stopPropagation();
+            await api().tab.toggleMediaPlay(tab.id);
+            closePopup();
+          },
+        });
+
+        const muteBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon(tab.muted ? 'volumeOff' : 'volume'),
+          title: t(tab.muted ? 'menu.unmute' : 'menu.mute'),
+          onclick: (e) => {
+            e.stopPropagation();
+            api().tab.mute(tab.id, !tab.muted);
+            closePopup();
+          },
+        });
+
+        const pipBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon('pip'),
+          title: t('media.pip'),
+          onclick: async (e) => {
+            e.stopPropagation();
+            const res = await api().tab.togglePiP(tab.id);
+            closePopup();
+            if (res?.success) toast(res.active ? t('toast.pipEntered') : t('toast.pipExited'), 'info');
+            else toast(t('toast.noVideoFound'), 'warning');
+          },
+        });
+
+        const openBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon('external'),
+          title: t('action.open'),
+          onclick: () => {
+            api().tabs.activate(tab.id);
+            closePopup();
+          },
+        });
+
+        const controls = el('div', { class: 'mediaControls' }, [playBtn, muteBtn, pipBtn, openBtn]);
+        item.append(
+          el('div', { class: 'rowIcon', html: icon(tab.audible ? 'volume' : 'volumeOff') }),
+          info,
+          controls
+        );
+        card.append(item);
+      }
+    },
+  });
 }

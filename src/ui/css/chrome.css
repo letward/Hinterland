@@ -930,3 +930,17 @@ html[data-closeButton="always"] .tabClose {
   font-style: italic;
   opacity: 0.75;
 }
+
+/* ----------------------------------------------------------------- Media & Sound */
+#mediaButton.hasAudible {
+  color: var(--accent);
+}
+
+.tabSound.isMuted {
+  color: var(--danger, #ff4f4f);
+  opacity: 0.85;
+}
+
+.tabSound.isPlaying {
+  color: var(--accent);
+}

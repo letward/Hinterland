@@ -74,6 +74,15 @@ export class HistoryStore {
     this.saveNow();
   }
 
+  clearSince(timestamp) {
+    if (!timestamp || typeof timestamp !== 'number' || timestamp <= 0) {
+      this.clear();
+      return;
+    }
+    this.entries = this.entries.filter((entry) => (entry.time || 0) < timestamp);
+    this.saveNow();
+  }
+
   schedule() {
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => this.saveNow(), 900);

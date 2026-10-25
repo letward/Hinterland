@@ -3,6 +3,8 @@ import { icon } from './icons.js';
 import { t } from './i18n.js';
 import { openPopup, closePopup, isOpen } from './popup.js';
 import { activeTab, allTabs } from './tabs.js';
+import { openMediaControls } from './menu.js';
+import { toast } from './toast.js';
 
 const api = () => window.hinterland;
 
@@ -263,6 +265,69 @@ export function openCommandPalette() {
             category: t('commandPalette.categoryCommand'),
             icon: 'store',
             run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'store' } })),
+          },
+          {
+            id: 'openNotes',
+            title: t('commandPalette.openNotes'),
+            category: t('commandPalette.categoryCommand'),
+            shortcut: 'Ctrl+Shift+Y',
+            icon: 'notes',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'notes' } })),
+          },
+          {
+            id: 'clearData',
+            title: t('commandPalette.clearData'),
+            category: t('commandPalette.categoryCommand'),
+            shortcut: 'Ctrl+Shift+Del',
+            icon: 'trash',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'clearData' } })),
+          },
+          {
+            id: 'togglePiP',
+            title: t('commandPalette.togglePiP'),
+            category: t('commandPalette.categoryCommand'),
+            shortcut: 'Ctrl+Shift+X',
+            icon: 'pip',
+            run: async () => {
+              if (!current) return;
+              const res = await api().tab.togglePiP(current.id);
+              if (res?.success) toast(res.active ? t('toast.pipEntered') : t('toast.pipExited'), 'info');
+              else toast(t('toast.noVideoFound'), 'warning');
+            },
+          },
+          {
+            id: 'mediaControls',
+            title: t('commandPalette.mediaControls'),
+            category: t('commandPalette.categoryCommand'),
+            shortcut: 'Ctrl+Alt+M',
+            icon: 'volume',
+            run: () => openMediaControls(),
+          },
+          {
+            id: 'bookmarkAllTabs',
+            title: t('menu.bookmarkAllTabs'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'bookmark',
+            run: async () => {
+              const tabsList = allTabs().filter((item) => item.url && item.url.startsWith('http'));
+              if (!tabsList.length) {
+                toast(t('toast.noTabsToBookmark'), 'warning');
+                return;
+              }
+              const dateStr = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+              const folder = `${t('bookmarks.savedSession')} - ${dateStr}`;
+              const existing = [...((await api().settings.get('data.bookmarks')) || [])];
+              for (const tab of tabsList) {
+                existing.push({
+                  url: tab.url,
+                  title: tab.title || tab.url,
+                  addedAt: Date.now(),
+                  folder,
+                });
+              }
+              await api().settings.set('data.bookmarks', existing);
+              toast(t('toast.allTabsBookmarked'), 'success');
+            },
           },
           {
             id: 'storeThemes',

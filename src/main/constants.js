@@ -58,6 +58,10 @@ export const DEFAULT_SHORTCUTS = {
   taskManager: 'Shift+Escape',
   capturePage: 'Ctrl+Shift+S',
   readingList: 'Ctrl+Shift+L',
+  clearData: 'Ctrl+Shift+Delete',
+  notes: 'Ctrl+Shift+Y',
+  togglePiP: 'Ctrl+Shift+X',
+  mediaControls: 'Ctrl+Alt+M',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

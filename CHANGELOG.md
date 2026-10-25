@@ -4,6 +4,36 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.13.0] - 2026-10-25
+
+### Added
+- **Quick Notes & Web Scratchpad (`openNotes`, `Ctrl+Shift+Y`)**:
+  - Built-in scratchpad for thoughts, research clippings, and markdown notes accessible via `Ctrl+Shift+Y`, the main menu, and Command Palette.
+  - Multi-note manager with real-time search, pinned notes, and persistent storage in user settings.
+  - One-click active tab link clipping: inserts formatted `[Tab Title](Tab URL)` into notes instantly.
+  - Markdown editor and live preview: supports headings (`#`), bold, italics, inline code, fenced code blocks, checklists (`- [ ]`), bullet points, and clickable links.
+  - Native file export: export any note directly to `.md` on disk via native file dialog, or copy formatted text with 1 click.
+- **Dedicated Clear Browsing Data Dialog (`openClearData`, `Ctrl+Shift+Delete`)**:
+  - Modal dialog triggered by `Ctrl+Shift+Delete`, main menu, History panel, and Command Palette.
+  - Configurable time ranges: Past hour, Past 24 hours, Past 7 days, Past 4 weeks, and All time.
+  - Granular selection for Browsing history, Cookies & site data, Cached images & files, Site storage & settings, Download history, and Recently closed tabs.
+- **Global Media Controller & Picture-in-Picture (`openMediaControls`, `togglePiP`, `Ctrl+Shift+X`, `Ctrl+Alt+M`)**:
+  - Interactive toolbar Media Controller button (`#mediaButton`) that automatically appears and pulses when any open tab is playing media.
+  - Media Controller card showing audible and playing tabs with title, domain, favicon, Play/Pause toggle, audio mute, and Picture-in-Picture controls.
+  - Direct Picture-in-Picture shortcut (`Ctrl+Shift+X`) to toggle PiP for videos on the active tab immediately.
+- **Bookmark All Open Tabs (`menu.bookmarkAllTabs`)**:
+  - One-click session saving in the tabstrip context menu and Command Palette, saving all open web tabs into a dated bookmark folder.
+- **Unit Test Suite**:
+  - Comprehensive unit test coverage (`sdk/test/notesAndMedia.test.mjs`) for shortcut registration, markdown parsing, XSS sanitization, and timestamp-based history filtering.
+
+### Fixed
+- **History Clearance Variable Shadowing**:
+  - Resolved an issue in `clearBrowsingData` where the parameter named `history` shadowed the imported `history` store module, causing history deletion to fail silently.
+  - Added `clearSince(timestamp)` in `src/main/history.js` for accurate time-range filtering.
+- **Tab Sound Indicator Interaction**:
+  - Added `mousedown` event stopping on the tab sound button (`.tabSound`) to prevent accidental tab selection or dragging when muting/unmuting tabs.
+  - Retained visible mute icon for muted tabs even when audio playback pauses.
+
 ## [1.12.2] - 2026-10-25
 
 ### Fixed

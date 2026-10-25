@@ -257,6 +257,55 @@ export class Tab {
     });
   }
 
+  async togglePiP() {
+    if (!this.contents || this.contents.isDestroyed() || this.sleeping) return { success: false, reason: 'unavailable' };
+    try {
+      const res = await this.contents.executeJavaScript((() => {
+        try {
+          if (document.pictureInPictureElement) {
+            document.exitPictureInPicture();
+            return { active: false, success: true };
+          }
+          const video = document.querySelector('video');
+          if (video) {
+            video.requestPictureInPicture();
+            return { active: true, success: true };
+          }
+          return { active: false, success: false, reason: 'no_video' };
+        } catch (e) {
+          return { active: false, success: false, error: e.message };
+        }
+      })());
+      return res || { success: false };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  async toggleMediaPlay() {
+    if (!this.contents || this.contents.isDestroyed() || this.sleeping) return { success: false, reason: 'unavailable' };
+    try {
+      const res = await this.contents.executeJavaScript((() => {
+        try {
+          const media = Array.from(document.querySelectorAll('video, audio')).find((m) => !m.paused) || document.querySelector('video, audio');
+          if (!media) return { playing: false, success: false, reason: 'no_media' };
+          if (media.paused) {
+            media.play();
+            return { playing: true, success: true };
+          } else {
+            media.pause();
+            return { playing: false, success: true };
+          }
+        } catch (e) {
+          return { playing: false, success: false, error: e.message };
+        }
+      })());
+      return res || { success: false };
+    } catch {
+      return { success: false };
+    }
+  }
+
   async close() {
     this.events.removeAllListeners();
     if (!this.contents.isDestroyed()) this.contents.close();

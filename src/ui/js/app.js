@@ -5,11 +5,11 @@ import { setSettings, get } from './store.js';
 import { applyTheme, watchSystemTheme } from './theme.js';
 import { bindShell, openPopup, closePopup, isOpen } from './popup.js';
 import { closeModal, isModalOpen } from './modal.js';
-import { bindTabs, renderTabs, updateTab, setActive, activeTab } from './tabs.js';
+import { bindTabs, renderTabs, updateTab, setActive, activeTab, allTabs } from './tabs.js';
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
-import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus } from './menu.js';
+import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus, openMediaControls } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
-import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList } from './panels.js';
+import { openStore, openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList, openClearData, openNotes } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
 import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
@@ -31,6 +31,8 @@ const PANELS = {
   about: openAbout,
   taskManager: openTaskManager,
   readingList: openReadingList,
+  clearData: openClearData,
+  notes: openNotes,
 };
 
 let activeTabSnapshot = null;
@@ -101,7 +103,14 @@ function bind() {
   $('#findClose').innerHTML = icon('close');
   $('#downloadsButton').innerHTML = icon('download');
   $('#extensionsButton').innerHTML = icon('puzzle');
-  const storeBtn = $('#storeButton');
+  const mediaBtn = $('#mediaButton');
+  if (mediaBtn) {
+    mediaBtn.innerHTML = icon('volume');
+    mediaBtn.title = t('media.title');
+    mediaBtn.setAttribute('aria-label', t('media.title'));
+    mediaBtn.addEventListener('click', () => openMediaControls());
+  }
+    const storeBtn = $('#storeButton');
   if (storeBtn) {
     storeBtn.innerHTML = icon('store');
     storeBtn.addEventListener('click', () => openStore());
@@ -325,6 +334,10 @@ function handleShortcut(action) {
   }
   if (action === 'taskManager') return openTaskManager();
   if (action === 'readingList') return openReadingList();
+  if (action === 'clearData') return openClearData();
+  if (action === 'notes') return openNotes();
+  if (action === 'togglePiP') return toggleActivePiP();
+  if (action === 'mediaControls') return openMediaControls();
   if (action === 'copyMarkdown') {
     const cur = activeTab();
     if (cur) api().tab.copyMarkdown(cur.id);
@@ -349,6 +362,29 @@ function wireShortcuts() {
       return undefined;
     }
 
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Delete') {
+      event.preventDefault();
+      openClearData();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'y' && !inField) {
+      event.preventDefault();
+      openNotes();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'x' && !inField) {
+      event.preventDefault();
+      toggleActivePiP();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.altKey && event.key.toLowerCase() === 'm' && !inField) {
+      event.preventDefault();
+      openMediaControls();
+      return;
+    }
     if (event.shiftKey && event.key === 'Escape' && !inField) {
       event.preventDefault();
       openTaskManager();
@@ -488,6 +524,25 @@ function syncToolbar() {
   $('#home').hidden = !get('general.showHomeButton');
   syncOmni(tab);
   syncBookmarksBar();
+
+  const anyAudible = allTabs().some((t) => t.audible || t.muted);
+  const mediaBtn = $('#mediaButton');
+  if (mediaBtn) {
+    mediaBtn.hidden = !anyAudible;
+    if (anyAudible) mediaBtn.classList.add('hasAudible');
+    else mediaBtn.classList.remove('hasAudible');
+  }
+}
+
+async function toggleActivePiP() {
+  const cur = activeTab();
+  if (!cur) return;
+  const res = await api().tab.togglePiP(cur.id);
+  if (res?.success) {
+    toast(res.active ? t('toast.pipEntered') : t('toast.pipExited'), 'info');
+  } else {
+    toast(t('toast.noVideoFound'), 'warning');
+  }
 }
 
 async function toggleBookmarksBar() {

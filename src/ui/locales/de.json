@@ -125,7 +125,12 @@
     "closeDuplicates": "Doppelte Tabs schließen",
     "muteAllTabs": "Alle Tabs stummschalten",
     "zoom": "Zoom",
-    "unmuteAllTabs": "Stummschaltung aller Tabs aufheben"
+    "unmuteAllTabs": "Stummschaltung aller Tabs aufheben",
+    "bookmarkAllTabs": "Alle Tabs als Lesezeichen speichern…",
+    "clearBrowsingData": "Browserdaten löschen…",
+    "mediaControls": "Mediensteuerung",
+    "notes": "Notizen & Entwürfe",
+    "pictureInPicture": "Bild-in-Bild"
   },
   "find": {
     "placeholder": "In Seite suchen"
@@ -151,7 +156,11 @@
     "browseThemes": "Store: Designs durchsuchen",
     "browseExtensions": "Store: Erweiterungen durchsuchen",
     "themeCreator": "Store: Theme Studio öffnen",
-    "taskManager": "Task-Manager öffnen"
+    "taskManager": "Task-Manager öffnen",
+    "clearData": "Browserdaten löschen",
+    "mediaControls": "Mediensteuerung öffnen",
+    "openNotes": "Notizen & Entwürfe öffnen",
+    "togglePiP": "Bild-in-Bild umschalten"
   },
   "confirm": {
     "closeTitle": "Tab schließen",
@@ -181,7 +190,8 @@
     "exportHtml": "Lesezeichen exportieren (HTML)",
     "importHtml": "Lesezeichen importieren (HTML)",
     "sort": "Nach Name sortieren (A-Z)",
-    "noMatch": "Keine Lesezeichen entsprechen Ihrer Suche."
+    "noMatch": "Keine Lesezeichen entsprechen Ihrer Suche.",
+    "savedSession": "Gespeicherte Sitzung"
   },
   "history": {
     "title": "Verlauf",
@@ -248,7 +258,11 @@
       "reopen": "Geschlossenen Tab öffnen",
       "taskManager": "Task-Manager öffnen",
       "capturePage": "Seiten-Screenshot aufnehmen",
-      "readingList": "Leseliste öffnen"
+      "readingList": "Leseliste öffnen",
+      "clearData": "Browserdaten löschen",
+      "notes": "Notizen & Entwürfe",
+      "togglePiP": "Bild-in-Bild umschalten",
+      "mediaControls": "Mediensteuerung"
     }
   },
   "extensions": {
@@ -310,7 +324,15 @@
     "duplicateTabsClosed": "Doppelte Tabs wurden geschlossen",
     "noDuplicateTabs": "Keine doppelten Tabs gefunden",
     "allTabsMuted": "Alle Tabs stummgeschaltet",
-    "allTabsUnmuted": "Stummschaltung aller Tabs aufgehoben"
+    "allTabsUnmuted": "Stummschaltung aller Tabs aufgehoben",
+    "allTabsBookmarked": "Alle Tabs als Lesezeichen gespeichert",
+    "browsingDataCleared": "Browserdaten erfolgreich gelöscht",
+    "noTabsToBookmark": "Keine speicherbaren Tabs vorhanden",
+    "noteCopied": "Notiz in die Zwischenablage kopiert",
+    "noVideoFound": "Kein abspielbares Video auf dieser Seite gefunden",
+    "pipEntered": "Bild-in-Bild aktiviert",
+    "pipExited": "Bild-in-Bild beendet",
+    "noteExported": "Notiz erfolgreich exportiert"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -614,7 +636,9 @@
       "bookmarksDesc": "Seiten, die du für den schnellen Zugriff gespeichert hast.",
       "bookmarkItem": "Lesezeichen",
       "readingList": "Leselisten-Einträge",
-      "readingListDesc": "Gespeicherte Webseiten und Artikel in Ihrer Leseliste."
+      "readingListDesc": "Gespeicherte Webseiten und Artikel in Ihrer Leseliste.",
+      "notes": "Notizen & Entwürfe",
+      "notesDesc": "Gespeicherte Notizen, Checklisten und Web-Ausschnitte."
     },
     "shortcuts": {
       "title": "Tastenkürzel",
@@ -788,5 +812,54 @@
     "createAndSave": "Design erstellen & anwenden",
     "importTheme": "Community-Design importieren",
     "importSuccess": "Community-Design erfolgreich importiert und aktiviert"
+  },
+  "clearData": {
+    "title": "Browserdaten löschen",
+    "description": "Temporäre Browserdaten, Verlauf, Cookies und Cache löschen.",
+    "timeRange": "Zeitraum:",
+    "rangeHour": "Letzte Stunde",
+    "rangeDay": "Letzte 24 Stunden",
+    "rangeWeek": "Letzte 7 Tage",
+    "rangeMonth": "Letzte 4 Wochen",
+    "rangeAll": "Gesamte Zeit",
+    "history": "Browser-Verlauf",
+    "historyDesc": "Löscht besuchte Webseiten und Vorschläge in der Adressleiste.",
+    "cookies": "Cookies und andere Websitedaten",
+    "cookiesDesc": "Meldet Sie von den meisten Websites ab und löscht Tracking-Status.",
+    "cache": "Bilder und Dateien im Cache",
+    "cacheDesc": "Gibt Speicherplatz frei und erzwingt das erneute Laden von Ressourcen.",
+    "storage": "Website-Einstellungen & lokaler Speicher",
+    "storageDesc": "Setzt Client-Datenbanken, Offline-Speicher und Berechtigungen zurück.",
+    "downloads": "Download-Verlauf",
+    "downloadsDesc": "Löscht die Liste abgeschlossener und abgebrochener Downloads.",
+    "closedTabs": "Kürzlich geschlossene Tabs",
+    "closedTabsDesc": "Löscht den Wiederherstellungsverlauf für geschlossene Tabs.",
+    "action": "Daten löschen"
+  },
+  "media": {
+    "title": "Mediensteuerung",
+    "noActiveMedia": "Derzeit spielt kein Tab Medien ab.",
+    "playPause": "Wiedergabe / Pause",
+    "pip": "Bild-in-Bild"
+  },
+  "notes": {
+    "title": "Notizen & Entwürfe",
+    "description": "Schnelle Notizen für Gedanken, Web-Recherchen und Markdown-Entwürfe.",
+    "newNote": "Neue Notiz",
+    "searchPlaceholder": "Notizen durchsuchen…",
+    "noNotes": "Noch keine Notizen. Erstellen Sie Ihre erste Notiz!",
+    "noMatch": "Keine passenden Notizen gefunden.",
+    "titlePlaceholder": "Titel der Notiz…",
+    "insertTabLink": "Tab-Link einfügen",
+    "pinNote": "Notiz anheften",
+    "unpinNote": "Notiz lösen",
+    "copyNote": "Notiz kopieren",
+    "exportNote": "Als Markdown exportieren (.md)",
+    "deleteNote": "Notiz löschen",
+    "editMode": "Bearbeiten",
+    "previewMode": "Vorschau",
+    "emptyPreview": "Kein Inhalt für die Vorschau vorhanden.",
+    "welcomeTitle": "Willkommen bei Hinterland Notizen",
+    "welcomeContent": "# Willkommen bei Hinterland Notizen\n\nEin schneller, ablenkungsfreier Notizzettel direkt in Ihrem Browser.\n\n### Funktionen:\n- **Markdown-Formatierung**: Unterstützt Überschriften, **fett**, *kursiv*, `Code` und Checklisten.\n- **1-Klick Web-Clipping**: Nutzen Sie die Schaltfläche 'Tab-Link einfügen', um Links aktiver Tabs einzufügen.\n- **Checklisten**:\n  - [x] Erste Notiz ansehen\n  - [ ] Nächstes Projekt recherchieren\n- **Export**: Exportieren Sie jede Notiz als `.md` für Obsidian, Notion oder GitHub."
   }
 }

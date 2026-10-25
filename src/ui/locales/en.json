@@ -125,7 +125,12 @@
     "closeDuplicates": "Close duplicate tabs",
     "muteAllTabs": "Mute all tabs",
     "unmuteAllTabs": "Unmute all tabs",
-    "zoom": "Zoom"
+    "zoom": "Zoom",
+    "bookmarkAllTabs": "Bookmark all tabs…",
+    "clearBrowsingData": "Clear browsing data…",
+    "mediaControls": "Media controller",
+    "notes": "Notes & Scratchpad",
+    "pictureInPicture": "Picture-in-Picture"
   },
   "find": {
     "placeholder": "Find on page"
@@ -151,7 +156,11 @@
     "addToReadingList": "Add active tab to Reading List",
     "closeDuplicates": "Close duplicate tabs",
     "muteAll": "Mute all tabs",
-    "unmuteAll": "Unmute all tabs"
+    "unmuteAll": "Unmute all tabs",
+    "clearData": "Clear browsing data",
+    "mediaControls": "Open Media Controller",
+    "openNotes": "Open Notes & Scratchpad",
+    "togglePiP": "Toggle Picture-in-Picture"
   },
   "confirm": {
     "closeTitle": "Close tab",
@@ -181,7 +190,8 @@
     "exportHtml": "Export bookmarks (HTML)",
     "importHtml": "Import bookmarks (HTML)",
     "sort": "Sort by name (A-Z)",
-    "noMatch": "No bookmarks match your search."
+    "noMatch": "No bookmarks match your search.",
+    "savedSession": "Saved session"
   },
   "history": {
     "title": "History",
@@ -248,7 +258,11 @@
       "reopen": "Reopen closed tab",
       "taskManager": "Open Task Manager",
       "capturePage": "Take page screenshot",
-      "readingList": "Open Reading List"
+      "readingList": "Open Reading List",
+      "clearData": "Clear browsing data",
+      "notes": "Notes & Scratchpad",
+      "togglePiP": "Toggle Picture-in-Picture",
+      "mediaControls": "Media controller"
     }
   },
   "extensions": {
@@ -310,7 +324,15 @@
     "allTabsMuted": "All tabs muted",
     "allTabsUnmuted": "All tabs unmuted",
     "sleptOthers": "{count} inactive tab(s) put to sleep",
-    "closedDuplicates": "{count} duplicate tab(s) closed"
+    "closedDuplicates": "{count} duplicate tab(s) closed",
+    "allTabsBookmarked": "All tabs bookmarked",
+    "browsingDataCleared": "Browsing data successfully cleared",
+    "noTabsToBookmark": "No tabs available to bookmark",
+    "noteCopied": "Note copied to clipboard",
+    "noVideoFound": "No playable video found on this page",
+    "pipEntered": "Entered Picture-in-Picture",
+    "pipExited": "Exited Picture-in-Picture",
+    "noteExported": "Note exported successfully"
   },
   "greeting": {
     "morning": "Good morning",
@@ -614,7 +636,9 @@
       "bookmarksDesc": "Pages you saved for quick access.",
       "bookmarkItem": "Bookmark",
       "readingList": "Reading list entries",
-      "readingListDesc": "Saved pages and articles in your reading list."
+      "readingListDesc": "Saved pages and articles in your reading list.",
+      "notes": "Notes & Scratchpad",
+      "notesDesc": "Saved notes, checklists, and web clippings."
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -788,5 +812,54 @@
     "createAndSave": "Create & apply theme",
     "importTheme": "Import community theme",
     "importSuccess": "Community theme successfully imported and activated"
+  },
+  "clearData": {
+    "title": "Clear browsing data",
+    "description": "Delete temporary browsing data, history, cookies and cache.",
+    "timeRange": "Time range:",
+    "rangeHour": "Past hour",
+    "rangeDay": "Past 24 hours",
+    "rangeWeek": "Past 7 days",
+    "rangeMonth": "Past 4 weeks",
+    "rangeAll": "All time",
+    "history": "Browsing history",
+    "historyDesc": "Clears all visited websites and omnibox history suggestions.",
+    "cookies": "Cookies and other site data",
+    "cookiesDesc": "Signs you out of most sites and clears tracking state.",
+    "cache": "Cached images and files",
+    "cacheDesc": "Frees up storage space and forces fresh downloads.",
+    "storage": "Site settings & local storage",
+    "storageDesc": "Resets client databases, offline storage and permissions.",
+    "downloads": "Download history",
+    "downloadsDesc": "Clears the list of completed and canceled downloads.",
+    "closedTabs": "Recently closed tabs",
+    "closedTabsDesc": "Clears the restore history for closed tabs.",
+    "action": "Clear data"
+  },
+  "media": {
+    "title": "Media controller",
+    "noActiveMedia": "No tabs currently playing media.",
+    "playPause": "Play / Pause",
+    "pip": "Picture-in-Picture"
+  },
+  "notes": {
+    "title": "Notes & Scratchpad",
+    "description": "Quick scratchpad for thoughts, research clippings, and markdown notes.",
+    "newNote": "New note",
+    "searchPlaceholder": "Search notes…",
+    "noNotes": "No notes yet. Create your first note!",
+    "noMatch": "No matching notes found.",
+    "titlePlaceholder": "Note title…",
+    "insertTabLink": "Clip Tab Link",
+    "pinNote": "Pin note",
+    "unpinNote": "Unpin note",
+    "copyNote": "Copy note",
+    "exportNote": "Export as Markdown (.md)",
+    "deleteNote": "Delete note",
+    "editMode": "Edit",
+    "previewMode": "Preview",
+    "emptyPreview": "No content to preview.",
+    "welcomeTitle": "Welcome to Hinterland Notes",
+    "welcomeContent": "# Welcome to Hinterland Notes\n\nA fast, distraction-free scratchpad built directly into your browser.\n\n### Features:\n- **Markdown formatting**: Supports headings, **bold**, *italics*, `code`, and checklists.\n- **1-Click Web Clipping**: Use the 'Clip Tab Link' button to instantly insert links from active tabs.\n- **Checklists**:\n  - [x] Create first note\n  - [ ] Research next project\n- **Export**: Export any note to `.md` for Obsidian, Notion, or GitHub."
   }
 }

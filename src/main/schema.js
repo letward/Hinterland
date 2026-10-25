@@ -678,6 +678,11 @@ export const SCHEMA = [
     descKey: 'settings.data.readingListDesc',
     section: 'data',
   }),
+  option('data.notes', 'list', [], {
+    labelKey: 'settings.data.notes',
+    descKey: 'settings.data.notesDesc',
+    section: 'data',
+  }),
 
   /* --------------------------------------------------------------- shortcuts */
   option('shortcuts', 'keyvalue', {}, {

@@ -209,11 +209,15 @@ function historyPage() {
       const { field, input } = searchBox(async (value) => paint(await api().history.search(value)));
 
       container.append(
-        el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+        el('div', { class: 'actionRow', style: { marginBottom: '14px', gap: '8px' } }, [
           el('button', { class: 'button', type: 'button', onclick: async () => {
             await api().history.clear();
             paint([]);
           } }, [t('history.clear')]),
+          el('button', { class: 'button', type: 'button', onclick: () => openClearData() }, [
+            el('span', { html: icon('trash') }),
+            ` ${t('clearData.title')}`,
+          ]),
         ]),
         field,
         list,
@@ -526,6 +530,9 @@ function shortcutsPage() {
             { labelKey: 'shortcuts.action.saveAsPdf', combo: 'Ctrl+Shift+E' },
             { labelKey: 'shortcuts.action.copyMarkdown', combo: 'Ctrl+Shift+C' },
             { labelKey: 'menu.capturePage', combo: 'Ctrl+Shift+S' },
+            { labelKey: 'shortcuts.action.togglePiP', combo: 'Ctrl+Shift+X' },
+            { labelKey: 'shortcuts.action.mediaControls', combo: 'Ctrl+Alt+M' },
+            { labelKey: 'shortcuts.action.notes', combo: 'Ctrl+Shift+Y' },
             { labelKey: 'menu.find', combo: 'Ctrl+F' },
             { labelKey: 'menu.zoomIn', combo: 'Ctrl+=' },
             { labelKey: 'menu.zoomOut', combo: 'Ctrl+-' },
@@ -542,6 +549,7 @@ function shortcutsPage() {
             { labelKey: 'menu.history', combo: 'Ctrl+H' },
             { labelKey: 'menu.downloads', combo: 'Ctrl+J' },
             { labelKey: 'menu.taskManager', combo: 'Shift+Esc' },
+            { labelKey: 'shortcuts.action.clearData', combo: 'Ctrl+Shift+Delete' },
             { labelKey: 'menu.settings', combo: 'Ctrl+,' },
           ],
         },
@@ -1012,6 +1020,470 @@ function readingListPage(mode = 'unread') {
 
       container.append(actionRow, field, list);
       refresh();
+      return container;
+    },
+  };
+}
+
+/* ------------------------------------------------------- clear browsing data */
+
+export function openClearData() {
+  openModal({
+    title: t('clearData.title'),
+    iconName: 'trash',
+    nav: [clearDataPage()],
+  });
+}
+
+function clearDataPage() {
+  return {
+    id: 'clearData',
+    icon: 'trash',
+    labelKey: 'clearData.title',
+    render: () => {
+      const container = el('div', { class: 'clearDataContainer' });
+      container.append(head(t('clearData.title'), t('clearData.description')));
+
+      const rangeRow = el('div', { class: 'actionRow', style: { marginBottom: '16px', alignItems: 'center' } }, [
+        el('label', { style: { fontWeight: '600', marginRight: '10px' }, text: t('clearData.timeRange') }),
+      ]);
+
+      const select = el('select', { class: 'select' }, [
+        el('option', { value: 'hour', text: t('clearData.rangeHour') }),
+        el('option', { value: 'day', text: t('clearData.rangeDay') }),
+        el('option', { value: 'week', text: t('clearData.rangeWeek') }),
+        el('option', { value: 'month', text: t('clearData.rangeMonth') }),
+        el('option', { value: 'all', selected: 'true', text: t('clearData.rangeAll') }),
+      ]);
+      rangeRow.append(select);
+
+      const card = el('div', { class: 'card' });
+
+      function createCheckboxOption(id, titleKey, descKey, defaultChecked = true) {
+        const checkbox = el('input', { type: 'checkbox', id, checked: defaultChecked ? 'true' : undefined });
+        const label = el('label', { for: id, style: { cursor: 'pointer', flex: '1' } }, [
+          el('div', { class: 'optionLabel', text: t(titleKey) }),
+          el('div', { class: 'optionHint', text: t(descKey) }),
+        ]);
+        const rowEl = el('div', { class: 'option', style: { display: 'flex', alignItems: 'center', gap: '12px' } }, [
+          checkbox,
+          label,
+        ]);
+        return { checkbox, rowEl };
+      }
+
+      const optHistory = createCheckboxOption('cd_history', 'clearData.history', 'clearData.historyDesc', true);
+      const optCookies = createCheckboxOption('cd_cookies', 'clearData.cookies', 'clearData.cookiesDesc', true);
+      const optCache = createCheckboxOption('cd_cache', 'clearData.cache', 'clearData.cacheDesc', true);
+      const optStorage = createCheckboxOption('cd_storage', 'clearData.storage', 'clearData.storageDesc', false);
+      const optDownloads = createCheckboxOption('cd_downloads', 'clearData.downloads', 'clearData.downloadsDesc', true);
+      const optClosed = createCheckboxOption('cd_closed', 'clearData.closedTabs', 'clearData.closedTabsDesc', true);
+
+      card.append(
+        optHistory.rowEl,
+        optCookies.rowEl,
+        optCache.rowEl,
+        optStorage.rowEl,
+        optDownloads.rowEl,
+        optClosed.rowEl
+      );
+
+      const buttonsRow = el('div', { class: 'actionRow', style: { marginTop: '20px', gap: '10px' } }, [
+        el('button', {
+          class: 'button danger',
+          type: 'button',
+          onclick: async () => {
+            const range = select.value;
+            const now = Date.now();
+            let since = 0;
+            if (range === 'hour') since = now - 3600 * 1000;
+            else if (range === 'day') since = now - 86400 * 1000;
+            else if (range === 'week') since = now - 7 * 86400 * 1000;
+            else if (range === 'month') since = now - 30 * 86400 * 1000;
+
+            await api().data.clear({
+              history: optHistory.checkbox.checked,
+              cookies: optCookies.checkbox.checked,
+              cache: optCache.checkbox.checked,
+              storage: optStorage.checkbox.checked,
+              downloads: optDownloads.checkbox.checked,
+              closedTabs: optClosed.checkbox.checked,
+              since,
+            });
+            closeModal();
+            toast(t('toast.browsingDataCleared'), 'success');
+          },
+        }, [el('span', { html: icon('trash') }), ` ${t('clearData.action')}`]),
+        el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: () => closeModal(),
+        }, [t('action.cancel')]),
+      ]);
+
+      container.append(rangeRow, card, buttonsRow);
+      return container;
+    },
+  };
+}
+
+/* ------------------------------------------------------------- quick notes */
+
+function escapeNoteHtml(text) {
+  return String(text || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function formatNoteInline(text) {
+  let res = escapeNoteHtml(text);
+  res = res.replace(/`([^`]+)`/g, '<code>$1</code>');
+  res = res.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  res = res.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  res = res.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" class="noteLink" data-url="$2">$1</a>');
+  return res;
+}
+
+function renderNoteMarkdown(raw) {
+  if (!raw || !raw.trim()) return `<p><em>${t('notes.emptyPreview')}</em></p>`;
+  const lines = raw.split(/\r?\n/);
+  const htmlLines = [];
+  let inCodeBlock = false;
+  let codeBuffer = [];
+
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) {
+      if (inCodeBlock) {
+        htmlLines.push(`<pre><code>${escapeNoteHtml(codeBuffer.join('\n'))}</code></pre>`);
+        codeBuffer = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+      }
+      continue;
+    }
+    if (inCodeBlock) {
+      codeBuffer.push(line);
+      continue;
+    }
+
+    if (line.startsWith('# ')) {
+      htmlLines.push(`<h1>${formatNoteInline(line.slice(2))}</h1>`);
+    } else if (line.startsWith('## ')) {
+      htmlLines.push(`<h2>${formatNoteInline(line.slice(3))}</h2>`);
+    } else if (line.startsWith('### ')) {
+      htmlLines.push(`<h3>${formatNoteInline(line.slice(4))}</h3>`);
+    } else if (line.startsWith('- [ ] ') || line.startsWith('* [ ] ')) {
+      htmlLines.push(`<div class="noteTodo"><input type="checkbox" disabled /> ${formatNoteInline(line.slice(6))}</div>`);
+    } else if (line.startsWith('- [x] ') || line.startsWith('* [x] ') || line.startsWith('- [X] ')) {
+      htmlLines.push(`<div class="noteTodo done"><input type="checkbox" checked disabled /> <s>${formatNoteInline(line.slice(6))}</s></div>`);
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      htmlLines.push(`<li>${formatNoteInline(line.slice(2))}</li>`);
+    } else if (line.trim() === '') {
+      htmlLines.push('<br />');
+    } else {
+      htmlLines.push(`<p>${formatNoteInline(line)}</p>`);
+    }
+  }
+
+  if (inCodeBlock && codeBuffer.length) {
+    htmlLines.push(`<pre><code>${escapeNoteHtml(codeBuffer.join('\n'))}</code></pre>`);
+  }
+
+  return htmlLines.join('');
+}
+
+export function openNotes() {
+  openModal({
+    title: t('notes.title'),
+    iconName: 'notes',
+    nav: [notesPage()],
+  });
+}
+
+function notesPage() {
+  return {
+    id: 'notes',
+    icon: 'notes',
+    labelKey: 'notes.title',
+    render: () => {
+      const container = el('div', { class: 'notesContainer' });
+      container.append(head(t('notes.title'), t('notes.description')));
+
+      const layout = el('div', { class: 'notesLayout' });
+      const sidebar = el('div', { class: 'notesSidebar' });
+      const editorArea = el('div', { class: 'notesEditor card' });
+
+      let notes = [];
+      let activeNote = null;
+      let filterText = '';
+      let isPreview = false;
+      let saveTimer = null;
+      const language = currentLanguage();
+
+      const newBtn = el('button', {
+        class: 'button primary',
+        type: 'button',
+        onclick: async () => {
+          const fresh = {
+            title: t('notes.newNote'),
+            content: '',
+            pinned: false,
+            updatedAt: Date.now(),
+          };
+          const saved = await api().notes.save(fresh);
+          await loadNotes(saved?.id);
+        },
+      }, [el('span', { html: icon('plus') }), ` ${t('notes.newNote')}`]);
+
+      const searchInput = el('input', {
+        class: 'textInput',
+        type: 'search',
+        placeholder: t('notes.searchPlaceholder'),
+      });
+      searchInput.addEventListener('input', () => {
+        filterText = searchInput.value.trim().toLowerCase();
+        paintList();
+      });
+
+      const listCard = el('div', { class: 'notesList card' });
+      sidebar.append(newBtn, searchInput, listCard);
+
+      const scheduleSave = () => {
+        if (!activeNote) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(async () => {
+          activeNote.updatedAt = Date.now();
+          await api().notes.save(activeNote);
+          paintList();
+        }, 300);
+      };
+
+      const paintEditor = () => {
+        clear(editorArea);
+        if (!activeNote) {
+          editorArea.append(el('div', { class: 'empty', text: t('notes.noNotes') }));
+          return;
+        }
+
+        const header = el('div', { class: 'notesEditorHeader' });
+        const titleInput = el('input', {
+          class: 'notesTitleInput',
+          type: 'text',
+          placeholder: t('notes.titlePlaceholder'),
+          value: activeNote.title || '',
+        });
+        titleInput.addEventListener('input', () => {
+          activeNote.title = titleInput.value;
+          scheduleSave();
+        });
+
+        const timeLabel = el('span', {
+          class: 'rowAside',
+          style: { fontSize: '0.8em', color: 'var(--textDim)', whiteSpace: 'nowrap' },
+          text: formatTime(activeNote.updatedAt, language),
+        });
+        header.append(titleInput, timeLabel);
+
+        const toolbar = el('div', { class: 'notesToolbar' });
+
+        const clipBtn = el('button', {
+          class: 'button small',
+          type: 'button',
+          title: t('notes.insertTabLink'),
+          onclick: () => {
+            const cur = currentTab();
+            if (cur && cur.url && !cur.url.startsWith('hinterland://')) {
+              const link = `\n[${cur.title || cur.url}](${cur.url})\n`;
+              activeNote.content = (activeNote.content ? activeNote.content + '\n' : '') + link;
+              scheduleSave();
+              paintEditor();
+            } else {
+              toast(t('toast.noTabsToBookmark'), 'warning');
+            }
+          },
+        }, [el('span', { html: icon('link') }), ` ${t('notes.insertTabLink')}`]);
+
+        const sep1 = el('div', { class: 'notesToolbarSep' });
+
+        const editModeBtn = el('button', {
+          class: `iconButton small ${!isPreview ? 'active' : ''}`,
+          type: 'button',
+          html: icon('edit'),
+          title: t('notes.editMode'),
+          onclick: () => {
+            isPreview = false;
+            paintEditor();
+          },
+        });
+
+        const previewModeBtn = el('button', {
+          class: `iconButton small ${isPreview ? 'active' : ''}`,
+          type: 'button',
+          html: icon('eye'),
+          title: t('notes.previewMode'),
+          onclick: () => {
+            isPreview = true;
+            paintEditor();
+          },
+        });
+
+        const sep2 = el('div', { class: 'notesToolbarSep' });
+
+        const pinBtn = el('button', {
+          class: `iconButton small ${activeNote.pinned ? 'active' : ''}`,
+          type: 'button',
+          html: icon('pin'),
+          title: activeNote.pinned ? t('notes.unpinNote') : t('notes.pinNote'),
+          onclick: async () => {
+            activeNote.pinned = !activeNote.pinned;
+            activeNote.updatedAt = Date.now();
+            await api().notes.save(activeNote);
+            paintEditor();
+            paintList();
+          },
+        });
+
+        const copyBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon('copy'),
+          title: t('notes.copyNote'),
+          onclick: async () => {
+            if (activeNote.content) {
+              await api().tab.copyText(activeNote.content);
+              toast(t('toast.noteCopied'), 'success');
+            }
+          },
+        });
+
+        const exportBtn = el('button', {
+          class: 'iconButton small',
+          type: 'button',
+          html: icon('download'),
+          title: t('notes.exportNote'),
+          onclick: async () => {
+            await api().notes.export(activeNote);
+          },
+        });
+
+        const deleteBtn = el('button', {
+          class: 'iconButton small danger',
+          type: 'button',
+          html: icon('trash'),
+          title: t('notes.deleteNote'),
+          onclick: async () => {
+            const confirmed = await api().dialog.confirm({
+              title: t('notes.deleteNote'),
+              message: `${t('notes.deleteNote')} "${activeNote.title || ''}"?`,
+            });
+            if (confirmed) {
+              await api().notes.delete(activeNote.id);
+              await loadNotes();
+            }
+          },
+        });
+
+        toolbar.append(clipBtn, sep1, editModeBtn, previewModeBtn, sep2, pinBtn, copyBtn, exportBtn, deleteBtn);
+
+        let bodyEl;
+        if (isPreview) {
+          bodyEl = el('div', { class: 'notesPreview', html: renderNoteMarkdown(activeNote.content) });
+          bodyEl.addEventListener('click', (event) => {
+            const link = event.target.closest('a.noteLink');
+            if (link && link.dataset.url) {
+              event.preventDefault();
+              api().tabs.create({ url: link.dataset.url });
+            }
+          });
+        } else {
+          bodyEl = el('textarea', {
+            class: 'notesContent',
+            placeholder: t('notes.description'),
+            value: activeNote.content || '',
+          });
+          bodyEl.addEventListener('input', () => {
+            activeNote.content = bodyEl.value;
+            scheduleSave();
+          });
+        }
+
+        editorArea.append(header, toolbar, bodyEl);
+      };
+
+      const paintList = () => {
+        clear(listCard);
+        let items = [...notes];
+        if (filterText) {
+          items = items.filter((n) =>
+            (n.title || '').toLowerCase().includes(filterText) ||
+            (n.content || '').toLowerCase().includes(filterText)
+          );
+        }
+
+        items.sort((a, b) => {
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+        if (!items.length) {
+          listCard.append(el('div', { class: 'empty', text: filterText ? t('notes.noMatch') : t('notes.noNotes') }));
+          return;
+        }
+
+        for (const item of items) {
+          const itemNode = el('div', { class: `noteItem ${activeNote?.id === item.id ? 'active' : ''}` });
+          const titleRow = el('div', { class: 'noteItemHeader' }, [
+            el('span', { class: 'noteItemTitle', text: item.title || t('notes.newNote') }),
+          ]);
+          if (item.pinned) {
+            titleRow.append(el('span', { html: icon('pin'), style: { width: '12px', height: '12px', color: 'var(--accent)' } }));
+          }
+
+          const timeRow = el('div', { class: 'noteItemTime', text: formatTime(item.updatedAt, language) });
+
+          const snippetText = (item.content || '').replace(/[#*`_~>-]/g, '').slice(0, 50).trim();
+          const snippetRow = el('div', { class: 'noteItemSnippet', text: snippetText || '...' });
+
+          itemNode.append(titleRow, timeRow, snippetRow);
+          itemNode.onclick = () => {
+            activeNote = item;
+            paintList();
+            paintEditor();
+          };
+          listCard.append(itemNode);
+        }
+      };
+
+      const loadNotes = async (selectId = null) => {
+        notes = (await api().notes.get()) || [];
+        if (!notes.length) {
+          const welcome = {
+            id: 'n_welcome',
+            title: t('notes.welcomeTitle'),
+            content: t('notes.welcomeContent'),
+            pinned: true,
+            updatedAt: Date.now(),
+          };
+          await api().notes.save(welcome);
+          notes = [welcome];
+        }
+
+        if (selectId) {
+          activeNote = notes.find((n) => n.id === selectId) || notes[0];
+        } else if (!activeNote || !notes.find((n) => n.id === activeNote.id)) {
+          activeNote = notes[0] || null;
+        }
+
+        paintList();
+        paintEditor();
+      };
+
+      loadNotes();
+      layout.append(sidebar, editorArea);
+      container.append(layout);
       return container;
     },
   };

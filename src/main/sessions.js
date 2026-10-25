@@ -75,15 +75,18 @@ const ALL_STORAGES = [
   'cachestorage',
 ];
 
-export async function clearBrowsingData({ cache = false, cookies = false, storage = false, history = false } = {}) {
+export async function clearBrowsingData({ cache = false, cookies = false, storage = false, history: clearHistoryFlag = false, since = 0 } = {}) {
   const ses = defaultSession();
   const tasks = [];
   if (cache) tasks.push(ses.clearCache());
   if (cookies) tasks.push(ses.clearStorageData({ storages: ['cookies', 'filesystem'] }));
   if (storage) tasks.push(ses.clearStorageData({ storages: ALL_STORAGES }));
-  if (history) {
+  if (clearHistoryFlag) {
     tasks.push(ses.clearHistory());
-    try { history.clear(); } catch {}
+    try {
+      if (since > 0) history.clearSince(since);
+      else history.clear();
+    } catch {}
   }
   await Promise.all(tasks);
 }

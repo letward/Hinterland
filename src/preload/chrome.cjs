@@ -129,6 +129,8 @@ const api = {
     find: (id, query, options) => ipcRenderer.invoke('tab:find', id, query, options),
     findNext: (id) => ipcRenderer.invoke('tab:findNext', id),
     findStop: (id, keep) => ipcRenderer.invoke('tab:findStop', id, keep),
+    togglePiP: (id) => ipcRenderer.invoke('tab:togglePiP', id),
+    toggleMediaPlay: (id) => ipcRenderer.invoke('tab:toggleMediaPlay', id),
   },
 
   search: {
@@ -183,6 +185,13 @@ const api = {
     remove: (idOrUrl) => ipcRenderer.invoke('readingList:remove', idOrUrl),
     toggleRead: (id) => ipcRenderer.invoke('readingList:toggleRead', id),
     clearRead: () => ipcRenderer.invoke('readingList:clearRead'),
+  },
+
+  notes: {
+    get: () => ipcRenderer.invoke('notes:get'),
+    save: (note) => ipcRenderer.invoke('notes:save', note),
+    delete: (id) => ipcRenderer.invoke('notes:delete', id),
+    export: (note) => ipcRenderer.invoke('notes:export', note),
   },
 
   site: {

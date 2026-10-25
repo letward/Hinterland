@@ -679,7 +679,19 @@ export function installIpc() {
     return true;
   });
 
-handle('tab:confirmClose', (id, answer) => {
+  handle('tab:togglePiP', async (id) => {
+    const tab = activeTab(id);
+    if (!tab) return { success: false, reason: 'no_tab' };
+    return await tab.togglePiP();
+  });
+
+  handle('tab:toggleMediaPlay', async (id) => {
+    const tab = activeTab(id);
+    if (!tab) return { success: false, reason: 'no_tab' };
+    return await tab.toggleMediaPlay();
+  });
+
+  handle('tab:confirmClose', (id, answer) => {
   resolvePending(id, answer);
   return true;
 });
@@ -773,7 +785,12 @@ handle('tab:confirmClose', (id, answer) => {
   });
 
   /* ----------------------------------------------------------------- data */
-  handle('data:clear', async (options) => {
+  handle('data:clear', async (options = {}) => {
+    if (options.closedTabs) {
+      try {
+        tabs.clearRecentlyClosed();
+      } catch {}
+    }
     await clearBrowsingData(options);
     surface.send('toast', { message: 'toast.dataCleared', kind: 'success' });
     return true;
@@ -912,6 +929,51 @@ handle('tab:confirmClose', (id, answer) => {
     const list = (settings.value('data.readingList') || []).filter((e) => !e.read);
     settings.set('data.readingList', list);
     return { ok: true, list };
+  });
+
+  /* ---------------------------------------------------------------- notes */
+  handle('notes:get', () => {
+    return settings.value('data.notes') || [];
+  });
+
+  handle('notes:save', (note) => {
+    if (!note || typeof note !== 'object') return null;
+    const notes = [...(settings.value('data.notes') || [])];
+    const index = notes.findIndex((n) => n.id === note.id);
+    const updated = {
+      id: note.id || `n${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      title: (note.title || '').trim(),
+      content: note.content || '',
+      pinned: Boolean(note.pinned),
+      updatedAt: Date.now(),
+    };
+    if (index >= 0) {
+      notes[index] = updated;
+    } else {
+      notes.unshift(updated);
+    }
+    settings.set('data.notes', notes);
+    return updated;
+  });
+
+  handle('notes:delete', (id) => {
+    const notes = (settings.value('data.notes') || []).filter((n) => n.id !== id);
+    settings.set('data.notes', notes);
+    return true;
+  });
+
+  handle('notes:export', async (note) => {
+    if (!note) return { ok: false };
+    const safeTitle = (note.title || 'note').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 50) || 'note';
+    const result = await dialog.showSaveDialog(chromeWindow(), {
+      title: 'Hinterland',
+      defaultPath: `${safeTitle}.md`,
+      filters: [{ name: 'Markdown', extensions: ['md', 'txt'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false };
+    await writeFile(result.filePath, note.content || '', 'utf8');
+    surface.send('toast', { message: 'toast.noteExported', kind: 'success' });
+    return { ok: true, path: result.filePath };
   });
 
   handle('shell:open', (url) => {
