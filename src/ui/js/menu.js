@@ -187,6 +187,11 @@ export function openMainMenu() {
           },
         }),
         row({
+          iconName: 'info',
+          title: t('menu.about'),
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'about' } })),
+        }),
+        row({
           iconName: 'gear',
           title: t('menu.settings'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:opensettings', {})),
