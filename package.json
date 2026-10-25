@@ -22,6 +22,7 @@
     "dist": "electron-builder"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "electron-updater": "^6.3.9"
   },
   "devDependencies": {
