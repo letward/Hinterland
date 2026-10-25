@@ -439,6 +439,26 @@
       "manual": "Manual configuration",
       "off": "No proxy"
     },
+    "reader": {
+      "theme": "Reader theme",
+      "themeDesc": "Default color scheme for distraction-free reader mode.",
+      "themeLight": "Light",
+      "themeSepia": "Sepia",
+      "themeDark": "Dark",
+      "themePitch": "Pitch OLED",
+      "fontFamily": "Reader font",
+      "fontFamilyDesc": "Default typography for reader mode.",
+      "fontSerif": "Serif",
+      "fontSans": "Sans-Serif",
+      "fontMono": "Monospace",
+      "fontSize": "Reader font size",
+      "fontSizeDesc": "Default font size in pixels for reader mode.",
+      "contentWidth": "Reader column width",
+      "contentWidthDesc": "Default reading column width for articles.",
+      "widthCompact": "Compact",
+      "widthStandard": "Standard",
+      "widthWide": "Wide"
+    },
     "newtab": {
       "layout": "Link layout",
       "layoutDesc": "How your quick links are arranged.",

@@ -228,6 +228,48 @@ export const SCHEMA = [
     section: 'appearance',
   }),
 
+  /* ------------------------------------------------------------------ reader */
+  option('reader.theme', 'select', 'sepia', {
+    labelKey: 'settings.reader.theme',
+    descKey: 'settings.reader.themeDesc',
+    section: 'appearance',
+    options: [
+      { value: 'light', labelKey: 'settings.reader.themeLight' },
+      { value: 'sepia', labelKey: 'settings.reader.themeSepia' },
+      { value: 'dark', labelKey: 'settings.reader.themeDark' },
+      { value: 'pitch', labelKey: 'settings.reader.themePitch' },
+    ],
+  }),
+  option('reader.fontFamily', 'select', 'serif', {
+    labelKey: 'settings.reader.fontFamily',
+    descKey: 'settings.reader.fontFamilyDesc',
+    section: 'appearance',
+    options: [
+      { value: 'serif', labelKey: 'settings.reader.fontSerif' },
+      { value: 'sans', labelKey: 'settings.reader.fontSans' },
+      { value: 'mono', labelKey: 'settings.reader.fontMono' },
+    ],
+  }),
+  option('reader.fontSize', 'number', 18, {
+    labelKey: 'settings.reader.fontSize',
+    descKey: 'settings.reader.fontSizeDesc',
+    section: 'appearance',
+    min: 14,
+    max: 26,
+    step: 1,
+    unit: 'px',
+  }),
+  option('reader.contentWidth', 'select', 'standard', {
+    labelKey: 'settings.reader.contentWidth',
+    descKey: 'settings.reader.contentWidthDesc',
+    section: 'appearance',
+    options: [
+      { value: 'compact', labelKey: 'settings.reader.widthCompact' },
+      { value: 'standard', labelKey: 'settings.reader.widthStandard' },
+      { value: 'wide', labelKey: 'settings.reader.widthWide' },
+    ],
+  }),
+
   /* ------------------------------------------------------------------- tabs */
   option('tabs.position', 'select', 'top', {
     labelKey: 'settings.tabs.position',

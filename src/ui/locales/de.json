@@ -439,6 +439,26 @@
       "manual": "Manuelle Einrichtung",
       "off": "Kein Proxy"
     },
+    "reader": {
+      "theme": "Reader-Farbschema",
+      "themeDesc": "Standard-Farbschema für die ablenkungsfreie Leseansicht.",
+      "themeLight": "Hell",
+      "themeSepia": "Sepia",
+      "themeDark": "Dunkel",
+      "themePitch": "Pechschwarz (OLED)",
+      "fontFamily": "Reader-Schriftart",
+      "fontFamilyDesc": "Standard-Typografie für die Leseansicht.",
+      "fontSerif": "Serife",
+      "fontSans": "Serifenlos",
+      "fontMono": "Monospace",
+      "fontSize": "Reader-Schriftgröße",
+      "fontSizeDesc": "Standard-Schriftgröße in Pixel für die Leseansicht.",
+      "contentWidth": "Reader-Lesebreite",
+      "contentWidthDesc": "Standard-Lesebreite für Artikel.",
+      "widthCompact": "Kompakt",
+      "widthStandard": "Standard",
+      "widthWide": "Breit"
+    },
     "newtab": {
       "layout": "Layout der Links",
       "layoutDesc": "Wie deine Schnellzugriffe angeordnet sind.",

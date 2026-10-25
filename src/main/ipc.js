@@ -1299,13 +1299,39 @@ export function startupUrl() {
   return NEW_TAB_URL;
 }
 
-function inPageReaderScript() {
+function inPageReaderScript(initialPrefs) {
   const existing = document.getElementById('hinterland-reader-view');
   if (existing) {
     existing.remove();
     document.documentElement.style.overflow = '';
     return false;
   }
+
+  const prefs = Object.assign({
+    theme: 'sepia',
+    font: 'serif',
+    size: 18,
+    width: 'standard',
+  }, initialPrefs || {});
+
+  const THEMES = {
+    light: { bg: '#ffffff', text: '#1f2937', border: '#e5e7eb', meta: '#6b7280', barBg: 'rgba(255, 255, 255, 0.96)', cardBg: '#f3f4f6', link: '#2563eb' },
+    sepia: { bg: '#fbf0d9', text: '#433422', border: '#e8dac2', meta: '#8c7b66', barBg: 'rgba(251, 240, 217, 0.96)', cardBg: '#f3e5c8', link: '#b45309' },
+    dark: { bg: '#1a1d24', text: '#e2e8f0', border: '#2e3440', meta: '#94a3b8', barBg: 'rgba(26, 29, 36, 0.96)', cardBg: '#252934', link: '#60a5fa' },
+    pitch: { bg: '#000000', text: '#f1f5f9', border: '#1f2937', meta: '#9ca3af', barBg: 'rgba(0, 0, 0, 0.96)', cardBg: '#141414', link: '#38bdf8' },
+  };
+
+  const FONTS = {
+    serif: 'Georgia, Cambria, "Times New Roman", Times, serif',
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+  };
+
+  const WIDTHS = {
+    compact: '580px',
+    standard: '740px',
+    wide: '960px',
+  };
 
   const selectors = [
     'article',
@@ -1361,56 +1387,247 @@ function inPageReaderScript() {
   junk.forEach((n) => n.remove());
 
   const fullText = clone.innerText || '';
-  const wordCount = fullText.split(/\\s+/).filter(Boolean).length;
+  const wordCount = fullText.split(/\s+/).filter(Boolean).length;
   const readMins = Math.max(1, Math.round(wordCount / 200));
 
   const overlay = document.createElement('div');
   overlay.id = 'hinterland-reader-view';
   overlay.setAttribute('data-hinterland-reader', 'true');
 
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:' + (isDark ? '#14161d' : '#f7f8fa') + ';color:' + (isDark ? '#e4e7ee' : '#1a1c22') + ';overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Georgia,serif;font-size:18px;line-height:1.75;padding:0;margin:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;';
-
+  const container = document.createElement('div');
   const bar = document.createElement('div');
-  bar.style.cssText = 'position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:' + (isDark ? 'rgba(20,22,29,0.92)' : 'rgba(247,248,250,0.92)') + ';backdrop-filter:blur(12px);border-bottom:1px solid ' + (isDark ? '#262a36' : '#e2e5eb') + ';z-index:10;';
+  const toastBox = document.createElement('div');
 
+  function showToast(msg) {
+    toastBox.textContent = msg;
+    toastBox.style.opacity = '1';
+    toastBox.style.transform = 'translateY(0)';
+    setTimeout(() => {
+      toastBox.style.opacity = '0';
+      toastBox.style.transform = 'translateY(8px)';
+    }, 2200);
+  }
+
+  function applyStyles() {
+    const t = THEMES[prefs.theme] || THEMES.sepia;
+    const f = FONTS[prefs.font] || FONTS.serif;
+    const w = WIDTHS[prefs.width] || WIDTHS.standard;
+
+    overlay.style.cssText = `position:fixed;inset:0;z-index:2147483647;background:${t.bg};color:${t.text};overflow-y:auto;font-family:${f};font-size:${prefs.size}px;line-height:1.75;padding:0;margin:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;transition:background 0.2s, color 0.2s;`;
+    bar.style.cssText = `position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 24px;background:${t.barBg};backdrop-filter:blur(12px);border-bottom:1px solid ${t.border};z-index:100;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;`;
+    container.style.cssText = `max-width:${w};margin:0 auto;padding:48px 24px 96px;transition:max-width 0.2s;`;
+
+    container.querySelectorAll('a').forEach((a) => { a.style.color = t.link; });
+    const divider = container.querySelector('hr');
+    if (divider) divider.style.background = t.border;
+  }
+
+  // Save prefs to Hinterland
+  function notifyPrefs() {
+    console.log('__HINTERLAND_READER_ACTION__:' + JSON.stringify({ action: 'savePrefs', prefs }));
+  }
+
+  // Extract clean Markdown
+  function extractMarkdown() {
+    let md = `# ${title}\n\n`;
+    if (author) md += `*${author}* • *${readMins} min read*\n\n---\n\n`;
+    const paragraphs = clone.querySelectorAll('p, h2, h3, h4, blockquote, pre, li');
+    if (paragraphs.length) {
+      paragraphs.forEach((p) => {
+        const tag = p.tagName.toLowerCase();
+        const text = p.innerText.trim();
+        if (!text) return;
+        if (tag === 'h2') md += `## ${text}\n\n`;
+        else if (tag === 'h3') md += `### ${text}\n\n`;
+        else if (tag === 'h4') md += `#### ${text}\n\n`;
+        else if (tag === 'blockquote') md += `> ${text}\n\n`;
+        else if (tag === 'pre') md += `\`\`\`\n${text}\n\`\`\`\n\n`;
+        else if (tag === 'li') md += `- ${text}\n`;
+        else md += `${text}\n\n`;
+      });
+    } else {
+      md += fullText;
+    }
+    return md.trim();
+  }
+
+  // Top Bar elements
   const infoBadge = document.createElement('span');
-  infoBadge.style.cssText = 'font-size:13px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:' + (isDark ? '#98a2b3' : '#667085') + ';display:flex;align-items:center;gap:8px;';
-  infoBadge.textContent = readMins + ' min read • ' + wordCount + ' words';
+  infoBadge.style.cssText = 'color:inherit;opacity:0.8;display:flex;align-items:center;gap:6px;font-size:13px;';
+  infoBadge.textContent = `📖 ${readMins} min read • ${wordCount} words`;
+
+  // Controls container
+  const controls = document.createElement('div');
+  controls.style.cssText = 'display:flex;align-items:center;gap:12px;flex-wrap:wrap;';
+
+  // 1. Theme controls
+  const themeGroup = document.createElement('div');
+  themeGroup.style.cssText = 'display:flex;align-items:center;gap:4px;background:rgba(125,125,125,0.12);padding:2px 4px;border-radius:20px;';
+  [
+    { id: 'light', label: '☀️', title: 'Light' },
+    { id: 'sepia', label: '📜', title: 'Sepia' },
+    { id: 'dark', label: '🌙', title: 'Dark' },
+    { id: 'pitch', label: '⬛', title: 'Pitch' },
+  ].forEach((thm) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = thm.label;
+    btn.title = thm.title;
+    btn.style.cssText = 'border:0;background:transparent;cursor:pointer;font-size:13px;padding:3px 6px;border-radius:12px;';
+    btn.onclick = () => {
+      prefs.theme = thm.id;
+      applyStyles();
+      notifyPrefs();
+    };
+    themeGroup.appendChild(btn);
+  });
+
+  // 2. Font family controls
+  const fontGroup = document.createElement('div');
+  fontGroup.style.cssText = 'display:flex;align-items:center;gap:2px;background:rgba(125,125,125,0.12);padding:2px 4px;border-radius:6px;';
+  [
+    { id: 'serif', label: 'Serif' },
+    { id: 'sans', label: 'Sans' },
+    { id: 'mono', label: 'Mono' },
+  ].forEach((fnt) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = fnt.label;
+    btn.style.cssText = 'border:0;background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:3px 8px;border-radius:4px;';
+    btn.onclick = () => {
+      prefs.font = fnt.id;
+      applyStyles();
+      notifyPrefs();
+    };
+    fontGroup.appendChild(btn);
+  });
+
+  // 3. Size controls
+  const sizeGroup = document.createElement('div');
+  sizeGroup.style.cssText = 'display:flex;align-items:center;gap:4px;';
+  const sizeDown = document.createElement('button');
+  sizeDown.type = 'button';
+  sizeDown.textContent = 'A-';
+  sizeDown.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;';
+  const sizeVal = document.createElement('span');
+  sizeVal.style.cssText = 'font-size:12px;opacity:0.8;min-width:32px;text-align:center;';
+  sizeVal.textContent = `${prefs.size}px`;
+  const sizeUp = document.createElement('button');
+  sizeUp.type = 'button';
+  sizeUp.textContent = 'A+';
+  sizeUp.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px;';
+
+  sizeDown.onclick = () => {
+    prefs.size = Math.max(14, prefs.size - 1);
+    sizeVal.textContent = `${prefs.size}px`;
+    applyStyles();
+    notifyPrefs();
+  };
+  sizeUp.onclick = () => {
+    prefs.size = Math.min(26, prefs.size + 1);
+    sizeVal.textContent = `${prefs.size}px`;
+    applyStyles();
+    notifyPrefs();
+  };
+  sizeGroup.append(sizeDown, sizeVal, sizeUp);
+
+  // 4. Width controls
+  const widthGroup = document.createElement('div');
+  widthGroup.style.cssText = 'display:flex;align-items:center;gap:2px;background:rgba(125,125,125,0.12);padding:2px 4px;border-radius:6px;';
+  [
+    { id: 'compact', label: 'Narrow' },
+    { id: 'standard', label: 'Standard' },
+    { id: 'wide', label: 'Wide' },
+  ].forEach((w) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = w.label;
+    btn.style.cssText = 'border:0;background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:3px 6px;border-radius:4px;';
+    btn.onclick = () => {
+      prefs.width = w.id;
+      applyStyles();
+      notifyPrefs();
+    };
+    widthGroup.appendChild(btn);
+  });
+
+  // Action buttons
+  const actionsGroup = document.createElement('div');
+  actionsGroup.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
+  const readListBtn = document.createElement('button');
+  readListBtn.type = 'button';
+  readListBtn.textContent = '🔖 Reading List';
+  readListBtn.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:3px 10px;border-radius:6px;';
+  readListBtn.onclick = () => {
+    console.log('__HINTERLAND_READER_ACTION__:' + JSON.stringify({
+      action: 'addToReadingList',
+      url: location.href,
+      title,
+    }));
+    showToast('✓ Added to Reading List');
+  };
+
+  const copyMdBtn = document.createElement('button');
+  copyMdBtn.type = 'button';
+  copyMdBtn.textContent = '📋 Markdown';
+  copyMdBtn.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:3px 10px;border-radius:6px;';
+  copyMdBtn.onclick = () => {
+    const md = extractMarkdown();
+    navigator.clipboard.writeText(md).then(() => {
+      showToast('✓ Markdown copied to clipboard');
+    }).catch(() => {
+      showToast('✓ Markdown generated');
+    });
+  };
+
+  const printBtn = document.createElement('button');
+  printBtn.type = 'button';
+  printBtn.textContent = '🖨️';
+  printBtn.title = 'Print article';
+  printBtn.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:3px 8px;border-radius:6px;';
+  printBtn.onclick = () => window.print();
 
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
-  closeBtn.textContent = '✕ Close';
-  closeBtn.style.cssText = 'background:transparent;border:1px solid ' + (isDark ? '#344054' : '#d0d5dd') + ';border-radius:6px;color:inherit;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:13px;padding:4px 12px;cursor:pointer;';
+  closeBtn.textContent = '✕';
+  closeBtn.title = 'Exit reader mode (Esc)';
+  closeBtn.style.cssText = 'border:1px solid rgba(125,125,125,0.3);background:transparent;color:inherit;cursor:pointer;font-size:13px;padding:3px 10px;border-radius:6px;';
 
   const exit = () => {
     overlay.remove();
     document.documentElement.style.overflow = '';
+    window.removeEventListener('keydown', keyHandler);
+    console.log('__HINTERLAND_READER_ACTION__:' + JSON.stringify({ action: 'exit' }));
   };
   closeBtn.onclick = exit;
   window.__hinterland_reader_exit = exit;
 
-  bar.appendChild(infoBadge);
-  bar.appendChild(closeBtn);
+  const keyHandler = (e) => {
+    if (e.key === 'Escape') exit();
+  };
+  window.addEventListener('keydown', keyHandler);
 
-  const container = document.createElement('div');
-  container.style.cssText = 'max-width:720px;margin:0 auto;padding:48px 24px 96px;';
+  controls.append(themeGroup, fontGroup, sizeGroup, widthGroup);
+  actionsGroup.append(readListBtn, copyMdBtn, printBtn, closeBtn);
 
+  bar.append(infoBadge, controls, actionsGroup);
+
+  // Content
   const h1 = document.createElement('h1');
   h1.textContent = title;
-  h1.style.cssText = 'font-size:32px;line-height:1.3;margin:0 0 16px 0;font-weight:700;letter-spacing:-0.02em;';
+  h1.style.cssText = 'font-size:2em;line-height:1.25;margin:0 0 16px 0;font-weight:700;letter-spacing:-0.02em;';
   container.appendChild(h1);
 
   if (author) {
     const meta = document.createElement('div');
     meta.textContent = author;
-    meta.style.cssText = 'font-size:14px;color:' + (isDark ? '#98a2b3' : '#667085') + ';margin-bottom:24px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;';
+    meta.style.cssText = 'font-size:0.9em;opacity:0.8;margin-bottom:20px;';
     container.appendChild(meta);
   }
 
   const divider = document.createElement('hr');
-  divider.style.cssText = 'border:0;height:1px;background:' + (isDark ? '#262a36' : '#e2e5eb') + ';margin:24px 0 32px 0;';
+  divider.style.cssText = 'border:0;height:1px;margin:20px 0 28px 0;';
   container.appendChild(divider);
 
   const contentHolder = document.createElement('div');
@@ -1428,14 +1645,16 @@ function inPageReaderScript() {
     h.style.margin = '1.8em 0 0.8em 0';
     h.style.fontWeight = '600';
   });
-  contentHolder.querySelectorAll('a').forEach((a) => {
-    a.style.color = '#4f7cff';
-  });
-
   container.appendChild(contentHolder);
+
+  // Toast
+  toastBox.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:#101828;color:#ffffff;padding:8px 18px;border-radius:24px;font-size:13px;font-family:-apple-system,sans-serif;opacity:0;transition:opacity 0.25s, transform 0.25s;pointer-events:none;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.25);';
+
   overlay.appendChild(bar);
   overlay.appendChild(container);
+  overlay.appendChild(toastBox);
 
+  applyStyles();
   document.documentElement.style.overflow = 'hidden';
   document.body.appendChild(overlay);
   return true;

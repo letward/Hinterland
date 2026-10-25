@@ -4,6 +4,21 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.15.1] - 2026-10-25
+
+### Added
+- **Reader Mode Customization Suite & Typography Controls**:
+  - Interactive top bar controls for in-page distraction-free article reading.
+  - 4 curated reading color schemes: Light (paper white), Sepia (vintage parchment), Slate Dark (charcoal), and Pitch OLED (true black).
+  - Multi-family typography switcher: Classic Editorial Serif, Clean Sans-Serif, and Monospace.
+  - Interactive font-size stepper (`A-` / `A+`, 14px to 26px) with visual pixel indicator.
+  - Configurable reading column width: Compact (580px), Standard (740px), and Wide (960px).
+  - Reader quick-actions: 1-click "Add to Reading List" (integrates directly with Hinterland's Reading List store), "Copy Clean Markdown" (extracts structured markdown of headings, paragraphs, blockquotes, and lists), and Print action.
+  - Real-time in-page toast feedback on copying markdown or saving articles to reading list.
+  - Persistent reader preferences: User theme, typography, font size, and width preferences are remembered across articles and browser sessions in `schema.js`.
+- **Test Suite**:
+  - Added unit test suite `sdk/test/v115Features.test.mjs` verifying QR code matrix generation, SVG rendering, memory saver tab filtering policies, and reader mode preference normalization.
+
 ## [1.15.0] - 2026-10-25
 
 ### Fixed
