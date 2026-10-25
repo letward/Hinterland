@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hinterland — Browser herunterladen</title>
-  <meta name="description" content="Hinterland: schneller, sicherer, frei anpassbarer Browser. Neueste Version herunterladen, Changelog lesen." />
+  <title>Hinterland — Download</title>
+  <meta name="description" content="Hinterland: a fast, secure and freely customisable browser. Download the latest version." />
   <link rel="icon" href="assets/icon.png" />
   <style>
     :root {
@@ -51,9 +51,15 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      top: 0 !important;
     }
     a { color: inherit; text-decoration: none; }
     img { display: block; max-width: 100%; }
+
+    /* Hide Google Translate chrome */
+    .goog-te-banner-frame, .goog-te-menu-frame, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+    .goog-text-highlight { background: none !important; box-shadow: none !important; }
+    body { top: 0 !important; }
 
     /* ---------- Navbar ---------- */
     .nav {
@@ -63,389 +69,160 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 16px;
       padding: 14px 28px;
       background: color-mix(in srgb, var(--bg) 72%, transparent);
       backdrop-filter: blur(var(--blur));
       -webkit-backdrop-filter: blur(var(--blur));
       border-bottom: 1px solid transparent;
-      transition: border-color var(--anim) ease, background var(--anim) ease, padding var(--anim) ease;
+      transition: border-color var(--anim) ease, padding var(--anim) ease;
     }
-    .nav.scrolled {
-      border-bottom-color: var(--borderSoft);
-      padding: 10px 28px;
-    }
+    .nav.scrolled { border-bottom-color: var(--borderSoft); padding: 10px 28px; }
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 17px;
-      letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 600; font-size: 17px; letter-spacing: -0.2px;
     }
-    .brand img {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      box-shadow: 0 2px 10px rgb(0 0 0 / 30%);
-      transition: transform 320ms cubic-bezier(.2,0,0,1);
-    }
+    .brand img { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 2px 10px rgb(0 0 0 / 30%); transition: transform 320ms cubic-bezier(.2,0,0,1); }
     .brand:hover img { transform: rotate(-8deg) scale(1.08); }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      list-style: none;
-      margin: 0; padding: 0;
-    }
-    .nav-links a {
-      padding: 8px 14px;
-      border-radius: var(--radiusSmall);
-      color: var(--textDim);
-      font-size: 14px;
-      font-weight: 500;
-      transition: color var(--anim) ease, background var(--anim) ease;
-    }
+    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
+    .nav-links a { padding: 8px 14px; border-radius: var(--radiusSmall); color: var(--textDim); font-size: 14px; font-weight: 500; transition: color var(--anim) ease, background var(--anim) ease; }
     .nav-links a:hover { color: var(--text); background: var(--surfaceAlt); }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
-    .theme-toggle {
-      display: grid; place-items: center;
-      width: 36px; height: 36px;
+    .select {
+      padding: 8px 12px;
       border: 1px solid var(--border);
       border-radius: var(--radiusSmall);
       background: var(--surface);
-      color: var(--textDim);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
+      transition: background var(--anim) ease, border-color var(--anim) ease;
+    }
+    .select:hover { background: var(--surfaceHover); border-color: var(--borderSoft); }
+    .theme-toggle {
+      display: grid; place-items: center; width: 36px; height: 36px;
+      border: 1px solid var(--border); border-radius: var(--radiusSmall);
+      background: var(--surface); color: var(--textDim); cursor: pointer;
       transition: background var(--anim) ease, color var(--anim) ease, transform var(--anim) ease;
     }
     .theme-toggle:hover { color: var(--text); background: var(--surfaceHover); transform: rotate(20deg); }
     .theme-toggle svg { width: 16px; height: 16px; }
     .btn-nav {
-      padding: 8px 16px;
-      border-radius: var(--radiusSmall);
-      background: var(--accent);
-      color: var(--onAccent);
-      font-size: 14px;
-      font-weight: 600;
+      padding: 8px 16px; border-radius: var(--radiusSmall);
+      background: var(--accent); color: var(--onAccent);
+      font-size: 14px; font-weight: 600;
       transition: filter var(--anim) ease, transform var(--anim) ease;
     }
     .btn-nav:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
     /* ---------- Hero ---------- */
     .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 120px 24px 80px;
-      overflow: hidden;
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 120px 24px 80px; overflow: hidden;
     }
     .hero-bg {
-      position: absolute;
-      inset: -20%;
+      position: absolute; inset: -20%;
       background:
         radial-gradient(600px 400px at 20% 30%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
         radial-gradient(500px 350px at 80% 70%, color-mix(in srgb, #7dd3a8 14%, transparent), transparent 60%);
-      filter: blur(40px);
-      opacity: 0.7;
+      filter: blur(40px); opacity: 0.7;
       animation: drift 18s ease-in-out infinite alternate;
       pointer-events: none;
     }
-    @keyframes drift {
-      0% { transform: translate(0,0) scale(1); }
-      100% { transform: translate(40px,-30px) scale(1.08); }
-    }
+    @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,-30px) scale(1.08); } }
     .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--borderSoft) 1px, transparent 1px),
-        linear-gradient(90deg, var(--borderSoft) 1px, transparent 1px);
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--borderSoft) 1px, transparent 1px), linear-gradient(90deg, var(--borderSoft) 1px, transparent 1px);
       background-size: 48px 48px;
       mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
-      opacity: 0.35;
-      pointer-events: none;
+      opacity: 0.35; pointer-events: none;
     }
-    .hero-inner {
-      position: relative;
-      max-width: 820px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-    }
-    .hero-logo {
-      width: 96px; height: 96px;
-      border-radius: 50%;
-      box-shadow: 0 8px 32px color-mix(in srgb, var(--accent) 30%, transparent), var(--shadow);
-      animation: float 5s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+    .hero-inner { position: relative; max-width: 820px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .hero-logo { width: 96px; height: 96px; border-radius: 50%; box-shadow: 0 8px 32px color-mix(in srgb, var(--accent) 30%, transparent), var(--shadow); animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      backdrop-filter: blur(8px);
-      font-size: 13px;
-      color: var(--textDim);
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 70%, transparent); backdrop-filter: blur(8px);
+      font-size: 13px; color: var(--textDim);
     }
-    .badge .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #7dd3a8;
-      box-shadow: 0 0 8px #7dd3a8;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.3); }
-    }
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(40px, 7vw, 72px);
-      font-weight: 700;
-      letter-spacing: -1.5px;
-      line-height: 1.05;
-      background: linear-gradient(135deg, var(--text) 0%, color-mix(in srgb, var(--accent) 60%, var(--text)) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .hero .tagline {
-      margin: 0;
-      font-size: clamp(16px, 2vw, 20px);
-      color: var(--textDim);
-      max-width: 560px;
-    }
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 8px;
-    }
+    .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #7dd3a8; box-shadow: 0 0 8px #7dd3a8; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+    .hero h1 { margin: 0; font-size: clamp(40px, 7vw, 72px); font-weight: 700; letter-spacing: -1.5px; line-height: 1.05; background: linear-gradient(135deg, var(--text) 0%, color-mix(in srgb, var(--accent) 60%, var(--text)) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero .tagline { margin: 0; font-size: clamp(16px, 2vw, 20px); color: var(--textDim); max-width: 560px; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
     .btn-primary {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 30px;
-      border-radius: var(--radiusLarge);
-      background: var(--accent);
-      color: var(--onAccent);
-      font-weight: 600;
-      font-size: 16px;
+      position: relative; display: inline-flex; align-items: center; gap: 12px;
+      padding: 16px 30px; border-radius: var(--radiusLarge);
+      background: var(--accent); color: var(--onAccent); font-weight: 600; font-size: 16px;
       box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 40%, transparent);
-      overflow: hidden;
-      transition: transform 200ms cubic-bezier(.2,0,0,1), box-shadow 200ms ease;
+      overflow: hidden; transition: transform 200ms cubic-bezier(.2,0,0,1), box-shadow 200ms ease;
     }
-    .btn-primary::before {
-      content: "";
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-      transform: skewX(-20deg);
-      transition: left 700ms ease;
-    }
+    .btn-primary::before { content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transform: skewX(-20deg); transition: left 700ms ease; }
     .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px color-mix(in srgb, var(--accent) 50%, transparent); }
     .btn-primary:hover::before { left: 140%; }
     .btn-primary svg { width: 20px; height: 20px; }
     .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 24px;
-      border-radius: var(--radiusLarge);
-      border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 60%, transparent);
-      backdrop-filter: blur(8px);
-      color: var(--text);
-      font-weight: 500;
-      font-size: 16px;
+      display: inline-flex; align-items: center; gap: 8px; padding: 16px 24px;
+      border-radius: var(--radiusLarge); border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 60%, transparent); backdrop-filter: blur(8px);
+      color: var(--text); font-weight: 500; font-size: 16px;
       transition: background var(--anim) ease, border-color var(--anim) ease, transform var(--anim) ease;
     }
     .btn-ghost:hover { background: var(--surface); border-color: var(--borderSoft); transform: translateY(-2px); }
-    .hero-meta {
-      font-size: 13px;
-      color: var(--textDim);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .hero-meta .sep { opacity: 0.4; }
+    .hero-meta { font-size: 13px; color: var(--textDim); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
 
     /* ---------- Sections ---------- */
     section { padding: 96px 24px; }
     .container { max-width: 1080px; margin: 0 auto; }
-    .section-head {
-      text-align: center;
-      margin-bottom: 56px;
-    }
-    .section-head .eyebrow {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.6px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-    .section-head h2 {
-      margin: 0 0 12px;
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 700;
-      letter-spacing: -0.8px;
-    }
-    .section-head p {
-      margin: 0;
-      color: var(--textDim);
-      font-size: 17px;
-      max-width: 600px;
-      margin-inline: auto;
-    }
+    .section-head { text-align: center; margin-bottom: 56px; }
+    .section-head .eyebrow { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .section-head h2 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.8px; }
+    .section-head p { margin: 0; color: var(--textDim); font-size: 17px; max-width: 600px; margin-inline: auto; }
 
-    /* features */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .feature-card {
-      padding: 28px;
-      border-radius: var(--radiusLarge);
-      background: var(--surface);
-      border: 1px solid var(--borderSoft);
-      transition: transform 240ms cubic-bezier(.2,0,0,1), border-color var(--anim) ease, box-shadow var(--anim) ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(300px 200px at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%);
-      opacity: 0;
-      transition: opacity 300ms ease;
-      pointer-events: none;
-    }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card { padding: 28px; border-radius: var(--radiusLarge); background: var(--surface); border: 1px solid var(--borderSoft); transition: transform 240ms cubic-bezier(.2,0,0,1), border-color var(--anim) ease, box-shadow var(--anim) ease; position: relative; overflow: hidden; }
+    .feature-card::after { content: ""; position: absolute; inset: 0; background: radial-gradient(300px 200px at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%); opacity: 0; transition: opacity 300ms ease; pointer-events: none; }
     .feature-card:hover { transform: translateY(-4px); border-color: var(--border); box-shadow: var(--shadowSmall); }
     .feature-card:hover::after { opacity: 1; }
-    .feature-icon {
-      width: 44px; height: 44px;
-      border-radius: var(--radius);
-      background: color-mix(in srgb, var(--accent) 14%, var(--surfaceAlt));
-      color: var(--accent);
-      display: grid; place-items: center;
-      margin-bottom: 16px;
-      transition: transform 240ms cubic-bezier(.2,0,0,1);
-    }
+    .feature-icon { width: 44px; height: 44px; border-radius: var(--radius); background: color-mix(in srgb, var(--accent) 14%, var(--surfaceAlt)); color: var(--accent); display: grid; place-items: center; margin-bottom: 16px; transition: transform 240ms cubic-bezier(.2,0,0,1); }
     .feature-card:hover .feature-icon { transform: scale(1.1) rotate(-4deg); }
     .feature-icon svg { width: 22px; height: 22px; }
     .feature-card h3 { margin: 0 0 8px; font-size: 17px; font-weight: 600; }
     .feature-card p { margin: 0; color: var(--textDim); font-size: 14px; line-height: 1.55; }
 
-    /* changelog */
-    .changelog-wrap {
-      max-width: 820px;
-      margin: 0 auto;
-    }
-    .cl-card {
-      background: var(--surface);
-      border: 1px solid var(--borderSoft);
-      border-radius: var(--radiusLarge);
-      padding: 32px 36px;
-      box-shadow: var(--shadowSmall);
-    }
-    .cl-version {
-      padding: 24px 0;
-      border-top: 1px solid var(--borderSoft);
-    }
+    .changelog-wrap { max-width: 820px; margin: 0 auto; }
+    .cl-card { background: var(--surface); border: 1px solid var(--borderSoft); border-radius: var(--radiusLarge); padding: 32px 36px; box-shadow: var(--shadowSmall); }
+    .cl-version { padding: 24px 0; border-top: 1px solid var(--borderSoft); }
     .cl-version:first-child { border-top: none; padding-top: 0; }
-    .cl-version h3 {
-      margin: 0 0 14px;
-      font-size: 20px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .cl-version h3 .ver-pill {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--accent) 18%, transparent);
-      color: var(--accent);
-      letter-spacing: 0.4px;
-    }
-    .cl-version h4 {
-      margin: 16px 0 8px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--textDim);
-    }
+    .cl-version h3 { margin: 0 0 14px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+    .cl-version h3 .ver-pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); letter-spacing: 0.4px; }
+    .cl-version h4 { margin: 16px 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--textDim); }
     .cl-version ul { margin: 0; padding-left: 20px; }
     .cl-version li { margin: 6px 0; font-size: 14px; line-height: 1.55; color: var(--text); }
-    .cl-version li strong { color: var(--text); }
-    .cl-version code {
-      font-family: var(--fontMono);
-      font-size: 0.88em;
-      padding: 1px 6px;
-      border-radius: 4px;
-      background: var(--surfaceAlt);
-      color: var(--accent);
-    }
+    .cl-version code { font-family: var(--fontMono); font-size: 0.88em; padding: 1px 6px; border-radius: 4px; background: var(--surfaceAlt); color: var(--accent); }
     .cl-loading, .cl-error { color: var(--textDim); font-style: italic; padding: 12px 0; }
     .cl-error { color: #ff8a8a; }
 
-    /* ---------- Footer ---------- */
-    footer.site-foot {
-      padding: 48px 24px 32px;
-      border-top: 1px solid var(--borderSoft);
-      text-align: center;
-      color: var(--textDim);
-      font-size: 13px;
-    }
+    footer.site-foot { padding: 48px 24px 32px; border-top: 1px solid var(--borderSoft); text-align: center; color: var(--textDim); font-size: 13px; }
     footer.site-foot a { color: var(--accent); transition: opacity var(--anim) ease; }
     footer.site-foot a:hover { opacity: 0.8; }
     footer.site-foot .foot-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
 
-    /* ---------- Reveal animations ---------- */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 700ms cubic-bezier(.2,0,0,1), transform 700ms cubic-bezier(.2,0,0,1);
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 700ms cubic-bezier(.2,0,0,1), transform 700ms cubic-bezier(.2,0,0,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-delay-1 { transition-delay: 80ms; }
     .reveal-delay-2 { transition-delay: 160ms; }
     .reveal-delay-3 { transition-delay: 240ms; }
 
-    /* ---------- Responsive ---------- */
     @media (max-width: 720px) {
       .nav { padding: 12px 16px; }
       .nav-links { display: none; }
       section { padding: 72px 20px; }
       .cl-card { padding: 24px 20px; }
     }
-
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
       html { scroll-behavior: auto; }
@@ -453,6 +230,8 @@
   </style>
 </head>
 <body>
+
+  <div id="google_translate_element" style="display:none"></div>
 
   <!-- Navbar -->
   <nav class="nav" id="nav">
@@ -467,7 +246,24 @@
     </ul>
     <div class="nav-actions">
       <a class="btn-nav" href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">GitHub</a>
-      <button class="theme-toggle" id="themeToggle" aria-label="Theme wechseln">
+      <select class="select" id="langSelect" aria-label="Language">
+        <option value="auto">Auto</option>
+        <option value="en">English</option>
+        <option value="de">Deutsch</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+        <option value="it">Italiano</option>
+        <option value="pt">Português</option>
+        <option value="nl">Nederlands</option>
+        <option value="pl">Polski</option>
+        <option value="ru">Русский</option>
+        <option value="ja">日本語</option>
+        <option value="zh-CN">中文</option>
+        <option value="ko">한국어</option>
+        <option value="tr">Türkçe</option>
+        <option value="ar">العربية</option>
+      </select>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </div>
@@ -481,22 +277,22 @@
       <img class="hero-logo reveal" src="assets/icon.png" alt="Hinterland" />
       <span class="badge reveal reveal-delay-1"><span class="dot"></span> v1.16.0 · Latest Release</span>
       <h1 class="reveal reveal-delay-2">Hinterland</h1>
-      <p class="tagline reveal reveal-delay-3">Ein schneller, sicherer und frei anpassbarer Browser.</p>
+      <p class="tagline reveal reveal-delay-3">A fast, secure and freely customisable browser.</p>
       <div class="hero-actions reveal reveal-delay-3" id="download">
         <a id="dlBtn" class="btn-primary" href="https://github.com/letward/Hinterland/releases/download/v1.16.0/Hinterland-Setup-1.16.0.exe" download>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Für Windows herunterladen
+          Download for Windows
         </a>
         <a class="btn-ghost" href="https://github.com/letward/Hinterland/releases" target="_blank" rel="noopener">
-          Alle Releases
+          All releases
         </a>
       </div>
       <div class="hero-meta reveal reveal-delay-3">
         <span>Windows 10/11 (64-bit)</span>
-        <span class="sep">·</span>
-        <span>~110 MB Installer</span>
-        <span class="sep">·</span>
-        <span>Automatische Updates</span>
+        <span>·</span>
+        <span>~110 MB installer</span>
+        <span>·</span>
+        <span>Automatic updates</span>
       </div>
     </div>
   </section>
@@ -506,39 +302,39 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Features</span>
-        <h2>Was ist Hinterland?</h2>
-        <p>Ein Browser, der sich an dich anpasst — schnell, privat und erweiterbar.</p>
+        <h2>What is Hinterland?</h2>
+        <p>A browser that adapts to you — fast, private and extensible.</p>
       </div>
       <div class="features-grid">
         <div class="feature-card reveal">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-          <h3>Schnell & leicht</h3>
-          <p>Optimierter Chromium-Kern mit Tab-Snoozing und Memory Saver für maximale Performance.</p>
+          <h3>Fast & light</h3>
+          <p>Optimised Chromium core with tab snoozing and memory saver.</p>
         </div>
         <div class="feature-card reveal reveal-delay-1">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <h3>Privat & sicher</h3>
-          <p>Tracker-Blocking, HTTPS-First, private Tabs und granulare Site-Permissions.</p>
+          <h3>Private & secure</h3>
+          <p>Tracker blocking, HTTPS-first, private tabs and granular site permissions.</p>
         </div>
         <div class="feature-card reveal reveal-delay-2">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg></div>
-          <h3>Erweiterbar</h3>
-          <p>MV3-Extensions mit strenger Sicherheitsrichtlinie und eigenem Extension SDK.</p>
+          <h3>Extensible</h3>
+          <p>MV3 extensions with a strict security policy and its own Extension SDK.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
           <h3>Reader Mode</h3>
-          <p>Ablenkungsfreies Lesen mit Farbschemata, Typografie und Spaltenbreite.</p>
+          <p>Distraction-free reading with colour schemes, typography and column width.</p>
         </div>
         <div class="feature-card reveal reveal-delay-1">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <h3>Tab Stash</h3>
-          <p>Sessions speichern, organisieren und wiederherstellen — mit JSON-Backup.</p>
+          <p>Save, organise and restore sessions — with JSON backup.</p>
         </div>
         <div class="feature-card reveal reveal-delay-2">
           <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 0 10h-3m-6 0H6A5 5 0 0 1 6 7h3"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
-          <h3>Passwort-Manager</h3>
-          <p>Zero-Knowledge AES-GCM Vault mit Autofill und Generator.</p>
+          <h3>Password manager</h3>
+          <p>Zero-knowledge AES-GCM vault with autofill and generator.</p>
         </div>
       </div>
     </div>
@@ -549,12 +345,12 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Changelog</span>
-        <h2>Neueste Änderungen</h2>
-        <p>Die aktuellsten Updates an Hinterland. Vollständige Historie auf GitHub.</p>
+        <h2>Latest changes</h2>
+        <p>The most recent updates to Hinterland. Full history on GitHub.</p>
       </div>
       <div class="changelog-wrap reveal">
         <div class="cl-card">
-          <div id="clContent" class="cl-loading">Lade Changelog…</div>
+          <div id="clContent" class="cl-loading">Loading changelog…</div>
         </div>
       </div>
     </div>
@@ -562,15 +358,15 @@
 
   <footer class="site-foot">
     <div class="foot-links">
-      <a href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">Quellcode</a>
-      <a href="https://github.com/letward/Hinterland/releases" target="_blank" rel="noopener">Alle Releases</a>
+      <a href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">Source code</a>
+      <a href="https://github.com/letward/Hinterland/releases" target="_blank" rel="noopener">All releases</a>
       <a href="https://github.com/letward/Hinterland/issues" target="_blank" rel="noopener">Issues</a>
     </div>
-    <div>Hinterland Browser · MIT License · macOS & Linux folgen.</div>
+    <div>Hinterland Browser · MIT License · macOS & Linux coming soon.</div>
   </footer>
 
   <script>
-    // Theme toggle with persistence
+    // ---------- Theme toggle ----------
     const root = document.documentElement;
     const toggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
@@ -590,13 +386,13 @@
       updateIcon();
     });
 
-    // Navbar scroll state
+    // ---------- Navbar scroll ----------
     const nav = document.getElementById('nav');
     const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // Mouse parallax on feature cards
+    // ---------- Mouse parallax on feature cards ----------
     document.querySelectorAll('.feature-card').forEach(card => {
       card.addEventListener('mousemove', e => {
         const r = card.getBoundingClientRect();
@@ -605,18 +401,15 @@
       });
     });
 
-    // Reveal on scroll
+    // ---------- Reveal on scroll ----------
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          io.unobserve(e.target);
-        }
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // Changelog
+    // ---------- Changelog ----------
     (async () => {
       const url = "https://raw.githubusercontent.com/letward/Hinterland/main/CHANGELOG.md";
       const el = document.getElementById("clContent");
@@ -629,13 +422,14 @@
         el.classList.remove("cl-loading");
         el.innerHTML = versions.map(renderVersion).join("");
         const latest = versions[0].version;
-        document.querySelector('.badge').innerHTML = '<span class="dot"></span> v' + latest + ' · Latest Release';
+        const badge = document.querySelector('.badge');
+        if (badge) badge.innerHTML = '<span class="dot"></span> v' + latest + ' · Latest Release';
         const btn = document.getElementById("dlBtn");
-        btn.href = `https://github.com/letward/Hinterland/releases/download/v${latest}/Hinterland-Setup-${latest}.exe`;
+        if (btn) btn.href = `https://github.com/letward/Hinterland/releases/download/v${latest}/Hinterland-Setup-${latest}.exe`;
       } catch (e) {
         el.classList.remove("cl-loading");
         el.classList.add("cl-error");
-        el.textContent = "Changelog konnte nicht geladen werden: " + e.message;
+        el.textContent = "Changelog could not be loaded: " + e.message;
       }
     })();
 
@@ -656,9 +450,7 @@
       return versions;
     }
     function renderInline(s) {
-      return s
-        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        .replace(/`([^`]+)`/g, "<code>$1</code>");
+      return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
     }
     function renderVersion(v) {
       let html = `<div class="cl-version"><h3>v${esc(v.version)} <span class="ver-pill">Release</span></h3>`;
@@ -671,6 +463,61 @@
       return html;
     }
     function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+    // ---------- Google Translate: auto-detect system language + manual switch ----------
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'de,en,fr,es,it,pt,nl,pl,ru,ja,zh-CN,ko,tr,ar,hi,sv,da,fi,no,cs,hu,ro,el,he,th,vi,id,ms',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+
+    function setGoogleLang(lang) {
+      const select = document.querySelector('.goog-te-combo');
+      if (!select) return false;
+      select.value = lang;
+      select.dispatchEvent(new Event('change'));
+      return true;
+    }
+
+    let attempts = 0;
+    const tryInitLang = setInterval(() => {
+      attempts++;
+      const select = document.querySelector('.goog-te-combo');
+      if (select) {
+        clearInterval(tryInitLang);
+        const stored = localStorage.getItem('hl-lang');
+        let target = stored || (navigator.language || navigator.userLanguage || 'en');
+        // normalize
+        target = target.replace('_', '-');
+        const base = target.split('-')[0].toLowerCase();
+        const supported = ['de','en','fr','es','it','pt','nl','pl','ru','ja','zh-cn','ko','tr','ar','hi','sv','da','fi','no','cs','hu','ro','el','he','th','vi','id','ms'];
+        let code = target.toLowerCase();
+        if (!supported.includes(code)) code = base;
+        if (code === 'zh') code = 'zh-cn';
+        if (!supported.includes(code)) code = 'en';
+        if (code !== 'en') setGoogleLang(code);
+        // reflect in dropdown
+        const dd = document.getElementById('langSelect');
+        dd.value = (code === 'en' ? 'en' : code);
+      }
+      if (attempts > 40) clearInterval(tryInitLang);
+    }, 250);
+
+    document.getElementById('langSelect').addEventListener('change', (e) => {
+      const v = e.target.value;
+      if (v === 'auto') {
+        localStorage.removeItem('hl-lang');
+        const sys = (navigator.language || 'en').split('-')[0].toLowerCase();
+        setGoogleLang(sys === 'en' ? 'en' : sys);
+      } else {
+        localStorage.setItem('hl-lang', v);
+        setGoogleLang(v);
+      }
+    });
   </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
