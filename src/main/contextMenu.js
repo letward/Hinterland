@@ -39,6 +39,30 @@ export function showWebContextMenu(tab, params) {
         surface.send('toast', { message: 'toast.copiedMarkdown', kind: 'info' });
       },
     });
+    items.push({
+      label: t('context.addLinkToReadingList'),
+      click: () => {
+        const list = [...(settings.value('data.readingList') || [])];
+        const url = params.linkURL;
+        const title = (params.linkText || params.linkURL || '').trim();
+        const existing = list.findIndex((e) => e.url === url);
+        if (existing !== -1) {
+          list[existing].read = false;
+          list[existing].addedAt = Date.now();
+        } else {
+          list.unshift({
+            id: `rl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+            url,
+            title,
+            favicon: '',
+            addedAt: Date.now(),
+            read: false,
+          });
+        }
+        settings.set('data.readingList', list);
+        surface.send('toast', { message: 'toast.addedToReadingList', kind: 'success' });
+      },
+    });
   }
 
   // 2. Image / media items
@@ -191,6 +215,67 @@ export function showWebContextMenu(tab, params) {
         } catch (error) {
           console.warn('[Hinterland] PDF generation failed:', error?.message ?? error);
           surface.send('toast', { message: 'toast.pdfFailed', kind: 'error' });
+        }
+      },
+    });
+    items.push({
+      label: t('context.addToReadingList'),
+      click: () => {
+        const list = [...(settings.value('data.readingList') || [])];
+        const url = tab.url;
+        const title = (tab.title || tab.url || '').trim();
+        const existing = list.findIndex((e) => e.url === url);
+        if (existing !== -1) {
+          list[existing].read = false;
+          list[existing].addedAt = Date.now();
+        } else {
+          list.unshift({
+            id: `rl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+            url,
+            title,
+            favicon: tab.favicon || '',
+            addedAt: Date.now(),
+            read: false,
+          });
+        }
+        settings.set('data.readingList', list);
+        surface.send('toast', { message: 'toast.addedToReadingList', kind: 'success' });
+      },
+    });
+    items.push({
+      label: t('context.capturePageClipboard'),
+      accelerator: 'CmdOrCtrl+Shift+S',
+      click: async () => {
+        try {
+          const image = await tab.contents.capturePage();
+          if (!image.isEmpty()) {
+            clipboard.writeImage(image);
+            surface.send('toast', { message: 'toast.screenshotCopied', kind: 'success' });
+          }
+        } catch {
+          surface.send('toast', { message: 'toast.screenshotFailed', kind: 'error' });
+        }
+      },
+    });
+    items.push({
+      label: t('context.capturePageFile'),
+      click: async () => {
+        try {
+          const image = await tab.contents.capturePage();
+          if (image.isEmpty()) return;
+          const rawTitle = (tab.title || 'screenshot').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 50) || 'screenshot';
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+          const defaultPath = join(downloadDirectory(), `${rawTitle}_${timestamp}.png`);
+          const result = await dialog.showSaveDialog(surface.window ?? undefined, {
+            title: 'Hinterland',
+            defaultPath,
+            filters: [{ name: 'PNG Image', extensions: ['png'] }],
+          });
+          if (result.canceled || !result.filePath) return;
+          await writeFile(result.filePath, image.toPNG());
+          surface.send('toast', { message: 'toast.screenshotSaved', kind: 'success' });
+        } catch {
+          surface.send('toast', { message: 'toast.screenshotFailed', kind: 'error' });
         }
       },
     });

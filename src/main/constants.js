@@ -43,7 +43,7 @@ export const DEFAULT_SHORTCUTS = {
   zoomOut: 'Ctrl+-',
   zoomReset: 'Ctrl+0',
   fullscreen: 'F11',
-  sidebar: 'Ctrl+Shift+S',
+  sidebar: 'Alt+M',
   privateTab: 'Ctrl+Shift+N',
   commandPalette: 'Ctrl+Shift+P',
   downloads: 'Ctrl+J',
@@ -54,6 +54,9 @@ export const DEFAULT_SHORTCUTS = {
   sleepTab: 'Alt+S',
   saveAsPdf: 'Ctrl+Shift+E',
   copyMarkdown: 'Ctrl+Shift+C',
+  taskManager: 'Shift+Escape',
+  capturePage: 'Ctrl+Shift+S',
+  readingList: 'Ctrl+Shift+L',
 };
 
 /** Hosts that never warrant a secure connection upgrade. */

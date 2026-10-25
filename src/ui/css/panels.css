@@ -981,3 +981,114 @@
   align-items: center;
   gap: 4px;
 }
+
+/* ----------------------------------------------------------- Task Manager */
+.taskManagerSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: var(--surfaceAlt);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+}
+
+.taskStat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85em;
+  color: var(--textDim);
+}
+
+.taskStat strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.taskBadge {
+  font-size: 0.75em;
+  padding: 2px 7px;
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceHover);
+  color: var(--textDim);
+  letter-spacing: 0.03em;
+  flex: none;
+}
+
+.taskBadge.browser {
+  background: color-mix(in srgb, #4f7cff 22%, transparent);
+  color: #8bb2ff;
+}
+
+.taskBadge.gpu {
+  background: color-mix(in srgb, #9b51e0 22%, transparent);
+  color: #c792ea;
+}
+
+.taskBadge.tab {
+  background: color-mix(in srgb, #27ae60 22%, transparent);
+  color: #6fcf97;
+}
+
+.taskBadge.sleeping {
+  background: color-mix(in srgb, #f2994a 22%, transparent);
+  color: #f2994a;
+}
+
+/* ----------------------------------------------------------- Menu Zoom Row */
+.menuZoomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  gap: 6px;
+}
+
+.menuZoomLabel {
+  font-size: 0.9em;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menuZoomControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menuZoomBtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceAlt);
+  color: var(--text);
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: background var(--anim);
+}
+
+.menuZoomBtn:hover {
+  background: var(--surfaceHover);
+}
+
+.menuZoomPct {
+  min-width: 44px;
+  text-align: center;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  color: var(--textDim);
+}
+
+/* ----------------------------------------------------------- Reading List */
+.readingItemRead .optionLabel {
+  color: var(--textDim);
+  text-decoration: line-through;
+}

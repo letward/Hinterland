@@ -253,6 +253,38 @@ export class TabManager extends EventEmitter {
     return true;
   }
 
+  async closeDuplicates() {
+    const seenUrls = new Set();
+    const toClose = [];
+    for (const tab of this.tabs) {
+      if (tab.pinned) continue;
+      const rawUrl = (tab.url || '').split('#')[0].replace(/\/+$/, '').toLowerCase();
+      if (!rawUrl || rawUrl === 'about:blank' || rawUrl === 'hinterland://newtab') continue;
+      if (seenUrls.has(rawUrl)) {
+        toClose.push(tab.id);
+      } else {
+        seenUrls.add(rawUrl);
+      }
+    }
+    for (const id of toClose) {
+      await this.close(id, { force: true });
+    }
+    return toClose.length;
+  }
+
+  muteAll(muted = true) {
+    let count = 0;
+    for (const tab of this.tabs) {
+      if (tab.muted !== muted) {
+        tab.muted = muted;
+        tab.contents.setAudioMuted(muted);
+        this.emit('update', tab.snapshot());
+        count += 1;
+      }
+    }
+    return count;
+  }
+
   snapshot() {
     return {
       tabs: this.tabs.map((tab) => tab.snapshot()),

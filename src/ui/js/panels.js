@@ -501,6 +501,7 @@ function shortcutsPage() {
             { labelKey: 'shortcuts.action.readerMode', combo: 'Ctrl+Alt+R' },
             { labelKey: 'shortcuts.action.saveAsPdf', combo: 'Ctrl+Shift+E' },
             { labelKey: 'shortcuts.action.copyMarkdown', combo: 'Ctrl+Shift+C' },
+            { labelKey: 'menu.capturePage', combo: 'Ctrl+Shift+S' },
             { labelKey: 'menu.find', combo: 'Ctrl+F' },
             { labelKey: 'menu.zoomIn', combo: 'Ctrl+=' },
             { labelKey: 'menu.zoomOut', combo: 'Ctrl+-' },
@@ -513,8 +514,10 @@ function shortcutsPage() {
           items: [
             { labelKey: 'menu.commandPalette', combo: 'Ctrl+Shift+P' },
             { labelKey: 'menu.showBookmarksBar', combo: 'Ctrl+Shift+B' },
+            { labelKey: 'menu.readingList', combo: 'Ctrl+Shift+L' },
             { labelKey: 'menu.history', combo: 'Ctrl+H' },
             { labelKey: 'menu.downloads', combo: 'Ctrl+J' },
+            { labelKey: 'menu.taskManager', combo: 'Shift+Esc' },
             { labelKey: 'menu.settings', combo: 'Ctrl+,' },
           ],
         },
@@ -648,6 +651,343 @@ function aboutPage() {
         container.append(el('h2', { class: 'groupTitle', style: { marginTop: '24px' }, text: t('about.blocked') }), list);
       });
 
+      return container;
+    },
+  };
+}
+
+/* ----------------------------------------------------------- task manager */
+
+export function openTaskManager() {
+  openModal({ title: t('taskManager.title'), iconName: 'cpu', nav: [taskManagerPage()] });
+}
+
+function taskManagerPage() {
+  return {
+    id: 'taskManager',
+    icon: 'cpu',
+    labelKey: 'menu.taskManager',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('taskManager.title'), t('taskManager.description')));
+
+      const summaryCard = el('div', { class: 'taskManagerSummary' });
+      const list = el('div', { class: 'card' });
+      let currentFilter = '';
+      let timer = null;
+
+      const refresh = async () => {
+        const data = await api().app.metrics();
+        if (!data) return;
+
+        clear(summaryCard);
+        const memStat = el('div', { class: 'taskStat' }, [
+          el('span', { text: `${t('taskManager.totalMemory')}: ` }),
+          el('strong', { text: formatBytes(data.totalMemoryKB * 1024) }),
+        ]);
+        const procStat = el('div', { class: 'taskStat' }, [
+          el('span', { text: `${t('taskManager.processes')}: ` }),
+          el('strong', { text: String(data.processCount) }),
+        ]);
+        const tabStat = el('div', { class: 'taskStat' }, [
+          el('span', { text: `${t('taskManager.tabs')}: ` }),
+          el('strong', { text: String(data.tabCount) }),
+        ]);
+        const refreshBtn = el('button', {
+          class: 'button',
+          type: 'button',
+          style: { marginLeft: 'auto' },
+          onclick: () => refresh(),
+        }, [el('span', { html: icon('refresh') }), ` ${t('taskManager.refresh')}`]);
+
+        const sleepOthersBtn = el('button', {
+          class: 'button',
+          type: 'button',
+          onclick: async () => {
+            const count = await api().tabs.sleepOthers();
+            if (count > 0) toast(t('toast.sleptOthers', { count }), 'info');
+            refresh();
+          },
+        }, [el('span', { html: icon('moon') }), ` ${t('taskManager.sleepAll')}`]);
+
+        summaryCard.append(memStat, procStat, tabStat, sleepOthersBtn, refreshBtn);
+
+        clear(list);
+        let items = data.processes || [];
+        if (currentFilter) {
+          items = items.filter((p) => {
+            const typeStr = (p.type || '').toLowerCase();
+            const pidStr = String(p.pid);
+            const tabMatches = (p.tabs || []).some((tab) =>
+              (tab.title || '').toLowerCase().includes(currentFilter) ||
+              (tab.url || '').toLowerCase().includes(currentFilter)
+            );
+            return typeStr.includes(currentFilter) || pidStr.includes(currentFilter) || tabMatches;
+          });
+        }
+
+        if (!items.length) {
+          list.append(el('div', { class: 'empty', text: t('taskManager.empty') }));
+          return;
+        }
+
+        for (const proc of items) {
+          const isTab = proc.tabs && proc.tabs.length > 0;
+          const firstTab = isTab ? proc.tabs[0] : null;
+
+          let iconName = 'sliders';
+          let typeClass = 'utility';
+          let displayName = t('taskManager.processUtility');
+
+          if (proc.type === 'Browser') {
+            iconName = 'globe';
+            typeClass = 'browser';
+            displayName = t('taskManager.processBrowser');
+          } else if (proc.type === 'GPU') {
+            iconName = 'monitor';
+            typeClass = 'gpu';
+            displayName = t('taskManager.processGPU');
+          } else if (isTab) {
+            typeClass = 'tab';
+            displayName = firstTab.title || firstTab.url || t('taskManager.processTab');
+          }
+
+          const typeBadge = el('span', { class: `taskBadge ${typeClass}`, text: proc.type });
+          const pidBadge = el('span', { class: 'taskBadge', text: `PID ${proc.pid}` });
+          const memBadge = el('span', { class: 'taskBadge', text: formatBytes(proc.memoryKB * 1024) });
+          const cpuBadge = el('span', { class: 'taskBadge', text: `${proc.cpu}% CPU` });
+
+          const titleRow = el('div', { class: 'optionLabel', style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }, [
+            el('span', { text: displayName }),
+            typeBadge,
+            pidBadge,
+            memBadge,
+            cpuBadge,
+          ]);
+
+          const hintRow = el('div', { class: 'optionHint', text: isTab ? firstTab.url : `Process PID ${proc.pid} (${proc.type})` });
+
+          const controls = el('div', { class: 'optionControl' });
+
+          if (isTab) {
+            if (firstTab.sleeping) {
+              controls.append(
+                el('span', { class: 'taskBadge sleeping', text: t('taskManager.sleeping') }),
+                el('button', {
+                  class: 'button',
+                  type: 'button',
+                  onclick: async () => {
+                    await api().tab.wake(firstTab.id);
+                    refresh();
+                  },
+                }, [el('span', { html: icon('sun') }), ` ${t('taskManager.wake')}`])
+              );
+            } else {
+              controls.append(
+                el('button', {
+                  class: 'button',
+                  type: 'button',
+                  onclick: async () => {
+                    await api().tab.sleep(firstTab.id);
+                    refresh();
+                  },
+                }, [el('span', { html: icon('moon') }), ` ${t('taskManager.sleep')}`])
+              );
+            }
+            controls.append(
+              el('button', {
+                class: 'button danger',
+                type: 'button',
+                onclick: async () => {
+                  await api().tabs.close(firstTab.id);
+                  refresh();
+                },
+              }, [t('taskManager.endProcess')])
+            );
+          } else if (proc.type !== 'Browser') {
+            controls.append(
+              el('button', {
+                class: 'button danger',
+                type: 'button',
+                onclick: async () => {
+                  await api().app.killProcess(proc.pid);
+                  refresh();
+                },
+              }, [t('taskManager.endProcess')])
+            );
+          }
+
+          list.append(
+            el('div', { class: 'option' }, [
+              el('div', { class: 'rowIcon', html: icon(iconName) }),
+              el('div', { class: 'optionText', style: { flex: 1, minWidth: 0 } }, [titleRow, hintRow]),
+              controls,
+            ])
+          );
+        }
+      };
+
+      const { field } = searchBox((val) => {
+        currentFilter = val.toLowerCase().trim();
+        refresh();
+      });
+
+      container.append(summaryCard, field, list);
+
+      refresh();
+      timer = setInterval(refresh, 2500);
+
+      const observer = new MutationObserver(() => {
+        if (!document.body.contains(container)) {
+          clearInterval(timer);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      return container;
+    },
+  };
+}
+
+/* ----------------------------------------------------------- reading list */
+
+export function openReadingList() {
+  openModal({
+    title: t('readingList.title'),
+    iconName: 'bookmark',
+    nav: [readingListPage('unread'), readingListPage('read'), readingListPage('all')],
+  });
+}
+
+function readingListPage(mode = 'unread') {
+  const iconMap = { unread: 'clock', read: 'check', all: 'list' };
+  const labelMap = { unread: 'readingList.tab_unread', read: 'readingList.tab_read', all: 'readingList.tab_all' };
+
+  return {
+    id: `readingList_${mode}`,
+    icon: iconMap[mode] || 'bookmark',
+    labelKey: labelMap[mode] || 'readingList.title',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('readingList.title'), t('readingList.description')));
+
+      const list = el('div', { class: 'card' });
+      let currentFilter = '';
+      const language = currentLanguage();
+
+      const refresh = async () => {
+        const all = (await api().readingList.get()) || [];
+        let items = all;
+        if (mode === 'unread') items = all.filter((i) => !i.read);
+        else if (mode === 'read') items = all.filter((i) => i.read);
+
+        if (currentFilter) {
+          items = items.filter((i) =>
+            (i.title || '').toLowerCase().includes(currentFilter) ||
+            (i.url || '').toLowerCase().includes(currentFilter)
+          );
+        }
+
+        clear(list);
+        if (!items.length) {
+          list.append(el('div', { class: 'empty', text: currentFilter ? t('readingList.noMatch') : t('readingList.empty') }));
+          return;
+        }
+
+        for (const item of items) {
+          const itemRow = el('div', { class: `option ${item.read ? 'readingItemRead' : ''}` });
+
+          const titleEl = el('div', { class: 'optionLabel', text: item.title || item.url });
+          titleEl.style.cursor = 'pointer';
+          titleEl.onclick = () => api().tabs.create({ url: item.url });
+
+          const hintEl = el('div', { class: 'optionHint', text: item.url });
+
+          const timeAside = el('span', {
+            class: 'rowAside',
+            style: { marginRight: '8px', fontSize: '0.8em', color: 'var(--textDim)' },
+            text: formatTime(item.addedAt, language),
+          });
+
+          const toggleBtn = el('button', {
+            class: `iconButton small ${item.read ? 'active' : ''}`,
+            type: 'button',
+            html: icon('check'),
+            title: item.read ? t('readingList.markUnread') : t('readingList.markRead'),
+            onclick: async () => {
+              await api().readingList.toggleRead(item.id);
+              refresh();
+            },
+          });
+
+          const openBtn = el('button', {
+            class: 'iconButton small',
+            type: 'button',
+            html: icon('external'),
+            title: t('action.open'),
+            onclick: () => api().tabs.create({ url: item.url }),
+          });
+
+          const removeBtn = el('button', {
+            class: 'iconButton small',
+            type: 'button',
+            html: icon('trash'),
+            title: t('action.remove'),
+            onclick: async () => {
+              await api().readingList.remove(item.id);
+              refresh();
+            },
+          });
+
+          const controls = el('div', { class: 'optionControl' }, [timeAside, toggleBtn, openBtn, removeBtn]);
+
+          itemRow.append(
+            el('div', { class: 'rowIcon', html: icon(item.read ? 'check' : 'bookmark') }),
+            el('div', { class: 'optionText', style: { flex: 1, minWidth: 0 } }, [titleEl, hintEl]),
+            controls
+          );
+
+          list.append(itemRow);
+        }
+      };
+
+      const { field } = searchBox((val) => {
+        currentFilter = val.toLowerCase().trim();
+        refresh();
+      });
+
+      const actionRow = el('div', { class: 'actionRow', style: { marginBottom: '14px' } }, [
+        el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: async () => {
+            const cur = currentTab();
+            if (cur && cur.url && !cur.url.startsWith('hinterland://')) {
+              await api().readingList.add({ url: cur.url, title: cur.title, favicon: cur.favicon });
+              refresh();
+            } else {
+              toast(t('toast.noSearchEngine'), 'warning');
+            }
+          },
+        }, [el('span', { html: icon('plus') }), ` ${t('readingList.addCurrentTab')}`]),
+      ]);
+
+      if (mode !== 'unread') {
+        actionRow.append(
+          el('button', {
+            class: 'button',
+            type: 'button',
+            onclick: async () => {
+              await api().readingList.clearRead();
+              refresh();
+            },
+          }, [el('span', { html: icon('trash') }), ` ${t('readingList.clearRead')}`])
+        );
+      }
+
+      container.append(actionRow, field, list);
+      refresh();
       return container;
     },
   };

@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-10-25
+
+### Added
+- Built-in Browser Task Manager (`Shift+Esc`): Live real-time memory and CPU inspector for all browser processes (Main Browser, GPU, Utility, and Web Tabs) with tab title, favicon, process PID, memory footprint (MB/GB), CPU percentage, live refresh, and direct "Put to sleep" and "End task" controls.
+- Web Page Screen Capture tool (`Ctrl+Shift+S`): Capture high-resolution screenshots of the visible viewport or web content via native Chromium rendering with direct "Copy to clipboard" and "Save as PNG image" options, accessible from in-page context menu, omnibox tools menu, tab menu, and Command Palette.
+- Reading List / Read Later panel (`openReadingList`, `Ctrl+Shift+L`): Save articles and web pages to read later, with categorized filter tabs ("Unread" with count badge, "Read", "All"), real-time search filter, mark read/unread toggles, open in new tab, and direct "Clear read items" action.
+- Context menu integrations for Reading List: "Add link to Reading list" from link context menu and "Add page to Reading list" from web content context menu.
+- Close duplicate tabs (`tabs:closeDuplicates`): Automatically detects redundant open tabs with identical URLs and closes duplicates while preserving original tabs, accessible from tab context menu, tabstrip context menu, and Command Palette.
+- Mute / Unmute all tabs (`tabs:muteAll`): One-click audio management to silence or re-enable all tabs across the browser from the tabstrip context menu and Command Palette.
+- Interactive Zoom controls in the main menu: Quick zoom out (`-`), reset (`100%`), zoom in (`+`), and full screen toggle (`F11`) directly accessible from the primary browser menu.
+- Symmetrical English and German localizations across all new task manager views, reading list items, screen capture dialogs, menus, and toasts.
+
 ## [1.8.0] - 2026-10-24
 
 ### Added

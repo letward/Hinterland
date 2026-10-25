@@ -114,7 +114,15 @@
     "wakeTab": "Tab aufwecken",
     "sleepOtherTabs": "Andere Tabs schlafen legen",
     "pasteAndGo": "Einfügen und öffnen",
-    "translatePage": "Seite übersetzen"
+    "translatePage": "Seite übersetzen",
+    "readingList": "Leseliste",
+    "taskManager": "Task-Manager",
+    "capturePage": "Screenshot aufnehmen",
+    "addToReadingList": "Zur Leseliste hinzufügen",
+    "closeDuplicates": "Doppelte Tabs schließen",
+    "muteAllTabs": "Alle Tabs stummschalten",
+    "zoom": "Zoom",
+    "unmuteAllTabs": "Stummschaltung aller Tabs aufheben"
   },
   "find": {
     "placeholder": "In Seite suchen"
@@ -128,7 +136,15 @@
     "categoryCommand": "Befehl",
     "categoryTab": "Tab",
     "categoryRecentlyClosed": "Kürzlich geschlossen",
-    "activeTab": "Aktiv"
+    "activeTab": "Aktiv",
+    "addToReadingList": "Aktiven Tab zur Leseliste hinzufügen",
+    "capturePageClipboard": "Screenshot aufnehmen (In Zwischenablage kopieren)",
+    "capturePageFile": "Screenshot aufnehmen (In Datei speichern…)",
+    "closeDuplicates": "Doppelte Tabs schließen",
+    "muteAll": "Alle Tabs stummschalten",
+    "unmuteAll": "Stummschaltung aller Tabs aufheben",
+    "openReadingList": "Leseliste öffnen",
+    "taskManager": "Task-Manager öffnen"
   },
   "confirm": {
     "closeTitle": "Tab schließen",
@@ -222,7 +238,10 @@
       "sleepTab": "Tab schlafen legen oder aufwecken",
       "saveAsPdf": "Seite als PDF speichern",
       "copyMarkdown": "Seite als Markdown kopieren",
-      "reopen": "Geschlossenen Tab öffnen"
+      "reopen": "Geschlossenen Tab öffnen",
+      "taskManager": "Task-Manager öffnen",
+      "capturePage": "Seiten-Screenshot aufnehmen",
+      "readingList": "Leseliste öffnen"
     }
   },
   "extensions": {
@@ -273,7 +292,18 @@
     "pdfSaved": "Seite als PDF gespeichert",
     "pdfFailed": "PDF konnte nicht erstellt werden",
     "bookmarksExported": "Lesezeichen erfolgreich exportiert",
-    "bookmarksImported": "Lesezeichen erfolgreich importiert"
+    "bookmarksImported": "Lesezeichen erfolgreich importiert",
+    "addedToReadingList": "Seite zur Leseliste hinzugefügt",
+    "removedFromReadingList": "Seite aus der Leseliste entfernt",
+    "screenshotCopied": "Screenshot in die Zwischenablage kopiert",
+    "screenshotSaved": "Screenshot erfolgreich gespeichert",
+    "screenshotFailed": "Screenshot konnte nicht aufgenommen werden",
+    "closedDuplicates": "{count} doppelte(r) Tab(s) geschlossen",
+    "sleptOthers": "{count} inaktive(r) Tab(s) schlafen gelegt",
+    "duplicateTabsClosed": "Doppelte Tabs wurden geschlossen",
+    "noDuplicateTabs": "Keine doppelten Tabs gefunden",
+    "allTabsMuted": "Alle Tabs stummgeschaltet",
+    "allTabsUnmuted": "Stummschaltung aller Tabs aufgehoben"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -356,9 +386,26 @@
       "off": "Kein Proxy"
     },
     "newtab": {
+      "layout": "Layout der Links",
+      "layoutDesc": "Wie deine Schnellzugriffe angeordnet sind.",
       "layoutGrid": "Raster",
       "layoutList": "Liste",
-      "layoutMinimal": "Minimal"
+      "layoutMinimal": "Minimal",
+      "background": "Hintergrundbild",
+      "backgroundDesc": "Adresse eines Bildes hinter der Startseite.",
+      "backgroundOverlay": "Stärke des Hintergrunds",
+      "backgroundOverlayDesc": "Wie deutlich das Bild durchscheint.",
+      "showClock": "Uhr anzeigen",
+      "showClockDesc": "Uhrzeit und Datum über dem Suchfeld.",
+      "showSearch": "Suchfeld anzeigen",
+      "showSearchDesc": "Ein Suchfeld in der Mitte der Startseite.",
+      "showGreeting": "Begrüßung anzeigen",
+      "showGreetingDesc": "Eine kurze Begrüßung, die sich mit der Tageszeit ändert.",
+      "searchTarget": "Suchadresse",
+      "searchTargetDesc": "Adresse deiner Suchmaschine. Verwende {q} für die Anfrage.",
+      "links": "Schnellzugriffe",
+      "linksDesc": "Deine eigenen Seiten auf der Startseite.",
+      "linksItem": "Link"
     },
     "pair": {
       "key": "Name",
@@ -461,28 +508,6 @@
       "groupsDesc": "Tabs in einklappbaren Gruppen organisieren.",
       "groupItem": "Gruppe"
     },
-    "newtab": {
-      "layout": "Layout der Links",
-      "layoutDesc": "Wie deine Schnellzugriffe angeordnet sind.",
-      "layoutGrid": "Raster",
-      "layoutList": "Liste",
-      "layoutMinimal": "Minimal",
-      "background": "Hintergrundbild",
-      "backgroundDesc": "Adresse eines Bildes hinter der Startseite.",
-      "backgroundOverlay": "Stärke des Hintergrunds",
-      "backgroundOverlayDesc": "Wie deutlich das Bild durchscheint.",
-      "showClock": "Uhr anzeigen",
-      "showClockDesc": "Uhrzeit und Datum über dem Suchfeld.",
-      "showSearch": "Suchfeld anzeigen",
-      "showSearchDesc": "Ein Suchfeld in der Mitte der Startseite.",
-      "showGreeting": "Begrüßung anzeigen",
-      "showGreetingDesc": "Eine kurze Begrüßung, die sich mit der Tageszeit ändert.",
-      "searchTarget": "Suchadresse",
-      "searchTargetDesc": "Adresse deiner Suchmaschine. Verwende {q} für die Anfrage.",
-      "links": "Schnellzugriffe",
-      "linksDesc": "Deine eigenen Seiten auf der Startseite.",
-      "linksItem": "Link"
-    },
     "privacy": {
       "blockTrackers": "Tracker blockieren",
       "blockTrackersDesc": "Stoppt häufige Tracking und Messanfragen.",
@@ -580,7 +605,9 @@
     "data": {
       "bookmarks": "Lesezeichen",
       "bookmarksDesc": "Seiten, die du für den schnellen Zugriff gespeichert hast.",
-      "bookmarkItem": "Lesezeichen"
+      "bookmarkItem": "Lesezeichen",
+      "readingList": "Leselisten-Einträge",
+      "readingListDesc": "Gespeicherte Webseiten und Artikel in Ihrer Leseliste."
     },
     "shortcuts": {
       "title": "Tastenkürzel",
@@ -631,7 +658,11 @@
     "copyLinkMarkdown": "Link als Markdown kopieren",
     "copyPageMarkdown": "Seite als Markdown kopieren",
     "saveAsPdf": "Seite als PDF speichern…",
-    "translateSelection": "„{query}“ übersetzen"
+    "translateSelection": "„{query}“ übersetzen",
+    "addLinkToReadingList": "Link zur Leseliste hinzufügen",
+    "addToReadingList": "Seite zur Leseliste hinzufügen",
+    "capturePageClipboard": "Seiten-Screenshot kopieren",
+    "capturePageFile": "Seiten-Screenshot speichern unter…"
   },
   "tab": {
     "sleepingTooltip": "Schläft zur Speichereinsparung – zum Aufwecken klicken"
@@ -649,5 +680,36 @@
     "active": "Aktiv",
     "clearData": "Cookies & Websitedaten löschen",
     "privacySettings": "Datenschutzeinstellungen"
+  },
+  "readingList": {
+    "title": "Leseliste",
+    "description": "Speichern Sie Artikel und Seiten, um sie später in Ruhe zu lesen.",
+    "empty": "Ihre Leseliste ist leer.",
+    "noMatch": "Keine Einträge entsprechen Ihrer Suche.",
+    "addCurrentTab": "Aktuellen Tab hinzufügen",
+    "markRead": "Als gelesen markieren",
+    "markUnread": "Als ungelesen markieren",
+    "clearRead": "Gelesene Einträge löschen",
+    "tab_unread": "Ungelesen",
+    "tab_read": "Gelesen",
+    "tab_all": "Alle Einträge"
+  },
+  "taskManager": {
+    "title": "Task-Manager",
+    "description": "Überwachen Sie Speichernutzung und Prozessorlast aller Browser-Prozesse und Tabs.",
+    "totalMemory": "Gesamtspeicher",
+    "processes": "Prozesse",
+    "tabs": "Tabs",
+    "refresh": "Aktualisieren",
+    "sleepAll": "Inaktive Tabs schlafen legen",
+    "empty": "Keine passenden Prozesse gefunden.",
+    "processBrowser": "Hinterland Browser",
+    "processGPU": "GPU-Prozess",
+    "processTab": "Tab",
+    "processUtility": "Dienstprozess",
+    "sleeping": "Schläft",
+    "sleep": "Schlafen legen",
+    "wake": "Aufwecken",
+    "endProcess": "Prozess beenden"
   }
 }

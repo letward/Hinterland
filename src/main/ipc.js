@@ -82,6 +82,57 @@ export function installIpc() {
 
   handle('app:getClipboardText', () => clipboard.readText());
 
+  /* -------------------------------------------------------- task manager & metrics */
+  handle('app:metrics', () => {
+    const metrics = app.getAppMetrics();
+    const tabList = tabs.list;
+    const tabByPid = new Map();
+
+    for (const tab of tabList) {
+      if (!tab.contents || tab.contents.isDestroyed()) continue;
+      try {
+        const pid = (typeof tab.contents.getOSProcessId === 'function' ? tab.contents.getOSProcessId() : null) || tab.contents.getProcessId();
+        if (!tabByPid.has(pid)) tabByPid.set(pid, []);
+        tabByPid.get(pid).push(tab.snapshot());
+      } catch {
+        // ignore
+      }
+    }
+
+    let totalMemoryKB = 0;
+    const processes = metrics.map((item) => {
+      const memoryKB = item.memory ? (item.memory.workingSetSize || item.memory.privateBytes || 0) : 0;
+      totalMemoryKB += memoryKB;
+      const cpuPercent = item.cpu ? Math.round(item.cpu.percentCPUUsage * 10) / 10 : 0;
+      const associatedTabs = tabByPid.get(item.pid) || [];
+
+      return {
+        pid: item.pid,
+        type: item.type,
+        cpu: cpuPercent,
+        memoryKB,
+        tabs: associatedTabs,
+      };
+    });
+
+    return {
+      processes,
+      totalMemoryKB,
+      tabCount: tabList.length,
+      processCount: processes.length,
+    };
+  });
+
+  handle('app:killProcess', (pid) => {
+    if (pid === process.pid) return false;
+    try {
+      process.kill(pid);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
   /* ------------------------------------------------------------- settings */
   handle('settings:get', (key) => (key ? settings.value(key) : settings.all()));
   handle('settings:set', (key, value) => {
@@ -113,7 +164,7 @@ export function installIpc() {
     }
   });
 
-  handle('settings:saveFile', async (_event, name, content) => {
+  handle('settings:saveFile', async (name, content) => {
     const result = await dialog.showSaveDialog(chromeWindow(), {
       title: 'Hinterland',
       defaultPath: name || 'hinterland.settings.json',
@@ -239,6 +290,24 @@ export function installIpc() {
       tab.contents.reload();
     }
     return true;
+  });
+
+  handle('tabs:closeDuplicates', async () => {
+    const count = await tabs.closeDuplicates();
+    surface.send('toast', {
+      message: count > 0 ? 'toast.duplicateTabsClosed' : 'toast.noDuplicateTabs',
+      kind: count > 0 ? 'success' : 'info',
+    });
+    return count;
+  });
+
+  handle('tabs:muteAll', (muted = true) => {
+    const count = tabs.muteAll(muted);
+    surface.send('toast', {
+      message: muted ? 'toast.allTabsMuted' : 'toast.allTabsUnmuted',
+      kind: 'info',
+    });
+    return count;
   });
 
   /* ------------------------------------------------------------- tab groups */
@@ -482,7 +551,7 @@ export function installIpc() {
     return true;
   });
 
-  handle('tab:copyLinkMarkdown', (_event, { text, url }) => {
+  handle('tab:copyLinkMarkdown', ({ text, url }) => {
     const label = (text || url || '').trim();
     clipboard.writeText(`[${label}](${url})`);
     surface.send('toast', { message: 'toast.copiedMarkdown', kind: 'info' });
@@ -536,6 +605,38 @@ export function installIpc() {
     } catch (error) {
       console.warn('[Hinterland] PDF generation failed:', error?.message ?? error);
       surface.send('toast', { message: 'toast.pdfFailed', kind: 'error' });
+      return { ok: false, error: error?.message };
+    }
+  });
+
+  handle('tab:capture', async (id, { saveAs = false } = {}) => {
+    const tab = activeTab(id);
+    if (!tab || !tab.contents || tab.contents.isDestroyed()) return { ok: false, error: 'noTab' };
+    try {
+      const image = await tab.contents.capturePage();
+      if (image.isEmpty()) return { ok: false, error: 'emptyImage' };
+
+      if (saveAs) {
+        const rawTitle = (tab.title || 'screenshot').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 50) || 'screenshot';
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const defaultPath = join(downloadDirectory(), `${rawTitle}_${timestamp}.png`);
+        const result = await dialog.showSaveDialog(chromeWindow(), {
+          title: 'Hinterland',
+          defaultPath,
+          filters: [{ name: 'PNG Image', extensions: ['png'] }],
+        });
+        if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+        await writeFile(result.filePath, image.toPNG());
+        surface.send('toast', { message: 'toast.screenshotSaved', kind: 'success' });
+        return { ok: true, path: result.filePath, saved: true };
+      }
+
+      clipboard.writeImage(image);
+      surface.send('toast', { message: 'toast.screenshotCopied', kind: 'success' });
+      return { ok: true, copied: true };
+    } catch (error) {
+      console.warn('[Hinterland] Screen capture failed:', error?.message ?? error);
+      surface.send('toast', { message: 'toast.screenshotFailed', kind: 'error' });
       return { ok: false, error: error?.message };
     }
   });
@@ -731,6 +832,59 @@ handle('tab:confirmClose', (id, answer) => {
       return { ok: true, count: imported.length, bookmarks: merged };
     }
     return { ok: true, count: 0, bookmarks: existing };
+  });
+
+  /* ------------------------------------------------------------- reading list */
+  handle('readingList:get', () => {
+    return settings.value('data.readingList') || [];
+  });
+
+  handle('readingList:add', (item) => {
+    const list = [...(settings.value('data.readingList') || [])];
+    if (!item || !item.url) return { ok: false, error: 'noUrl' };
+    const existingIdx = list.findIndex((e) => e.url === item.url);
+    if (existingIdx !== -1) {
+      list[existingIdx].read = false;
+      list[existingIdx].addedAt = Date.now();
+      if (item.title) list[existingIdx].title = item.title;
+      if (item.favicon) list[existingIdx].favicon = item.favicon;
+    } else {
+      list.unshift({
+        id: `rl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+        url: item.url,
+        title: item.title || item.url,
+        favicon: item.favicon || '',
+        addedAt: Date.now(),
+        read: false,
+      });
+    }
+    settings.set('data.readingList', list);
+    surface.send('toast', { message: 'toast.addedToReadingList', kind: 'success' });
+    return { ok: true, list };
+  });
+
+  handle('readingList:remove', (idOrUrl) => {
+    const list = (settings.value('data.readingList') || []).filter((e) => e.id !== idOrUrl && e.url !== idOrUrl);
+    settings.set('data.readingList', list);
+    surface.send('toast', { message: 'toast.removedFromReadingList', kind: 'info' });
+    return { ok: true, list };
+  });
+
+  handle('readingList:toggleRead', (id) => {
+    const list = [...(settings.value('data.readingList') || [])];
+    const item = list.find((e) => e.id === id);
+    if (item) {
+      item.read = !item.read;
+      settings.set('data.readingList', list);
+      return { ok: true, item, list };
+    }
+    return { ok: false };
+  });
+
+  handle('readingList:clearRead', () => {
+    const list = (settings.value('data.readingList') || []).filter((e) => !e.read);
+    settings.set('data.readingList', list);
+    return { ok: true, list };
   });
 
   handle('shell:open', (url) => {

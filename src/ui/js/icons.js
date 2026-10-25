@@ -59,6 +59,9 @@ const PATHS = {
   save: '<path d="M5 4h11l3 3v13H5z" /><path d="M8 4v6h7V4M8 20v-6h8v6" />',
   history: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" /><path d="M3.5 4.5V9H8" /><path d="M12 7.5V12l3 2" />',
   flag: '<path d="M6 21V4M6 5h11l-2 3.5L17 12H6" />',
+  cpu: '<rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />',
+  camera: '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" />',
+  readingList: '<path d="M4 6h16M4 10h16M4 14h10M4 18h10" /><path d="M17 14l2 2 4-4" />',
 };
 
 const FILLED = new Set(['star']);

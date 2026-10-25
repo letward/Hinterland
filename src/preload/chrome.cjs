@@ -38,6 +38,8 @@ const api = {
     openFolder: (target) => ipcRenderer.invoke('app:openFolder', target),
     revealFile: (path) => ipcRenderer.invoke('app:revealFile', path),
     getClipboardText: () => ipcRenderer.invoke('app:getClipboardText'),
+    metrics: () => ipcRenderer.invoke('app:metrics'),
+    killProcess: (pid) => ipcRenderer.invoke('app:killProcess', pid),
   },
 
   settings: {
@@ -88,6 +90,8 @@ const api = {
     muteOthers: (id) => ipcRenderer.invoke('tabs:muteOthers', id),
     sleepOthers: (id) => ipcRenderer.invoke('tabs:sleepOthers', id),
     reloadAll: () => ipcRenderer.invoke('tabs:reloadAll'),
+    closeDuplicates: () => ipcRenderer.invoke('tabs:closeDuplicates'),
+    muteAll: (muted) => ipcRenderer.invoke('tabs:muteAll', muted),
     confirmClose: (id, answer) => ipcRenderer.invoke('tab:confirmClose', id, answer),
     groups: () => ipcRenderer.invoke('tabs:groups'),
     groupCreate: (group) => ipcRenderer.invoke('tabs:groupCreate', group),
@@ -119,6 +123,7 @@ const api = {
     inspect: (id) => ipcRenderer.invoke('tab:inspect', id),
     print: (id) => ipcRenderer.invoke('tab:print', id),
     savePdf: (id) => ipcRenderer.invoke('tab:savePdf', id),
+    capture: (id, options) => ipcRenderer.invoke('tab:capture', id, options),
     readerMode: (id) => ipcRenderer.invoke('tab:readerMode', id),
     translate: (id) => ipcRenderer.invoke('tab:translate', id),
     find: (id, query, options) => ipcRenderer.invoke('tab:find', id, query, options),
@@ -157,6 +162,14 @@ const api = {
   bookmarks: {
     exportHtml: (items) => ipcRenderer.invoke('bookmarks:exportHtml', items),
     importHtml: () => ipcRenderer.invoke('bookmarks:importHtml'),
+  },
+
+  readingList: {
+    get: () => ipcRenderer.invoke('readingList:get'),
+    add: (item) => ipcRenderer.invoke('readingList:add', item),
+    remove: (idOrUrl) => ipcRenderer.invoke('readingList:remove', idOrUrl),
+    toggleRead: (id) => ipcRenderer.invoke('readingList:toggleRead', id),
+    clearRead: () => ipcRenderer.invoke('readingList:clearRead'),
   },
 
   site: {

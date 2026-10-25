@@ -673,6 +673,11 @@ export const SCHEMA = [
     itemSchema: { title: 'text', url: 'text' },
     itemLabelKey: 'settings.data.bookmarkItem',
   }),
+  option('data.readingList', 'list', [], {
+    labelKey: 'settings.data.readingList',
+    descKey: 'settings.data.readingListDesc',
+    section: 'data',
+  }),
 
   /* --------------------------------------------------------------- shortcuts */
   option('shortcuts', 'keyvalue', {}, {

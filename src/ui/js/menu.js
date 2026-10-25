@@ -1,10 +1,62 @@
 import { openPopup, closePopup, row, separator, section, empty } from './popup.js';
 import { t } from './i18n.js';
-import { hostOf } from './util.js';
+import { hostOf, el } from './util.js';
+import { icon } from './icons.js';
 import { currentTab, currentSettings } from './state.js';
 import { toast } from './toast.js';
 
 const api = () => window.hinterland;
+
+function zoomRow() {
+  const cur = currentTab();
+  const factor = cur?.zoom || 1;
+  const pct = `${Math.round(factor * 100)}%`;
+
+  const container = el('div', { class: 'menuZoomRow' });
+  const label = el('div', { class: 'menuZoomLabel' }, [
+    el('span', { class: 'rowIcon', html: icon('zoomIn') }),
+    el('span', { text: t('menu.zoom') }),
+  ]);
+
+  const outBtn = el('button', {
+    class: 'menuZoomBtn',
+    type: 'button',
+    html: icon('minus'),
+    title: t('shortcuts.action.zoomOut'),
+    onclick: () => {
+      if (cur) api().tab.zoom(cur.id, factor / 1.1);
+      closePopup();
+    },
+  });
+
+  const pctLabel = el('span', { class: 'menuZoomPct', text: pct });
+
+  const inBtn = el('button', {
+    class: 'menuZoomBtn',
+    type: 'button',
+    html: icon('plus'),
+    title: t('shortcuts.action.zoomIn'),
+    onclick: () => {
+      if (cur) api().tab.zoom(cur.id, factor * 1.1);
+      closePopup();
+    },
+  });
+
+  const fullBtn = el('button', {
+    class: 'menuZoomBtn',
+    type: 'button',
+    html: icon('layout'),
+    title: t('shortcuts.action.fullscreen'),
+    onclick: () => {
+      api().window.fullscreen();
+      closePopup();
+    },
+  });
+
+  const controls = el('div', { class: 'menuZoomControls' }, [outBtn, pctLabel, inBtn, fullBtn]);
+  container.append(label, controls);
+  return container;
+}
 
 export function openMainMenu() {
   const tab = window.hinterlandTab;
@@ -42,6 +94,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:togglebookmarksbar')),
         }),
         row({
+          iconName: 'bookmark',
+          title: t('menu.readingList'),
+          subtitle: 'Ctrl+Shift+L',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'readingList' } })),
+        }),
+        row({
           iconName: 'puzzle',
           title: t('menu.extensions'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'extensions' } })),
@@ -52,6 +110,22 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'downloads' } })),
         }),
         separator(),
+        zoomRow(),
+        row({
+          iconName: 'camera',
+          title: t('menu.capturePage'),
+          subtitle: 'Ctrl+Shift+S',
+          onSelect: () => {
+            const cur = currentTab();
+            if (cur) api().tab.capture(cur.id, { saveAs: false });
+          },
+        }),
+        row({
+          iconName: 'cpu',
+          title: t('menu.taskManager'),
+          subtitle: 'Shift+Esc',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'taskManager' } })),
+        }),
         row({
           iconName: 'keyboard',
           title: t('menu.shortcuts'),
@@ -113,6 +187,16 @@ export function openTabMenu(tab, x, y) {
           iconName: 'print',
           title: t('menu.saveAsPdf'),
           onSelect: () => api().tab.savePdf(tab.id),
+        }),
+        row({
+          iconName: 'camera',
+          title: t('menu.capturePage'),
+          onSelect: () => api().tab.capture(tab.id, { saveAs: false }),
+        }),
+        row({
+          iconName: 'bookmark',
+          title: t('menu.addToReadingList'),
+          onSelect: () => api().readingList.add({ url: tab.url, title: tab.title, favicon: tab.favicon }),
         }),
         row({
           iconName: tab.privateMode ? 'shield' : 'globe',
@@ -201,6 +285,11 @@ export function openTabMenu(tab, x, y) {
         }),
         row({
           iconName: 'minus',
+          title: t('menu.closeDuplicates'),
+          onSelect: () => api().tabs.closeDuplicates(),
+        }),
+        row({
+          iconName: 'minus',
           title: t('menu.closeLeft'),
           onSelect: () => api().tabs.closeLeft(tab.id),
         }),
@@ -260,6 +349,16 @@ export function openOmniMenu() {
           iconName: 'bookmark',
           title: bookmarked ? t('menu.removeBookmark') : t('menu.addBookmark'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:bookmark')),
+        }),
+        row({
+          iconName: 'bookmark',
+          title: t('menu.addToReadingList'),
+          onSelect: () => api().readingList.add({ url: tab?.url, title: tab?.title, favicon: tab?.favicon }),
+        }),
+        row({
+          iconName: 'camera',
+          title: t('menu.capturePage'),
+          onSelect: () => api().tab.capture(tab?.id, { saveAs: false }),
         }),
         row({
           iconName: 'external',
@@ -388,6 +487,16 @@ export function openTabstripMenu() {
           iconName: 'reload',
           title: t('menu.reloadAll'),
           onSelect: () => api().tabs.reloadAll(),
+        }),
+        row({
+          iconName: 'minus',
+          title: t('menu.closeDuplicates'),
+          onSelect: () => api().tabs.closeDuplicates(),
+        }),
+        row({
+          iconName: 'volumeOff',
+          title: t('menu.muteAllTabs'),
+          onSelect: () => api().tabs.muteAll(true),
         }),
         row({
           iconName: 'close',

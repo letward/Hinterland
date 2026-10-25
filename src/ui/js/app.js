@@ -9,7 +9,7 @@ import { bindTabs, renderTabs, updateTab, setActive, activeTab } from './tabs.js
 import { bindOmnibox, syncOmni, focusOmnibox } from './omnibox.js';
 import { openMainMenu, openTabMenu, openOmniMenu, openTabstripMenu, openExtensionsButton, closeMenus } from './menu.js';
 import { setSchema, openSettings, setShortcutDefaults } from './settingspanel.js';
-import { openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts } from './panels.js';
+import { openExtensions, openHistory, openBookmarks, openDownloads, openAbout, openShortcuts, openTaskManager, openReadingList } from './panels.js';
 import { openExtensionPopup, closeExtensionPopup } from './extensionPopup.js';
 import { openCommandPalette } from './commandPalette.js';
 import { toast } from './toast.js';
@@ -28,6 +28,8 @@ const PANELS = {
   downloads: openDownloads,
   shortcuts: openShortcuts,
   about: openAbout,
+  taskManager: openTaskManager,
+  readingList: openReadingList,
 };
 
 let activeTabSnapshot = null;
@@ -309,6 +311,13 @@ function handleShortcut(action) {
     if (cur) api().tab.savePdf(cur.id);
     return undefined;
   }
+  if (action === 'capturePage') {
+    const cur = activeTab();
+    if (cur) api().tab.capture(cur.id, { saveAs: false });
+    return undefined;
+  }
+  if (action === 'taskManager') return openTaskManager();
+  if (action === 'readingList') return openReadingList();
   if (action === 'copyMarkdown') {
     const cur = activeTab();
     if (cur) api().tab.copyMarkdown(cur.id);
@@ -331,6 +340,25 @@ function wireShortcuts() {
       if (isFindOpen()) return closeFind();
       if (inField) event.target.blur();
       return undefined;
+    }
+
+    if (event.shiftKey && event.key === 'Escape' && !inField) {
+      event.preventDefault();
+      openTaskManager();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 's' && !inField) {
+      event.preventDefault();
+      const cur = activeTab();
+      if (cur) api().tab.capture(cur.id, { saveAs: false });
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'l' && !inField) {
+      event.preventDefault();
+      openReadingList();
+      return;
     }
 
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'p') {

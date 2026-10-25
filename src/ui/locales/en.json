@@ -114,7 +114,15 @@
     "wakeTab": "Wake tab",
     "sleepOtherTabs": "Sleep other tabs",
     "pasteAndGo": "Paste and open",
-    "translatePage": "Translate page"
+    "translatePage": "Translate page",
+    "taskManager": "Task Manager",
+    "capturePage": "Capture screenshot",
+    "readingList": "Reading List",
+    "addToReadingList": "Add to Reading List",
+    "closeDuplicates": "Close duplicate tabs",
+    "muteAllTabs": "Mute all tabs",
+    "unmuteAllTabs": "Unmute all tabs",
+    "zoom": "Zoom"
   },
   "find": {
     "placeholder": "Find on page"
@@ -128,7 +136,15 @@
     "categoryCommand": "Command",
     "categoryTab": "Tab",
     "categoryRecentlyClosed": "Recently closed",
-    "activeTab": "Active"
+    "activeTab": "Active",
+    "taskManager": "Open Task Manager",
+    "capturePageClipboard": "Take screenshot (Copy to clipboard)",
+    "capturePageFile": "Take screenshot (Save to file…)",
+    "openReadingList": "Open Reading List",
+    "addToReadingList": "Add active tab to Reading List",
+    "closeDuplicates": "Close duplicate tabs",
+    "muteAll": "Mute all tabs",
+    "unmuteAll": "Unmute all tabs"
   },
   "confirm": {
     "closeTitle": "Close tab",
@@ -222,7 +238,10 @@
       "sleepTab": "Sleep or wake tab",
       "saveAsPdf": "Save page as PDF",
       "copyMarkdown": "Copy page as Markdown",
-      "reopen": "Reopen closed tab"
+      "reopen": "Reopen closed tab",
+      "taskManager": "Open Task Manager",
+      "capturePage": "Take page screenshot",
+      "readingList": "Open Reading List"
     }
   },
   "extensions": {
@@ -273,7 +292,18 @@
     "pdfSaved": "Page saved as PDF",
     "pdfFailed": "Could not create PDF",
     "bookmarksExported": "Bookmarks exported successfully",
-    "bookmarksImported": "Bookmarks imported successfully"
+    "bookmarksImported": "Bookmarks imported successfully",
+    "screenshotCopied": "Screenshot copied to clipboard",
+    "screenshotSaved": "Screenshot saved successfully",
+    "screenshotFailed": "Failed to capture screenshot",
+    "addedToReadingList": "Page added to Reading List",
+    "removedFromReadingList": "Page removed from Reading List",
+    "duplicateTabsClosed": "Closed duplicate tabs",
+    "noDuplicateTabs": "No duplicate tabs found",
+    "allTabsMuted": "All tabs muted",
+    "allTabsUnmuted": "All tabs unmuted",
+    "sleptOthers": "{count} inactive tab(s) put to sleep",
+    "closedDuplicates": "{count} duplicate tab(s) closed"
   },
   "greeting": {
     "morning": "Good morning",
@@ -356,9 +386,26 @@
       "off": "No proxy"
     },
     "newtab": {
+      "layout": "Link layout",
+      "layoutDesc": "How your quick links are arranged.",
       "layoutGrid": "Grid",
       "layoutList": "List",
-      "layoutMinimal": "Minimal"
+      "layoutMinimal": "Minimal",
+      "background": "Background image",
+      "backgroundDesc": "Address of an image shown behind the start page.",
+      "backgroundOverlay": "Background strength",
+      "backgroundOverlayDesc": "How strongly the image shows through.",
+      "showClock": "Show the clock",
+      "showClockDesc": "Time and date above the search field.",
+      "showSearch": "Show the search field",
+      "showSearchDesc": "A search field in the middle of the start page.",
+      "showGreeting": "Show a greeting",
+      "showGreetingDesc": "A short greeting that changes with the time of day.",
+      "searchTarget": "Search address",
+      "searchTargetDesc": "Address of your search engine. Use {q} for the query.",
+      "links": "Quick links",
+      "linksDesc": "Your own pages on the start page.",
+      "linksItem": "Link"
     },
     "pair": {
       "key": "Name",
@@ -461,28 +508,6 @@
       "groupsDesc": "Organise tabs into collapsible groups.",
       "groupItem": "Group"
     },
-    "newtab": {
-      "layout": "Link layout",
-      "layoutDesc": "How your quick links are arranged.",
-      "layoutGrid": "Grid",
-      "layoutList": "List",
-      "layoutMinimal": "Minimal",
-      "background": "Background image",
-      "backgroundDesc": "Address of an image shown behind the start page.",
-      "backgroundOverlay": "Background strength",
-      "backgroundOverlayDesc": "How strongly the image shows through.",
-      "showClock": "Show the clock",
-      "showClockDesc": "Time and date above the search field.",
-      "showSearch": "Show the search field",
-      "showSearchDesc": "A search field in the middle of the start page.",
-      "showGreeting": "Show a greeting",
-      "showGreetingDesc": "A short greeting that changes with the time of day.",
-      "searchTarget": "Search address",
-      "searchTargetDesc": "Address of your search engine. Use {q} for the query.",
-      "links": "Quick links",
-      "linksDesc": "Your own pages on the start page.",
-      "linksItem": "Link"
-    },
     "privacy": {
       "blockTrackers": "Block trackers",
       "blockTrackersDesc": "Stops common tracking and measurement requests.",
@@ -580,7 +605,9 @@
     "data": {
       "bookmarks": "Bookmarks",
       "bookmarksDesc": "Pages you saved for quick access.",
-      "bookmarkItem": "Bookmark"
+      "bookmarkItem": "Bookmark",
+      "readingList": "Reading list entries",
+      "readingListDesc": "Saved pages and articles in your reading list."
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -631,7 +658,11 @@
     "copyLinkMarkdown": "Copy link as Markdown",
     "copyPageMarkdown": "Copy page as Markdown",
     "saveAsPdf": "Save page as PDF…",
-    "translateSelection": "Translate “{query}”"
+    "translateSelection": "Translate “{query}”",
+    "addLinkToReadingList": "Add link to Reading List",
+    "addToReadingList": "Add page to Reading List",
+    "capturePageClipboard": "Copy page screenshot",
+    "capturePageFile": "Save page screenshot as…"
   },
   "tab": {
     "sleepingTooltip": "Sleeping to save memory — click to wake"
@@ -649,5 +680,36 @@
     "active": "Active",
     "clearData": "Clear cookies & site data",
     "privacySettings": "Privacy settings"
+  },
+  "readingList": {
+    "title": "Reading List",
+    "description": "Save articles and pages to read later offline or at your own pace.",
+    "empty": "Your Reading List is empty.",
+    "noMatch": "No items match your search.",
+    "addCurrentTab": "Add current tab",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "clearRead": "Clear read items",
+    "tab_unread": "Unread",
+    "tab_read": "Read",
+    "tab_all": "All items"
+  },
+  "taskManager": {
+    "title": "Task Manager",
+    "description": "Monitor memory and processor usage of all browser processes and open tabs.",
+    "totalMemory": "Total memory",
+    "processes": "Processes",
+    "tabs": "Tabs",
+    "refresh": "Refresh",
+    "sleepAll": "Sleep inactive tabs",
+    "empty": "No matching processes found.",
+    "processBrowser": "Hinterland Browser",
+    "processGPU": "GPU Process",
+    "processTab": "Tab",
+    "processUtility": "Utility Process",
+    "sleeping": "Sleeping",
+    "sleep": "Put to sleep",
+    "wake": "Wake up",
+    "endProcess": "End task"
   }
 }
