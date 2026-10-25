@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve, sep } from 'node:path';
 import { existsSync } from 'node:fs';
-import { app } from 'electron';
+import electron from 'electron';
+
+const app = typeof electron === 'object' && electron !== null ? electron.app : null;
 
 const here = dirname(fileURLToPath(import.meta.url));
 

@@ -1,17 +1,31 @@
-import { app } from 'electron';
+import electron from 'electron';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
 import { EventEmitter } from 'node:events';
 import { SCHEMA, buildDefaults } from './schema.js';
 
+const app = typeof electron === 'object' && electron !== null ? electron.app : null;
+const getUserDataPath = () => (typeof app?.getPath === 'function' ? app.getPath('userData') : join(tmpdir(), 'hinterland-data'));
+
 const FILE_NAME = 'settings.json';
+const FORBIDDEN_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 
 function deepGet(object, path) {
-  return path.split('.').reduce((node, key) => (node == null ? undefined : node[key]), object);
+  if (!object || typeof path !== 'string') return undefined;
+  const keys = path.split('.');
+  for (const key of keys) {
+    if (FORBIDDEN_KEYS.has(key)) return undefined;
+  }
+  return keys.reduce((node, key) => (node == null ? undefined : node[key]), object);
 }
 
 function deepSet(object, path, value) {
+  if (!object || typeof path !== 'string') return;
   const keys = path.split('.');
+  for (const key of keys) {
+    if (FORBIDDEN_KEYS.has(key)) return;
+  }
   let node = object;
   for (let index = 0; index < keys.length - 1; index += 1) {
     const key = keys[index];
@@ -63,12 +77,12 @@ function coerce(definition, raw) {
 }
 
 export class Settings extends EventEmitter {
-  constructor() {
+  constructor(customPath) {
     super();
     this.setMaxListeners(50);
     this.schema = SCHEMA;
     this.data = buildDefaults();
-    this.filePath = join(app.getPath('userData'), FILE_NAME);
+    this.filePath = customPath || join(getUserDataPath(), FILE_NAME);
     this.timer = null;
   }
 
@@ -126,6 +140,7 @@ export class Settings extends EventEmitter {
   }
 
   set(key, value, { silent = false } = {}) {
+    if (typeof key !== 'string' || FORBIDDEN_KEYS.has(key)) return false;
     const definition = SCHEMA.find((entry) => entry.key === key);
     if (!definition) return false;
     const next = coerce(definition, value);
@@ -140,8 +155,10 @@ export class Settings extends EventEmitter {
   }
 
   merge(patch, { silent = false } = {}) {
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return [];
     const changed = [];
     for (const [key, value] of Object.entries(patch)) {
+      if (FORBIDDEN_KEYS.has(key)) continue;
       const definition = SCHEMA.find((entry) => entry.key === key);
       if (!definition) continue;
       const next = coerce(definition, value);

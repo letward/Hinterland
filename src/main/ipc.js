@@ -34,7 +34,9 @@ function handle(channel, handler) {
 }
 
 function activeTab(id) {
-  return id ? tabs.byId(id) : tabs.active;
+  const tab = id ? tabs.byId(id) : tabs.active;
+  if (!tab || !tab.contents || tab.contents.isDestroyed()) return null;
+  return tab;
 }
 
 function language() {
@@ -77,6 +79,7 @@ export function installIpc() {
   });
 
   handle('app:revealFile', (path) => {
+    if (typeof path !== 'string' || !path.trim()) return false;
     shell.showItemInFolder(path);
     return true;
   });
@@ -139,7 +142,7 @@ export function installIpc() {
   });
 
   handle('app:killProcess', (pid) => {
-    if (pid === process.pid) return false;
+    if (typeof pid !== 'number' || !Number.isInteger(pid) || pid <= 0 || pid === process.pid) return false;
     try {
       process.kill(pid);
       return true;
@@ -292,7 +295,7 @@ export function installIpc() {
   handle('tabs:muteOthers', (id) => {
     const keep = activeTab(id);
     for (const tab of tabs.list) {
-      if (tab.id === keep?.id) continue;
+      if (tab.id === keep?.id || !tab.contents || tab.contents.isDestroyed()) continue;
       tab.muted = true;
       tab.contents.setAudioMuted(true);
       surface.send('tab:update', { ...tab.snapshot(), id: tab.id });
@@ -304,6 +307,7 @@ export function installIpc() {
   handle('tabs:sleepInactive', (delay) => tabs.sleepInactive(delay));
   handle('tabs:reloadAll', () => {
     for (const tab of tabs.list) {
+      if (!tab.contents || tab.contents.isDestroyed()) continue;
       tab.contents.reload();
     }
     return true;
@@ -854,7 +858,12 @@ export function installIpc() {
     }
   });
 
+  const ALLOWED_PERMISSIONS = new Set(['media', 'geolocation', 'notifications', 'midiSysex', 'pointerLock', 'fullscreen', 'openExternal', 'clipboard', 'camera', 'microphone']);
+
   handle('site:setPermission', (rawUrl, permission, value) => {
+    if (!permission || typeof permission !== 'string' || !ALLOWED_PERMISSIONS.has(permission)) {
+      return { ok: false, error: 'invalidPermission' };
+    }
     try {
       const url = new URL(rawUrl);
       const origin = `${url.protocol}//${url.host}`;
@@ -864,7 +873,7 @@ export function installIpc() {
         delete sites[origin][permission];
         if (Object.keys(sites[origin]).length === 0) delete sites[origin];
       } else {
-        sites[origin][permission] = value;
+        sites[origin][permission] = String(value);
       }
       settings.set('privacy.sitePermissions', sites);
       return { ok: true, permissions: sites[origin] ?? {} };
@@ -925,9 +934,9 @@ export function installIpc() {
         const parsed = JSON.parse(content);
         const list = Array.isArray(parsed) ? parsed : (parsed.bookmarks || []);
         for (const item of list) {
-          if (item?.url && !existingUrls.has(item.url)) {
+          if (item && typeof item.url === 'string' && (item.url.startsWith('http://') || item.url.startsWith('https://')) && !existingUrls.has(item.url)) {
             existingUrls.add(item.url);
-            imported.push({ title: item.title || item.url, url: item.url });
+            imported.push({ title: String(item.title || item.url).slice(0, 300), url: item.url });
           }
         }
       } catch {
@@ -963,7 +972,9 @@ export function installIpc() {
 
   handle('readingList:add', (item) => {
     const list = [...(settings.value('data.readingList') || [])];
-    if (!item || !item.url) return { ok: false, error: 'noUrl' };
+    if (!item || typeof item.url !== 'string' || (!item.url.startsWith('http://') && !item.url.startsWith('https://'))) {
+      return { ok: false, error: 'noUrl' };
+    }
     const existingIdx = list.findIndex((e) => e.url === item.url);
     if (existingIdx !== -1) {
       list[existingIdx].read = false;
@@ -1197,12 +1208,17 @@ export function installIpc() {
       const raw = await readFile(result.filePaths[0], 'utf8');
       const imported = JSON.parse(raw);
       const list = Array.isArray(imported) ? imported : [imported];
-      const valid = list.filter((s) => s && Array.isArray(s.tabs) && s.tabs.length > 0).map((s) => ({
-        id: s.id || `stash_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-        title: s.title || 'Imported Stash',
-        createdAt: s.createdAt || Date.now(),
-        tabs: s.tabs.map((t) => ({ url: t.url, title: t.title || t.url, favicon: t.favicon || '' })),
-      }));
+      const valid = list
+        .filter((s) => s && typeof s === 'object' && Array.isArray(s.tabs) && s.tabs.length > 0)
+        .map((s) => ({
+          id: typeof s.id === 'string' && s.id ? s.id : `stash_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+          title: String(s.title || 'Imported Stash').slice(0, 200),
+          createdAt: Number(s.createdAt) || Date.now(),
+          tabs: s.tabs
+            .filter((t) => t && typeof t.url === 'string' && (t.url.startsWith('http://') || t.url.startsWith('https://') || t.url.startsWith('hinterland://')))
+            .map((t) => ({ url: t.url, title: String(t.title || t.url).slice(0, 300), favicon: typeof t.favicon === 'string' ? t.favicon : '' })),
+        }))
+        .filter((s) => s.tabs.length > 0);
       if (!valid.length) return { ok: false, error: 'invalid_format' };
       const existing = [...(settings.value('data.tabStashes') || [])];
       existing.unshift(...valid);

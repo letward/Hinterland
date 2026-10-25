@@ -7,7 +7,8 @@ const KNOWN_SCHEMES = new Set([...NAVIGABLE_SCHEMES, 'view-source:', 'mailto:', 
 
 function hostLooksReal(input) {
   if (!input || /\s/.test(input)) return false;
-  const candidate = input.includes('://') ? input.split('://')[1]?.split('/')[0] : input.split('/')[0];
+  const raw = input.includes('://') ? input.split('://')[1]?.split('/')[0] : input.split('/')[0];
+  const candidate = raw ? raw.replace(/:\d+$/, '') : '';
   if (!candidate) return false;
   if (NEVER_UPGRADE.has(candidate)) return true;
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(candidate)) return true;

@@ -200,27 +200,41 @@ export class BrowserSurface {
     if (!win || win.isDestroyed()) return;
     const root = win.contentView;
 
-    for (const tab of tabs.list) {
-      if (tab.attached) {
+    const active = tabs.active;
+    const children = Array.isArray(root.children) ? [...root.children] : [];
+    for (const child of children) {
+      if (child !== this.chromeView && child !== active?.view) {
         try {
-          root.removeChildView(tab.view);
+          root.removeChildView(child);
         } catch {
-          /* the view is already detached */
+          /* already detached */
         }
-        tab.attached = false;
       }
     }
 
-    const active = tabs.active;
+    for (const tab of tabs.list) {
+      tab.attached = (tab === active);
+    }
+
     if (active) {
-      root.addChildView(active.view);
+      if (!children.includes(active.view)) {
+        root.addChildView(active.view);
+      }
       active.attached = true;
       this.contentView = active.view;
     } else {
       this.contentView = null;
     }
 
-    root.addChildView(this.chromeView);
+    if (!children.includes(this.chromeView)) {
+      root.addChildView(this.chromeView);
+    } else {
+      try {
+        root.removeChildView(this.chromeView);
+      } catch {}
+      root.addChildView(this.chromeView);
+    }
+
     this.layout();
   }
 

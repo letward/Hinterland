@@ -431,17 +431,20 @@ export class SecureStorage {
  * @returns {string} Clean URL without tracking parameters
  */
 export function stripTracking(raw) {
+  if (typeof raw !== 'string') return '';
+  if (!raw) return '';
   try {
     const url = new URL(raw);
-    const junk = [
-      'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-      'utm_id', 'utm_source_platform', 'utm_creative_format', 'utm_marketing_tactic',
+    const junk = new Set([
       'gclid', 'fbclid', 'mc_cid', 'mc_eid', 'igshid', 'msclkid', 'ref_src',
-      'twclid', 'yclid', '_hsenc', '_hsmi', 'vero_id',
-    ];
+      'twclid', 'yclid', '_hsenc', '_hsmi', 'vero_id', 'fb_action_ids',
+      'fb_action_types', 'spreportid',
+    ]);
     let changed = false;
-    for (const key of junk) {
-      if (url.searchParams.has(key)) {
+    const keys = [...url.searchParams.keys()];
+    for (const key of keys) {
+      const lower = key.toLowerCase();
+      if (lower.startsWith('utm_') || junk.has(lower)) {
         url.searchParams.delete(key);
         changed = true;
       }

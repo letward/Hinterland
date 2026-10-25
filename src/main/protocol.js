@@ -1,4 +1,7 @@
-import { protocol, net } from 'electron';
+import electron from 'electron';
+
+const protocol = typeof electron === 'object' && electron !== null ? electron.protocol : null;
+const net = typeof electron === 'object' && electron !== null ? electron.net : null;
 import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -56,7 +59,12 @@ function resolveRequest(url) {
   const root = PAGE_ROOTS[host];
   if (!root) return null;
 
-  let pathname = decodeURIComponent(url.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(url.pathname);
+  } catch {
+    return null;
+  }
   if (pathname === '/' || pathname === '') {
     pathname = host === 'app' ? '/index.html' : `/${host}.html`;
   }

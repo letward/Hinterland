@@ -280,7 +280,7 @@ export class Tab {
   async togglePiP() {
     if (!this.contents || this.contents.isDestroyed() || this.sleeping) return { success: false, reason: 'unavailable' };
     try {
-      const res = await this.contents.executeJavaScript((() => {
+      const res = await this.contents.executeJavaScript(`(() => {
         try {
           if (document.pictureInPictureElement) {
             document.exitPictureInPicture();
@@ -295,7 +295,7 @@ export class Tab {
         } catch (e) {
           return { active: false, success: false, error: e.message };
         }
-      })());
+      })()`);
       return res || { success: false };
     } catch {
       return { success: false };
@@ -305,7 +305,7 @@ export class Tab {
   async toggleMediaPlay() {
     if (!this.contents || this.contents.isDestroyed() || this.sleeping) return { success: false, reason: 'unavailable' };
     try {
-      const res = await this.contents.executeJavaScript((() => {
+      const res = await this.contents.executeJavaScript(`(() => {
         try {
           const media = Array.from(document.querySelectorAll('video, audio')).find((m) => !m.paused) || document.querySelector('video, audio');
           if (!media) return { playing: false, success: false, reason: 'no_media' };
@@ -319,7 +319,7 @@ export class Tab {
         } catch (e) {
           return { playing: false, success: false, error: e.message };
         }
-      })());
+      })()`);
       return res || { success: false };
     } catch {
       return { success: false };

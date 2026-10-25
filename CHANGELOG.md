@@ -4,6 +4,33 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.17.2] - 2026-10-25
+
+### Fixed
+- **Settings Store & Prototype Pollution Hardening**:
+  - Protected `deepSet`, `deepGet`, `set()`, and `merge()` against prototype pollution vectors targeting `__proto__`, `prototype`, and `constructor`.
+  - Hardened `settings.merge(patch)` against `null`, `undefined`, or non-object primitive inputs, preventing unhandled `TypeError` exceptions.
+  - Enabled constructor file path parameter and safe Node/Electron hybrid environment detection for settings and history persistence.
+- **PiP & Media Controls Runtime Fix**:
+  - Corrected `togglePiP()` and `toggleMediaPlay()` in `src/main/tab.js`: previously evaluated closures in the Node.js main process context rather than serializing them to WebContents, causing PiP and media playback toggles to silently fail.
+- **View Lifecycle & Memory Leak Elimination**:
+  - Re-engineered `BrowserSurface.stackViews()` to inspect and purge orphaned `WebContentsView` children from the root view hierarchy, preventing leaked view handles when switching tabs or closing windows.
+- **IPC Surface Boundary & Security Validation**:
+  - Added destroyed-state safety guards to `activeTab(id)` to prevent IPC handlers from invoking operations on destroyed `WebContents`.
+  - Added strict parameter validation to `app:killProcess` (rejects non-integer, <= 0, NaN, strings, and the browser's own PID).
+  - Hardened `site:setPermission` with an allowed permissions whitelist and prototype pollution defense.
+  - Hardened `bookmarks:importHtml`, `stashes:importJson`, and `readingList:add` by strictly filtering protocols to `http://` and `https://` schemes.
+  - Guarded `tabs:muteOthers` and `tabs:reloadAll` loops against destroyed background tabs.
+- **Protocol Resiliency & URL Navigation**:
+  - Wrapped `decodeURIComponent` in the custom `hinterland://` scheme handler in try/catch blocks to gracefully handle malformed percent-encoding without unhandled `URIError` crashes.
+  - Enhanced `hostLooksReal` in `src/main/navigation.js` to strip port numbers before hostname validation, properly recognizing local developer endpoints such as `127.0.0.1:8080` and `localhost:3000` without requiring an explicit scheme.
+  - Hardened `stripTracking` in `sdk/src/security.js` with case-insensitive `utm_*` matching, expanded ad parameter coverage (`spreportid`, `fb_action_ids`), and safe handling for non-string inputs.
+  - Corrected `downloads.applyThrottle` to return its interval handle, ensuring throttled downloads can be cleanly un-throttled.
+
+### Added
+- **Automated Stress & Robustness Suite (`sdk/test/stressTest.test.mjs`)**:
+  - Added comprehensive test suite with 16 deep robustness specs covering prototype pollution fuzzing, schema constraints validation, navigation port resolution, tracking stripping edge cases, tabstrip directional closing simulations, Hinterland Pass cryptographic tampering detection, IPC security boundaries, and protocol URI decoding resilience.
+
 ## [1.17.1] - 2026-10-25
 
 ### Fixed

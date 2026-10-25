@@ -24,7 +24,7 @@ function uniquePath(directory, filename) {
 
 function applyThrottle(item) {
   const speed = Number(settings.value('network.downloadLimit'));
-  if (!speed) return;
+  if (!speed) return null;
   const limit = speed * 1024 * 1024;
   let lastBytes = item.getReceivedBytes();
   let lastTime = Date.now();
@@ -51,6 +51,7 @@ function applyThrottle(item) {
   }, 500);
 
   item.once('done', () => clearInterval(timer));
+  return timer;
 }
 
 export function attachDownloads(sessionObject) {

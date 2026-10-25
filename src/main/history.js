@@ -1,13 +1,17 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { app } from 'electron';
+import { tmpdir } from 'node:os';
+import electron from 'electron';
+
+const app = typeof electron === 'object' && electron !== null ? electron.app : null;
+const getUserDataPath = () => (typeof app?.getPath === 'function' ? app.getPath('userData') : join(tmpdir(), 'hinterland-data'));
 
 const FILE_NAME = 'history.json';
 const LIMIT = 5000;
 
 export class HistoryStore {
-  constructor() {
-    this.filePath = join(app.getPath('userData'), FILE_NAME);
+  constructor(customPath) {
+    this.filePath = customPath || join(getUserDataPath(), FILE_NAME);
     this.entries = [];
     this.timer = null;
   }
