@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hinterland — Browser herunterladen & Changelog</title>
+  <meta name="description" content="Hinterland: schneller, sicherer, frei anpassbarer Browser. Neueste Version herunterladen und Changelog lesen." />
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --card: #141821;
+      --fg: #e6e8ee;
+      --muted: #9aa3b2;
+      --accent: #6ea8fe;
+      --accent-2: #7dd3a8;
+      --border: #23283a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1a2030 0%, var(--bg) 60%);
+      color: var(--fg);
+      min-height: 100vh;
+      padding: 32px 20px 64px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 48px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo {
+      width: 72px; height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 700; color: #0b0d12;
+    }
+    h1 { margin: 0 0 8px; font-size: 34px; letter-spacing: -0.5px; }
+    .tagline { color: var(--muted); font-size: 17px; margin: 0 0 32px; }
+    .version { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .version span { color: var(--fg); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--accent); color: #0b0d12;
+      text-decoration: none; font-weight: 600; font-size: 17px;
+      padding: 16px 30px; border-radius: 12px;
+      transition: transform .12s ease, box-shadow .12s ease;
+      box-shadow: 0 8px 24px rgba(110,168,254,.35);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(110,168,254,.45); }
+    .btn svg { width: 22px; height: 22px; }
+    .meta { color: var(--muted); font-size: 13px; margin-top: 14px; }
+    .features {
+      margin-top: 36px; padding-top: 28px;
+      border-top: 1px solid var(--border);
+      text-align: left;
+    }
+    .features h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 0 0 14px; }
+    .features ul { list-style: none; padding: 0; margin: 0; }
+    .features li { padding: 6px 0; font-size: 15px; }
+    .features li::before { content: "✓"; color: var(--accent-2); margin-right: 10px; font-weight: 700; }
+    .foot { color: var(--muted); font-size: 12px; margin-top: 28px; }
+    .foot a { color: var(--accent); text-decoration: none; }
+
+    .changelog {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 32px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    .changelog h2 { margin: 0 0 6px; font-size: 22px; }
+    .changelog .sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+    .cl-version { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .cl-version:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .cl-version h3 { margin: 0 0 12px; font-size: 18px; color: var(--accent); }
+    .cl-version h4 { margin: 14px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .cl-version ul { margin: 0; padding-left: 20px; }
+    .cl-version li { margin: 4px 0; font-size: 14px; line-height: 1.5; }
+    .cl-version strong { color: var(--fg); }
+    .cl-loading { color: var(--muted); font-style: italic; }
+    .cl-error { color: #ff8a8a; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card">
+      <div class="logo">H</div>
+      <h1>Hinterland</h1>
+      <p class="tagline">Ein schneller, sicherer und frei anpassbarer Browser.</p>
+      <p class="version">Neueste Version: <span id="ver">v1.15.1</span> &middot; Windows x64</p>
+
+      <a id="dlBtn" class="btn" href="https://github.com/letward/Hinterland/releases/download/v1.15.1/Hinterland-Setup-1.15.1.exe" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Für Windows herunterladen
+      </a>
+      <p class="meta">Windows 10/11 (64-bit) &middot; ~110 MB Installer &middot; automatische Updates</p>
+
+      <section class="features">
+        <h2>Was ist Hinterland?</h2>
+        <ul>
+          <li>Schneller, sicherer, frei anpassbarer Browser</li>
+          <li>Extension-Support mit strenger Sicherheitsrichtlinie</li>
+          <li>Private Tabs und Tracker-Blocking</li>
+          <li>Automatische Updates über GitHub Releases</li>
+          <li>Reader Mode, Tab Stash, Passwort-Manager u. v. m.</li>
+        </ul>
+      </section>
+
+      <p class="foot">
+        macOS- und Linux-Builds folgen. &middot;
+        <a href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">Quellcode auf GitHub</a> &middot;
+        <a href="https://github.com/letward/Hinterland/releases" target="_blank" rel="noopener">Alle Releases</a>
+      </p>
+    </main>
+
+    <section class="changelog">
+      <h2>Changelog</h2>
+      <p class="sub">Die neuesten Änderungen an Hinterland. Vollständige Historie auf GitHub.</p>
+      <div id="clContent" class="cl-loading">Lade Changelog…</div>
+    </section>
+  </div>
+
+  <script>
+    // Render markdown-lite changelog from GitHub raw
+    (async () => {
+      const url = "https://raw.githubusercontent.com/letward/Hinterland/main/CHANGELOG.md";
+      const el = document.getElementById("clContent");
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const md = await res.text();
+        const versions = parseChangelog(md).slice(0, 4);
+        if (!versions.length) throw new Error("no versions");
+        el.classList.remove("cl-loading");
+        el.innerHTML = versions.map(renderVersion).join("");
+        // update version/download from latest
+        const latest = versions[0].version;
+        document.getElementById("ver").textContent = "v" + latest;
+        const btn = document.getElementById("dlBtn");
+        btn.href = `https://github.com/letward/Hinterland/releases/download/v${latest}/Hinterland-Setup-${latest}.exe`;
+      } catch (e) {
+        el.classList.remove("cl-loading");
+        el.classList.add("cl-error");
+        el.textContent = "Changelog konnte nicht geladen werden: " + e.message;
+      }
+    })();
+
+    function parseChangelog(md) {
+      const lines = md.split(/\r?\n/);
+      const versions = [];
+      let cur = null;
+      let section = null;
+      for (const raw of lines) {
+        const m = raw.match(/^## \[([^\]]+)\]/);
+        if (m) {
+          if (cur) versions.push(cur);
+          cur = { version: m[1], sections: [] };
+          section = null;
+          continue;
+        }
+        if (!cur) continue;
+        const h = raw.match(/^### (.+)/);
+        if (h) { section = { title: h[1], items: [] }; cur.sections.push(section); continue; }
+        const li = raw.match(/^- (.+)/);
+        if (li && section) { section.items.push(li[1]); continue; }
+        // nested continuation lines starting with spaces
+        if (raw.match(/^\s{2,}- /) && section && section.items.length) {
+          section.items[section.items.length-1] += " " + raw.trim().replace(/^- /, "");
+        }
+      }
+      if (cur) versions.push(cur);
+      return versions;
+    }
+
+    function renderInline(s) {
+      return s
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function renderVersion(v) {
+      let html = `<div class="cl-version"><h3>v${escapeHtml(v.version)}</h3>`;
+      for (const sec of v.sections) {
+        html += `<h4>${escapeHtml(sec.title)}</h4><ul>`;
+        for (const it of sec.items) {
+          html += `<li>${renderInline(escapeHtml(it))}</li>`;
+        }
+        html += `</ul>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>
