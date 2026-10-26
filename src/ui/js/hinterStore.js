@@ -7,6 +7,8 @@ import { applyTheme } from './theme.js';
 
 const api = () => window.hinterland;
 
+const STORE_SERVER_URL = 'https://hinterland-browser.vercel.app/api/store';
+
 export function renderHinterStore(initialTab = 'all') {
   const container = el('div', { class: 'storeRoot' });
   let currentTab = initialTab;
@@ -14,6 +16,7 @@ export function renderHinterStore(initialTab = 'all') {
   let sourceFilter = 'all'; // 'all' | 'official' | 'community'
   let sortBy = 'recommended'; // 'recommended' | 'name'
   let catalogData = null;
+  let serverCommunity = { themes: [], extensions: [] };
 
   // Header & Hero
   const hero = el('div', { class: 'storeHero' }, [
@@ -28,7 +31,7 @@ export function renderHinterStore(initialTab = 'all') {
       ]),
     ]),
     el('h1', { class: 'storeHeroTitle' }, [
-      el('span', { html: icon('store') }),
+      el('img', { class: 'storeHeroLogo', src: 'hinterland://assets/icon.png', alt: 'Hinterland' }),
       t('store.title'),
     ]),
     el('p', { class: 'storeHeroDesc', text: t('store.subtitle') }),
@@ -147,6 +150,86 @@ export function renderHinterStore(initialTab = 'all') {
     } catch (e) {
       console.warn('[HinterStore] Could not load catalog', e);
     }
+    // Load server community content
+    try {
+      const res = await fetch(STORE_SERVER_URL, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.themes) serverCommunity.themes = data.themes;
+        if (data.extensions) serverCommunity.extensions = data.extensions;
+      }
+    } catch (e) {
+      console.warn('[HinterStore] Could not load server community catalog', e);
+    }
+    // Merge server community content into catalog
+    if (catalogData) {
+      if (serverCommunity.themes.length) {
+        catalogData.themes = [
+          ...catalogData.themes,
+          ...serverCommunity.themes.map((t) => ({ ...t, source: 'community' })),
+        ];
+      }
+      if (serverCommunity.extensions.length) {
+        catalogData.extensions = [
+          ...catalogData.extensions,
+          ...serverCommunity.extensions.map((e) => ({ ...e, source: 'community' })),
+        ];
+      }
+    }
+  }
+
+  /* --------------------------------------------------- server upload helpers */
+  function getSessionToken() {
+    const session = get('account.session');
+    return session?.token || null;
+  }
+
+  function isLoggedIn() {
+    return Boolean(getSessionToken());
+  }
+
+  async function uploadTheme(theme) {
+    const token = getSessionToken();
+    if (!token) return { ok: false, error: 'notLoggedIn' };
+    const res = await fetch(STORE_SERVER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify({ kind: 'theme', ...theme }),
+    });
+    return await res.json();
+  }
+
+  async function uploadExtension(ext) {
+    const token = getSessionToken();
+    if (!token) return { ok: false, error: 'notLoggedIn' };
+    const res = await fetch(STORE_SERVER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify({ kind: 'extension', ...ext }),
+    });
+    return await res.json();
+  }
+
+  function loginRequiredBanner() {
+    return el('div', { class: 'storeEmpty storeLoginRequired' }, [
+      el('div', { class: 'storeEmptyIcon', html: icon('user') }),
+      el('h3', { class: 'storeEmptyTitle', text: 'Konto erforderlich' }),
+      el('p', { class: 'storeEmptyText', text: 'Melde dich an, um Designs zu veröffentlichen und Erweiterungen in den Hinter Store hochzuladen.' }),
+      el('button', {
+        class: 'button primary',
+        type: 'button',
+        onclick: () => {
+          closeModal();
+          openAccount();
+        },
+      }, [el('span', { html: icon('cloud') }), ' Jetzt registrieren']),
+    ]);
   }
 
   function renderContent() {
@@ -1167,6 +1250,23 @@ function renderStudio(catalogData, onRefresh) {
         onRefresh?.();
       },
     }, [el('span', { html: icon('check') }), t('store.createAndSave')]),
+    isLoggedIn() ? el('button', {
+      class: 'btnSecondary',
+      type: 'button',
+      onclick: async () => {
+        const res = await uploadTheme(themeState);
+        if (res?.ok) {
+          toast('Design an den Hinter Store veröffentlicht.', 'success');
+          onRefresh?.();
+        } else if (res?.error === 'notLoggedIn') {
+          toast('Bitte zuerst anmelden.', 'error');
+          closeModal();
+          openAccount();
+        } else {
+          toast(res?.error || 'Veröffentlichung fehlgeschlagen', 'error');
+        }
+      },
+    }, [el('span', { html: icon('cloud') }), ' Im Store veröffentlichen']) : null,
     el('button', {
       class: 'btnSecondary',
       type: 'button',
@@ -1175,7 +1275,7 @@ function renderStudio(catalogData, onRefresh) {
         toast('Theme JSON exportiert.', 'success');
       },
     }, [el('span', { html: icon('upload') }), t('store.exportJson')]),
-  ]);
+  ].filter(Boolean));
 
   grid.append(form, previewBox);
 
@@ -1208,5 +1308,58 @@ function renderStudio(catalogData, onRefresh) {
   ]);
 
   container.append(grid, importSection);
+
+  // Extension Upload Section (login-gated)
+  if (isLoggedIn()) {
+    const extUploadSection = el('div', {
+      class: 'studioForm',
+      style: { marginTop: '20px' },
+    }, [
+      el('h3', { style: { margin: 0, fontSize: '1rem', fontWeight: 700 } }, [
+        el('span', { html: icon('puzzle'), style: { marginRight: '8px' } }),
+        'Erweiterung hochladen',
+      ]),
+      el('p', { class: 'optionHint', text: 'Lade deine eigene Erweiterung in den Hinter Store hoch. Ein Konto ist erforderlich.' }),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Erweiterungs-ID' }),
+        el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. meine-erweiterung' }),
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Name' }),
+        el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. Meine Erweiterung' }),
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Autor' }),
+        el('input', { class: 'formInput', type: 'text', placeholder: 'Dein Name' }),
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Beschreibung' }),
+        el('textarea', { class: 'formInput', rows: 3, placeholder: 'Was macht diese Erweiterung?' }),
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Kategorie' }),
+        el('select', { class: 'storeSelect' }, [
+          el('option', { value: 'utilities', text: 'Dienstprogramme' }),
+          el('option', { value: 'productivity', text: 'Produktivität' }),
+          el('option', { value: 'security', text: 'Sicherheit' }),
+          el('option', { value: 'appearance', text: 'Erscheinungsbild' }),
+          el('option', { value: 'developer', text: 'Entwicklung' }),
+        ]),
+      ]),
+      el('div', { class: 'actionRow' }, [
+        el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: async () => {
+            toast('Extension-Upload über Dateiauswahl demnächst verfügbar. Nutze derzeit den Theme-Store für Designs.', 'info');
+          },
+        }, [el('span', { html: icon('cloud') }), ' Hochladen']),
+      ]),
+    ]);
+    container.append(extUploadSection);
+  } else {
+    container.append(loginRequiredBanner());
+  }
+
   return container;
 }

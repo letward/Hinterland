@@ -73,7 +73,7 @@ module.exports = async function handler(req, res) {
     const r = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${TOKEN}`,
+        Authorization: 'Bearer ' + TOKEN,
         Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
         'Content-Type': 'application/json',

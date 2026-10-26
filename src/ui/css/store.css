@@ -77,6 +77,15 @@
   color: var(--accent);
 }
 
+.storeHeroLogo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
 .storeHeroDesc {
   font-size: 0.92rem;
   color: var(--textDim);
@@ -775,6 +784,75 @@
   color: var(--textDim);
   max-width: 400px;
   margin: 0;
+}
+
+.storeLoginRequired {
+  border-style: solid !important;
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 8%, transparent) !important;
+}
+
+.storeLoginRequired .storeEmptyIcon {
+  background: var(--accent);
+  color: var(--accentContrast, #fff);
+}
+
+/* ------------------------------------------------------------- Studio Upload Form */
+
+.studioForm {
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.studioForm h3 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studioForm .optionHint {
+  font-size: 0.82rem;
+  color: var(--textDim);
+  margin-bottom: 14px;
+}
+
+.studioForm .formField {
+  margin-bottom: 12px;
+}
+
+.studioForm .formLabel {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--textDim);
+  margin-bottom: 6px;
+}
+
+.studioForm .formInput {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radiusSmall);
+  background: var(--surfaceAlt);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.studioForm .formInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.studioForm textarea.formInput {
+  resize: vertical;
+  min-height: 80px;
 }
 
 /* ------------------------------------------------------------- Weekly Pick Banner */

@@ -2839,7 +2839,7 @@ function renderAccountConnected(container, status, refresh) {
     : t('account.providerHinterland');
 
   const profileCard = el('div', { class: 'accountProfileCard' }, [
-    el('div', { class: 'accountAvatar', text: initial }),
+    el('img', { class: 'accountAvatarLogo', src: 'hinterland://assets/icon.png', alt: 'Hinterland' }),
     el('div', { class: 'accountProfileMeta' }, [
       el('div', { class: 'accountProfileEmail', text: email }),
       el('div', { class: 'accountProfileBadges' }, [

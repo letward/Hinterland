@@ -1939,6 +1939,15 @@
   flex-shrink: 0;
 }
 
+.accountAvatarLogo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
 .accountProfileMeta {
   display: flex;
   flex-direction: column;
