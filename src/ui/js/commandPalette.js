@@ -5,7 +5,7 @@ import { openPopup, closePopup, isOpen } from './popup.js';
 import { activeTab, allTabs } from './tabs.js';
 import { openMediaControls } from './menu.js';
 import { toast } from './toast.js';
-import { openQrCode } from './panels.js';
+import { openQrCode, openCookieInspector } from './panels.js';
 
 const api = () => window.hinterland;
 
@@ -172,6 +172,38 @@ export function openCommandPalette() {
             category: t('commandPalette.categoryCommand'),
             icon: 'volumeOff',
             run: () => { if (current) api().tabs.muteOthers(current.id); },
+          },
+          {
+            id: 'unmuteAll',
+            title: t('commandPalette.unmuteAll'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'volume',
+            run: () => api().tabs.muteAll(false),
+          },
+          {
+            id: 'toggleShield',
+            title: t('commandPalette.toggleShield'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'shield',
+            run: async () => {
+              if (current && current.url && !current.url.startsWith('hinterland://')) {
+                const host = new URL(current.url).hostname;
+                const res = await api().site.toggleShield(host);
+                toast(res.enabled ? t('toast.shieldEnabled') : t('toast.shieldDisabled'), 'info');
+                api().tab.reload(current.id);
+              }
+            },
+          },
+          {
+            id: 'inspectCookies',
+            title: t('commandPalette.inspectCookies'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'cookie',
+            run: () => {
+              if (current && current.url && !current.url.startsWith('hinterland://')) {
+                openCookieInspector(current.url);
+              }
+            },
           },
           {
             id: 'reload',

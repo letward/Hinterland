@@ -747,6 +747,11 @@ export const SCHEMA = [
     descKey: 'settings.data.tabStashesDesc',
     section: 'data',
   }),
+  option('data.downloadHistory', 'list', [], {
+    labelKey: 'settings.data.downloads',
+    descKey: 'settings.data.downloadsDesc',
+    section: 'data',
+  }),
   option('data.passwordsVault', 'object', null, {
     internal: true,
   }),

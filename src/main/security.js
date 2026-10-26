@@ -1,4 +1,5 @@
-import { shell } from 'electron';
+import electron from 'electron';
+const shell = typeof electron === 'object' && electron !== null ? electron.shell : null;
 import { NAVIGABLE_SCHEMES, NEVER_UPGRADE } from './constants.js';
 import { settings } from './settings.js';
 
@@ -54,15 +55,32 @@ function hostOf(raw) {
   }
 }
 
+export function categorizeTracker(url) {
+  if (/analytics|gtm\.js|gtag|matomo/i.test(url)) return 'analytics';
+  if (/beacon|pixel|collect/i.test(url)) return 'beacons';
+  if (/telemetry|trackingserver|adserver|doubleclick/i.test(url)) return 'advertising';
+  return 'tracking';
+}
+
+export function normalizeSiteDomain(raw) {
+  if (!raw) return '';
+  try {
+    const host = (raw.includes('://') ? new URL(raw).hostname : raw).toLowerCase().trim();
+    return host.replace(/^www\./, '');
+  } catch {
+    return String(raw || '').toLowerCase().trim().replace(/^www\./, '');
+  }
+}
+
 function isAllowed(raw) {
-  const host = hostOf(raw);
+  const host = hostOf(raw) || normalizeSiteDomain(raw);
   if (!host) return false;
   return allowedSites().some((entry) => host === entry || host.endsWith(`.${entry}`));
 }
 
-export function shouldBlockRequest(raw) {
+export function shouldBlockRequest(raw, initiator = '') {
   if (!settings.value('privacy.blockTrackers')) return false;
-  if (isAllowed(raw)) return false;
+  if (isAllowed(raw) || (initiator && isAllowed(initiator))) return false;
   const rules = [...GENERIC_TRACKERS, ...compileRules()];
   return rules.some((rule) => rule.test(raw));
 }
@@ -134,7 +152,7 @@ export function handOffToSystem(raw) {
   if (NAVIGABLE_SCHEMES.has(`${scheme}:`)) return false;
   if (settings.value('advanced.disableProtocolHandlers')) return false;
   if (!/^[a-z][a-z0-9+.-]*$/.test(scheme)) return false;
-  shell.openExternal(trimmed).catch(() => {});
+  shell?.openExternal?.(trimmed)?.catch?.(() => {});
   return true;
 }
 
@@ -206,7 +224,8 @@ export function installRequestFilters(sessionObject) {
     if (!settings.value('content.stylesheets') && details.resourceType === 'stylesheet') {
       return callback({ cancel: true });
     }
-    if (shouldBlockRequest(details.url) || shouldBlockThirdPartyMedia(details.url)) {
+    const initiator = details.initiator || details.referrer || '';
+    if (shouldBlockRequest(details.url, initiator) || shouldBlockThirdPartyMedia(details.url)) {
       recordBlock(details);
       return callback({ cancel: true });
     }
@@ -231,11 +250,58 @@ export function installRequestFilters(sessionObject) {
 }
 
 const blockedCounts = new Map();
+const blockedBySite = new Map();
 
 function recordBlock(details) {
   const key = hostOf(details.url) || details.url;
   blockedCounts.set(key, (blockedCounts.get(key) ?? 0) + 1);
   if (blockedCounts.size > 500) blockedCounts.clear();
+
+  const siteHost = normalizeSiteDomain(details.initiator || details.referrer);
+  if (siteHost) {
+    if (!blockedBySite.has(siteHost)) {
+      blockedBySite.set(siteHost, new Map());
+      if (blockedBySite.size > 300) {
+        const firstKey = blockedBySite.keys().next().value;
+        blockedBySite.delete(firstKey);
+      }
+    }
+    const siteMap = blockedBySite.get(siteHost);
+    const category = categorizeTracker(details.url);
+    const prev = siteMap.get(key) || { host: key, category, count: 0 };
+    prev.count += 1;
+    siteMap.set(key, prev);
+  }
+}
+
+export function getBlockedForDomain(domain) {
+  const clean = normalizeSiteDomain(domain);
+  const siteMap = blockedBySite.get(clean);
+  const trackers = siteMap ? [...siteMap.values()].sort((a, b) => b.count - a.count) : [];
+  const total = trackers.reduce((sum, t) => sum + t.count, 0);
+  const enabled = !isAllowed(clean);
+  return { domain: clean, enabled, total, trackers };
+}
+
+export function toggleSiteShield(domain) {
+  const clean = normalizeSiteDomain(domain);
+  if (!clean) return { enabled: true, domain: '' };
+  const allowed = { ...(settings.value('privacy.allowedSites') ?? {}) };
+  let enabled = true;
+  if (allowed[clean]) {
+    delete allowed[clean];
+    enabled = true;
+  } else {
+    allowed[clean] = 'allow';
+    enabled = false;
+  }
+  settings.set('privacy.allowedSites', allowed);
+  return { enabled, domain: clean };
+}
+
+export function getSiteShield(domain) {
+  const clean = normalizeSiteDomain(domain);
+  return { enabled: !isAllowed(clean), domain: clean };
 }
 
 export function blockedSummary(limit = 25) {
@@ -257,6 +323,6 @@ export function openExternal(raw) {
   } catch {
     return false;
   }
-  shell.openExternal(value).catch(() => {});
+  shell?.openExternal?.(value)?.catch?.(() => {});
   return true;
 }

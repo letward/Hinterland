@@ -178,7 +178,9 @@
     "passwords": "Passwörter öffnen",
     "stashAllTabs": "Alle offenen Tabs im Stash sichern",
     "stashOtherTabs": "Inaktive Hintergrund-Tabs sichern",
-    "togglePiP": "Bild-in-Bild umschalten"
+    "togglePiP": "Bild-in-Bild umschalten",
+    "inspectCookies": "Website-Cookies & Daten prüfen",
+    "toggleShield": "Schutzschild für Website umschalten"
   },
   "confirm": {
     "closeTitle": "Tab schließen",
@@ -227,7 +229,17 @@
     "title": "Downloads",
     "description": "Dateien, die diese Sitzung bearbeitet.",
     "empty": "Noch keine Downloads.",
-    "done": "Fertig"
+    "done": "Fertig",
+    "searchPlaceholder": "Downloads durchsuchen...",
+    "filterAll": "Alle",
+    "filterCompleted": "Abgeschlossen",
+    "filterActive": "Aktiv",
+    "filterFailed": "Unterbrochen",
+    "openFile": "Datei öffnen",
+    "showInFolder": "Im Ordner anzeigen",
+    "copyLink": "Link kopieren",
+    "clearAll": "Liste leeren",
+    "openFolder": "Downloads-Ordner öffnen"
   },
   "shortcuts": {
     "title": "Tastenkürzel",
@@ -379,7 +391,14 @@
     "vaultLocked": "Tresor gesperrt",
     "vaultUnlocked": "Tresor entsperrt",
     "vaultExported": "Tresor-Backup exportiert",
-    "vaultImported": "{count} Zugangsdaten importiert"
+    "vaultImported": "{count} Zugangsdaten importiert",
+    "shieldEnabled": "Schutzschild für diese Website aktiviert",
+    "shieldDisabled": "Schutzschild für diese Website deaktiviert",
+    "cookieDeleted": "Cookie gelöscht",
+    "allCookiesCleared": "Alle Cookies für diese Website gelöscht",
+    "cookieValueCopied": "Cookie-Wert in Zwischenablage kopiert",
+    "downloadHistoryCleared": "Download-Verlauf geleert",
+    "downloadRemoved": "Download aus Verlauf entfernt"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -769,7 +788,9 @@
       "notes": "Notizen & Entwürfe",
       "notesDesc": "Gespeicherte Notizen, Checklisten und Web-Ausschnitte.",
       "tabStashes": "Gespeicherte Tab-Stashes & Arbeitsbereiche",
-      "tabStashesDesc": "Gespeicherte Tab-Gruppen und Sitzungen zur schnellen Wiederherstellung."
+      "tabStashesDesc": "Gespeicherte Tab-Gruppen und Sitzungen zur schnellen Wiederherstellung.",
+      "downloads": "Download-Verlauf",
+      "downloadsDesc": "Dauerhaft gespeicherter Verlauf aller abgeschlossenen und abgebrochenen Downloads."
     },
     "shortcuts": {
       "title": "Tastenkürzel",
@@ -862,7 +883,28 @@
     "permClipboard": "Zwischenablage",
     "permDefault": "Standard",
     "permAllow": "Zulassen",
-    "permBlock": "Blockieren"
+    "permBlock": "Blockieren",
+    "shieldTitle": "Hinterland Schutzschild",
+    "shieldEnabled": "Schutz aktiv",
+    "shieldDisabled": "Schutz pausiert",
+    "trackersBlocked": "{count} Tracker auf dieser Website blockiert",
+    "noTrackersBlocked": "Keine Tracker auf dieser Seite erkannt",
+    "viewTrackers": "Details",
+    "cookiesHeader": "Cookies & Websitedaten",
+    "cookiesCount": "{count} Cookies gespeichert",
+    "inspectCookies": "Cookies prüfen",
+    "cookiesModalTitle": "Cookies & Websitedaten",
+    "cookiesModalDesc": "Gespeicherte Cookies für {host} prüfen und verwalten.",
+    "filterCookies": "Cookies nach Name oder Domain filtern...",
+    "clearSiteCookies": "Alle Cookies für diese Website löschen",
+    "noCookies": "Keine Cookies für diese Website gespeichert.",
+    "cookieName": "Name",
+    "cookieValue": "Wert",
+    "cookieExpires": "Gültig bis",
+    "cookieSecure": "Sicher",
+    "cookieHttpOnly": "HttpOnly",
+    "deleteCookie": "Cookie löschen",
+    "copyValue": "Wert kopieren"
   },
   "readingList": {
     "title": "Leseliste",

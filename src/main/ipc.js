@@ -14,10 +14,11 @@ import { hinterStore } from './store.js';
 import { history } from './history.js';
 import { resolveTarget, suggestionList, activeEngines } from './navigation.js';
 import { isInternalUrl } from './protocol.js';
-import { openExternal, blockedSummary, handOffToSystem, stripTracking } from './security.js';
+import { openExternal, blockedSummary, handOffToSystem, stripTracking, toggleSiteShield, getSiteShield, getBlockedForDomain } from './security.js';
 import updater from 'electron-updater';
 const { autoUpdater } = updater;
-import { applySettings, clearBrowsingData, downloadDirectory, clearSiteData } from './sessions.js';
+import { applySettings, clearBrowsingData, downloadDirectory, clearSiteData, getSiteCookies, deleteSiteCookie, clearSiteCookies, getSiteStorageStats } from './sessions.js';
+import { getDownloadHistory, clearDownloadHistory, removeDownloadHistoryItem, openDownloadedFile } from './downloads.js';
 import { applyContentSettings } from './content.js';
 
 const registered = new Set();
@@ -848,6 +849,19 @@ export function installIpc() {
   handle('site:clearData', async (url) => {
     return clearSiteData(url);
   });
+
+  handle('site:toggleShield', (domain) => toggleSiteShield(domain));
+  handle('site:getShield', (domain) => getSiteShield(domain));
+  handle('site:getBlockedTrackers', (domain) => getBlockedForDomain(domain));
+  handle('site:getCookies', (url) => getSiteCookies(url));
+  handle('site:deleteCookie', (opts) => deleteSiteCookie(opts || {}));
+  handle('site:clearCookies', (url) => clearSiteCookies(url));
+  handle('site:getStorageStats', (url) => getSiteStorageStats(url));
+
+  handle('downloads:history', () => getDownloadHistory());
+  handle('downloads:clearHistory', () => clearDownloadHistory());
+  handle('downloads:removeItem', (id) => removeDownloadHistoryItem(id));
+  handle('downloads:openFile', (filePath) => openDownloadedFile(filePath));
 
   handle('site:getPermissions', (rawUrl) => {
     try {

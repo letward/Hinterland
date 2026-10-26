@@ -4,6 +4,7 @@ import { t } from './i18n.js';
 import { openPopup, closePopup, isOpen, separator, section } from './popup.js';
 import { currentTab } from './state.js';
 import { toast } from './toast.js';
+import { openCookieInspector } from './panels.js';
 
 const api = () => window.hinterland;
 
@@ -57,6 +58,62 @@ export function openSiteInfo() {
       card.append(header, description);
 
       if (!isInternal) {
+        // 1. Privacy Shield Card
+        const shieldBox = el('div', { class: 'siteInfoShieldBox card', style: { padding: '10px 12px', margin: '8px 0 10px', background: 'var(--surfaceAlt, rgba(255,255,255,0.03))' } });
+        card.append(shieldBox);
+
+        api().site.getBlockedTrackers(host).then((trackerData) => {
+          shieldBox.replaceChildren();
+          const isShieldEnabled = trackerData.enabled !== false;
+          const statusPill = el('span', {
+            class: `statusTag ${isShieldEnabled ? 'active' : ''}`,
+            text: isShieldEnabled ? t('siteInfo.shieldEnabled') : t('siteInfo.shieldDisabled'),
+          });
+
+          const toggleButton = el('button', {
+            class: 'button small',
+            type: 'button',
+            style: { marginLeft: 'auto' },
+            text: isShieldEnabled ? t('siteInfo.permBlock') : t('siteInfo.permAllow'),
+            onclick: async () => {
+              const res = await api().site.toggleShield(host);
+              toast(res.enabled ? t('toast.shieldEnabled') : t('toast.shieldDisabled'), 'info');
+              closePopup();
+              api().tab.reload(tab.id);
+            },
+          });
+
+          const shieldHeaderRow = el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' } }, [
+            el('span', { class: 'siteInfoProtectionIcon', html: icon('shield') }),
+            el('strong', { style: { fontSize: '13px' }, text: t('siteInfo.shieldTitle') }),
+            statusPill,
+            toggleButton,
+          ]);
+
+          const summaryText = el('div', {
+            style: { fontSize: '12px', color: 'var(--textDim)' },
+            text: trackerData.total > 0
+              ? t('siteInfo.trackersBlocked', { count: trackerData.total })
+              : t('siteInfo.noTrackersBlocked'),
+          });
+
+          shieldBox.append(shieldHeaderRow, summaryText);
+
+          if (isShieldEnabled && trackerData.trackers && trackerData.trackers.length > 0) {
+            const listEl = el('div', { style: { marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' } });
+            trackerData.trackers.slice(0, 4).forEach((tr) => {
+              listEl.append(
+                el('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--textDim)' } }, [
+                  el('span', { text: tr.host }),
+                  el('span', { class: 'statusTag', text: `${tr.category} (${tr.count})` }),
+                ]),
+              );
+            });
+            shieldBox.append(listEl);
+          }
+        });
+
+        // 2. Permissions Section
         const permSection = el('div', { class: 'siteInfoPermissions' });
         const permsList = [
           { key: 'camera', labelKey: 'siteInfo.permCamera', iconName: 'camera' },
@@ -96,19 +153,38 @@ export function openSiteInfo() {
           }
         });
 
+        // 3. Cookies & Storage Section
+        const cookieRow = el('div', {
+          class: 'siteInfoProtectionRow',
+          style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0' },
+        });
+
         card.append(
           separator(),
-          section('siteInfo.protectionsHeader'),
-          el('div', { class: 'siteInfoProtectionRow' }, [
-            el('span', { class: 'siteInfoProtectionIcon', html: icon('shield') }),
-            el('span', { class: 'siteInfoProtectionText', text: t('siteInfo.shieldTracking') }),
-            el('span', { class: 'statusTag active', text: t('siteInfo.active') }),
-          ]),
-          el('div', { class: 'siteInfoProtectionRow' }, [
-            el('span', { class: 'siteInfoProtectionIcon', html: icon('globe') }),
-            el('span', { class: 'siteInfoProtectionText', text: t('siteInfo.shieldHttps') }),
-            el('span', { class: 'statusTag active', text: t('siteInfo.active') }),
-          ]),
+          section('siteInfo.cookiesHeader'),
+          cookieRow,
+        );
+
+        api().site.getStorageStats(url).then((stats) => {
+          cookieRow.replaceChildren(
+            el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+              el('span', { class: 'siteInfoProtectionIcon', html: icon('cookie') }),
+              el('span', { style: { fontSize: '13px' }, text: t('siteInfo.cookiesCount', { count: stats.cookieCount }) }),
+            ]),
+            el('button', {
+              class: 'button small',
+              type: 'button',
+              text: t('siteInfo.inspectCookies'),
+              onclick: () => {
+                closePopup();
+                openCookieInspector(url);
+              },
+            }),
+          );
+        });
+
+        // 4. Actions Section
+        card.append(
           separator(),
           el('div', { class: 'actionRow siteInfoActions' }, [
             el('button', {

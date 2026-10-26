@@ -216,6 +216,20 @@ const api = {
     getPermissions: (url) => ipcRenderer.invoke('site:getPermissions', url),
     setPermission: (url, permission, value) => ipcRenderer.invoke('site:setPermission', url, permission, value),
     allPermissions: () => ipcRenderer.invoke('site:allPermissions'),
+    toggleShield: (domain) => ipcRenderer.invoke('site:toggleShield', domain),
+    getShield: (domain) => ipcRenderer.invoke('site:getShield', domain),
+    getBlockedTrackers: (domain) => ipcRenderer.invoke('site:getBlockedTrackers', domain),
+    getCookies: (url) => ipcRenderer.invoke('site:getCookies', url),
+    deleteCookie: (opts) => ipcRenderer.invoke('site:deleteCookie', opts),
+    clearCookies: (url) => ipcRenderer.invoke('site:clearCookies', url),
+    getStorageStats: (url) => ipcRenderer.invoke('site:getStorageStats', url),
+  },
+
+  downloads: {
+    history: () => ipcRenderer.invoke('downloads:history'),
+    clearHistory: () => ipcRenderer.invoke('downloads:clearHistory'),
+    removeItem: (id) => ipcRenderer.invoke('downloads:removeItem', id),
+    openFile: (path) => ipcRenderer.invoke('downloads:openFile', path),
   },
 
   shell: {

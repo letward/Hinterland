@@ -102,6 +102,86 @@ export async function clearSiteData(targetUrl) {
   }
 }
 
+export async function getSiteCookies(targetUrl) {
+  try {
+    const ses = defaultSession();
+    if (!ses || !ses.cookies) return [];
+    const urlObj = new URL(targetUrl);
+    const domain = urlObj.hostname.replace(/^www\./, '').toLowerCase();
+
+    const urlCookies = await ses.cookies.get({ url: targetUrl }).catch(() => []);
+    const domainCookies = await ses.cookies.get({ domain }).catch(() => []);
+
+    const map = new Map();
+    for (const c of [...urlCookies, ...domainCookies]) {
+      const key = `${c.domain}:${c.path}:${c.name}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          name: c.name,
+          value: c.value,
+          domain: c.domain,
+          path: c.path || '/',
+          secure: Boolean(c.secure),
+          httpOnly: Boolean(c.httpOnly),
+          sameSite: c.sameSite || 'unspecified',
+          session: Boolean(c.session),
+          expirationDate: c.expirationDate ? new Date(c.expirationDate * 1000).toLocaleString() : 'Session',
+          expiresTimestamp: c.expirationDate || 0,
+        });
+      }
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteSiteCookie({ url, name, domain, path = '/' }) {
+  try {
+    const ses = defaultSession();
+    if (!ses || !ses.cookies || !name) return false;
+    let targetUrl = url;
+    if (!targetUrl && domain) {
+      targetUrl = `https://${domain.replace(/^\./, '')}${path || '/'}`;
+    }
+    if (targetUrl) {
+      await ses.cookies.remove(targetUrl, name);
+    }
+    if (domain && domain.startsWith('.')) {
+      await ses.cookies.remove(`http://${domain.slice(1)}${path || '/'}`, name).catch(() => {});
+      await ses.cookies.remove(`https://${domain.slice(1)}${path || '/'}`, name).catch(() => {});
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function clearSiteCookies(targetUrl) {
+  try {
+    const cookies = await getSiteCookies(targetUrl);
+    for (const cookie of cookies) {
+      await deleteSiteCookie({ url: targetUrl, name: cookie.name, domain: cookie.domain, path: cookie.path });
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function getSiteStorageStats(targetUrl) {
+  try {
+    const cookies = await getSiteCookies(targetUrl);
+    const origin = new URL(targetUrl).origin;
+    return {
+      origin,
+      cookieCount: cookies.length,
+    };
+  } catch {
+    return { origin: targetUrl, cookieCount: 0 };
+  }
+}
+
 export function flush() {
   try {
     defaultSession().flushStorageData();

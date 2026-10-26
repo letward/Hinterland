@@ -54,6 +54,37 @@ function applyThrottle(item) {
   return timer;
 }
 
+const throttles = new Map();
+const activeDownloads = new Map();
+
+function recordDownload(record) {
+  try {
+    const list = [...(settings.value('data.downloadHistory') || [])];
+    const index = list.findIndex((item) => item.id === record.id);
+    const entry = {
+      id: record.id,
+      filename: record.filename,
+      mimeType: record.mimeType || '',
+      totalBytes: record.totalBytes || 0,
+      receivedBytes: record.receivedBytes || 0,
+      savePath: record.savePath || '',
+      url: record.url || '',
+      state: record.state || 'completed',
+      ok: record.ok !== false,
+      timestamp: record.timestamp || Date.now(),
+    };
+    if (index !== -1) {
+      list[index] = { ...list[index], ...entry };
+    } else {
+      list.unshift(entry);
+    }
+    if (list.length > 200) list.length = 200;
+    settings.set('data.downloadHistory', list);
+  } catch (err) {
+    console.warn('[Hinterland] Could not save download history entry:', err?.message ?? err);
+  }
+}
+
 export function attachDownloads(sessionObject) {
   sessionObject.on('will-download', (_event, item) => register(item));
 }
@@ -76,11 +107,16 @@ function register(item) {
     url: item.getURL(),
   });
 
+  activeDownloads.set(id, { item, payload, startTime: Date.now() });
+
   surface.send('download:new', payload());
 
   item.on('updated', (_event, state) => {
     if (state === 'interrupted') {
-      surface.send('download:done', { ...payload(), ok: false });
+      const p = { ...payload(), ok: false, state: 'interrupted', timestamp: Date.now() };
+      recordDownload(p);
+      activeDownloads.delete(id);
+      surface.send('download:done', p);
       return;
     }
     surface.send('download:progress', payload());
@@ -89,13 +125,50 @@ function register(item) {
   item.once('done', (_event, state) => {
     clearInterval(throttles.get(item) ?? 0);
     throttles.delete(item);
-    surface.send('download:done', { ...payload(), ok: state === 'completed' });
+    const p = { ...payload(), ok: state === 'completed', state, timestamp: Date.now() };
+    recordDownload(p);
+    activeDownloads.delete(id);
+    surface.send('download:done', p);
   });
 
   throttles.set(item, applyThrottle(item));
 }
 
-const throttles = new Map();
+export function getDownloadHistory() {
+  const stored = [...(settings.value('data.downloadHistory') || [])];
+  const active = [...activeDownloads.values()].map((d) => ({ ...d.payload(), timestamp: d.startTime }));
+  const seen = new Set();
+  const merged = [];
+  for (const entry of [...active, ...stored]) {
+    if (entry && entry.id && !seen.has(entry.id)) {
+      seen.add(entry.id);
+      merged.push(entry);
+    }
+  }
+  return merged;
+}
+
+export function clearDownloadHistory() {
+  settings.set('data.downloadHistory', []);
+  return true;
+}
+
+export function removeDownloadHistoryItem(id) {
+  const stored = (settings.value('data.downloadHistory') || []).filter((item) => item.id !== id);
+  settings.set('data.downloadHistory', stored);
+  const active = activeDownloads.get(id);
+  if (active) {
+    try { active.item.cancel(); } catch {}
+    activeDownloads.delete(id);
+  }
+  return true;
+}
+
+export async function openDownloadedFile(filePath) {
+  if (!filePath || !existsSync(filePath)) return false;
+  await shell.openPath(filePath);
+  return true;
+}
 
 export function pauseDownload(item) {
   item.pause();

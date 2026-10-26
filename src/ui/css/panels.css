@@ -1850,6 +1850,38 @@
   color: var(--text);
 }
 
+/* ------------------------------------------------------------- Privacy Shield & Cookies */
+.siteInfoShieldBox {
+  border-radius: var(--radiusSmall);
+  border: 1px solid var(--borderSoft);
+}
+
+.cookieRow:hover {
+  background: var(--surfaceHover);
+}
+
+.cookieName {
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.cookieValueMasked {
+  font-family: var(--fontMono, monospace);
+  letter-spacing: 1px;
+}
+
+/* ------------------------------------------------------------ Downloads Overhaul */
+.downloadsToolbar {
+  margin-bottom: 14px;
+}
+
+.downloadsFilters button.active {
+  background: var(--accent);
+  color: var(--accentContrast, #fff);
+  border-color: var(--accent);
+}
+
+
 
 
 

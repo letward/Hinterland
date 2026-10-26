@@ -178,7 +178,9 @@
     "passwords": "Open Passwords",
     "stashAllTabs": "Stash all open tabs",
     "stashOtherTabs": "Stash inactive background tabs",
-    "togglePiP": "Toggle Picture-in-Picture"
+    "togglePiP": "Toggle Picture-in-Picture",
+    "inspectCookies": "Inspect site cookies & storage",
+    "toggleShield": "Toggle privacy shield for site"
   },
   "confirm": {
     "closeTitle": "Close tab",
@@ -227,7 +229,17 @@
     "title": "Downloads",
     "description": "Files this session is handling.",
     "empty": "No downloads yet.",
-    "done": "Finished"
+    "done": "Finished",
+    "searchPlaceholder": "Search downloads...",
+    "filterAll": "All",
+    "filterCompleted": "Completed",
+    "filterActive": "In progress",
+    "filterFailed": "Interrupted",
+    "openFile": "Open file",
+    "showInFolder": "Show in folder",
+    "copyLink": "Copy link",
+    "clearAll": "Clear list",
+    "openFolder": "Open downloads folder"
   },
   "shortcuts": {
     "title": "Shortcuts",
@@ -379,7 +391,14 @@
     "vaultLocked": "Vault locked",
     "vaultUnlocked": "Vault unlocked",
     "vaultExported": "Vault backup exported",
-    "vaultImported": "{count} logins imported"
+    "vaultImported": "{count} logins imported",
+    "shieldEnabled": "Privacy shield enabled for this site",
+    "shieldDisabled": "Privacy shield disabled for this site",
+    "cookieDeleted": "Cookie removed",
+    "allCookiesCleared": "All cookies cleared for this site",
+    "cookieValueCopied": "Cookie value copied to clipboard",
+    "downloadHistoryCleared": "Download history cleared",
+    "downloadRemoved": "Download removed from history"
   },
   "greeting": {
     "morning": "Good morning",
@@ -769,7 +788,9 @@
       "notes": "Notes & Scratchpad",
       "notesDesc": "Saved notes, checklists, and web clippings.",
       "tabStashes": "Saved Tab Stashes & Workspaces",
-      "tabStashesDesc": "Saved tab groups and sessions for quick restoration."
+      "tabStashesDesc": "Saved tab groups and sessions for quick restoration.",
+      "downloads": "Download history",
+      "downloadsDesc": "Persisted list of completed and cancelled downloads."
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -862,7 +883,28 @@
     "permClipboard": "Clipboard",
     "permDefault": "Default",
     "permAllow": "Allow",
-    "permBlock": "Block"
+    "permBlock": "Block",
+    "shieldTitle": "Hinterland Shield",
+    "shieldEnabled": "Protection active",
+    "shieldDisabled": "Protection paused",
+    "trackersBlocked": "{count} trackers blocked on this site",
+    "noTrackersBlocked": "No trackers detected on this page",
+    "viewTrackers": "Details",
+    "cookiesHeader": "Cookies & Site Data",
+    "cookiesCount": "{count} cookies stored",
+    "inspectCookies": "Inspect cookies",
+    "cookiesModalTitle": "Site Cookies & Storage",
+    "cookiesModalDesc": "Inspect and manage stored cookies for {host}.",
+    "filterCookies": "Filter cookies by name or domain...",
+    "clearSiteCookies": "Clear all cookies for this site",
+    "noCookies": "No cookies stored for this site.",
+    "cookieName": "Name",
+    "cookieValue": "Value",
+    "cookieExpires": "Expires",
+    "cookieSecure": "Secure",
+    "cookieHttpOnly": "HttpOnly",
+    "deleteCookie": "Delete cookie",
+    "copyValue": "Copy value"
   },
   "readingList": {
     "title": "Reading List",

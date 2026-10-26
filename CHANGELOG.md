@@ -4,6 +4,25 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.18.0] - 2026-10-26
+
+### Added
+- **Interactive Hinterland Privacy Shields & Per-Site Tracker Blocker**:
+  - **Site Shield Engine (`src/main/security.js`)**: Real-time per-origin blocked request monitor and tracker categorizer (Analytics, Advertising, Telemetry, Beacons/Pixels).
+  - **Per-Site Protection Toggles**: Allows users to toggle enhanced tracking protection on or off on a per-site basis (`site:toggleShield`, `site:getShield`), seamlessly persisting exceptions in `privacy.allowedSites` and honoring initiator exemptions.
+  - **Native Privacy Shield Card (`src/ui/js/siteInfo.js`)**: Embedded shield control inside the Site Info popup (`#omniIcon`) displaying real-time counters of blocked trackers on the current page, an instant protection toggle with auto-reload, and an expandable breakdown of blocked tracker domains and categories.
+- **Site Cookies & Storage Inspector**:
+  - **Native Cookie Engine (`src/main/sessions.js`, `src/main/ipc.js`)**: Real-time extraction, filtering, and normalization of site cookies across host-only and domain cookies (`site:getCookies`), individual cookie deletion (`site:deleteCookie`), site-specific cookie clearing (`site:clearCookies`), and storage statistics (`site:getStorageStats`).
+  - **Dedicated Cookie Inspector Modal (`openCookieInspector`)**: Comprehensive interactive viewer for inspecting stored cookies on the active site, featuring real-time name/domain search filtering, masked values with reveal/hide toggle (`icon('eye')`/`icon('eyeOff')`), clipboard copy, expiration timestamps, security badges (Secure, HttpOnly, SameSite), and single-click cookie deletion.
+- **Complete Downloads Manager Overhaul & History Persistence**:
+  - **Cross-Session Download History**: Persisted download records in `data.downloadHistory` (capped at 200 items), tracking filename, size, download state (completed, active, interrupted), destination path, URL, and completion timestamp across browser restarts.
+  - **Revamped Downloads Panel (`openDownloads` in `src/ui/js/panels.js`)**: Modern downloads manager with instant search filtering, status category tabs (All, Completed, Active, Interrupted), quick header actions ("Open Downloads Folder", "Clear List"), rich file type icons, formatted byte counts, and action buttons ("Open File", "Show in Folder", "Copy Link", "Remove").
+- **Tab Audio Indicator Polish & Global Mute Controls**:
+  - **Pulsing Tab Sound Animation (`src/ui/css/chrome.css`)**: Added `@keyframes tabAudioPulse` smooth pulsing animation to playing audio tabs (`.tabSound.isPlaying`).
+  - **Command Palette & Shortcut Enhancements**: Added commands for toggling site shield (`commandPalette.toggleShield`), inspecting site cookies (`commandPalette.inspectCookies`), and unmuting all tabs (`commandPalette.unmuteAll`).
+- **Automated Regression & Feature Test Suite (`sdk/test/v118Features.test.mjs`)**:
+  - Added comprehensive test suite with 9 unit and integration specs covering tracker categorization, domain normalization, per-site shield exemptions, cookie deduplication and target URL extraction, and download history persistence.
+
 ## [1.17.4] - 2026-10-25
 
 ### Added

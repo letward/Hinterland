@@ -444,39 +444,331 @@ function downloadsPage() {
       const container = el('div');
       container.append(head(t('downloads.title'), t('downloads.description')));
 
-      const list = el('div', { class: 'card' });
+      const toolbar = el('div', { class: 'downloadsToolbar', style: { display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '14px' } });
 
-      const paint = () => {
-        const entries = [...downloads.values()].reverse();
+      const searchInput = el('input', {
+        class: 'input downloadsSearch',
+        type: 'text',
+        placeholder: t('downloads.searchPlaceholder'),
+        style: { flex: '1', minWidth: '180px' },
+      });
+
+      const filtersGroup = el('div', { class: 'downloadsFilters', style: { display: 'flex', gap: '4px' } });
+      const filterDefs = [
+        { id: 'all', labelKey: 'downloads.filterAll' },
+        { id: 'completed', labelKey: 'downloads.filterCompleted' },
+        { id: 'active', labelKey: 'downloads.filterActive' },
+        { id: 'failed', labelKey: 'downloads.filterFailed' },
+      ];
+
+      let currentFilter = 'all';
+      let searchQuery = '';
+      const filterButtons = [];
+
+      filterDefs.forEach((f) => {
+        const btn = el('button', {
+          class: `button small ${f.id === 'all' ? 'active' : ''}`,
+          type: 'button',
+          text: t(f.labelKey),
+          onclick: () => {
+            currentFilter = f.id;
+            for (const b of filterButtons) b.classList.remove('active');
+            btn.classList.add('active');
+            paint();
+          },
+        });
+        filterButtons.push(btn);
+        filtersGroup.append(btn);
+      });
+
+      const actionsGroup = el('div', { class: 'downloadsActions', style: { display: 'flex', gap: '6px' } });
+      const openFolderBtn = el('button', {
+        class: 'button small',
+        type: 'button',
+        html: `${icon('external')} <span>${t('downloads.openFolder')}</span>`,
+        onclick: () => api().app.openFolder('downloads'),
+      });
+      const clearHistoryBtn = el('button', {
+        class: 'button small',
+        type: 'button',
+        html: `${icon('trash')} <span>${t('downloads.clearAll')}</span>`,
+        onclick: async () => {
+          await api().downloads.clearHistory();
+          downloads.clear();
+          toast(t('toast.downloadHistoryCleared'), 'success');
+          paint();
+        },
+      });
+      actionsGroup.append(openFolderBtn, clearHistoryBtn);
+
+      toolbar.append(searchInput, filtersGroup, actionsGroup);
+      container.append(toolbar);
+
+      const list = el('div', { class: 'card' });
+      container.append(list);
+
+      const paint = async () => {
+        let historyItems = [];
+        try {
+          historyItems = await api().downloads.history();
+        } catch {
+          historyItems = [];
+        }
+
+        const map = new Map();
+        for (const item of historyItems) map.set(item.id, item);
+        for (const [id, val] of downloads.entries()) map.set(id, { ...map.get(id), ...val });
+
+        const entries = [...map.values()].reverse();
         clear(list);
-        if (!entries.length) {
+
+        const filtered = entries.filter((entry) => {
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const fn = (entry.filename || '').toLowerCase();
+            const u = (entry.url || '').toLowerCase();
+            if (!fn.includes(q) && !u.includes(q)) return false;
+          }
+          if (currentFilter === 'completed') return entry.state === 'completed' || entry.ok === true;
+          if (currentFilter === 'active') return entry.state === 'progressing' || entry.paused;
+          if (currentFilter === 'failed') return entry.state === 'interrupted' || entry.state === 'cancelled' || entry.ok === false;
+          return true;
+        });
+
+        if (!filtered.length) {
           list.append(el('div', { class: 'empty', text: t('downloads.empty') }));
           return;
         }
-        for (const entry of entries) {
+
+        for (const entry of filtered) {
           const total = Number(entry.totalBytes) || 0;
           const received = Number(entry.receivedBytes) || 0;
-          const percent = total ? Math.min(100, Math.round((received / total) * 100)) : entry.state === 'completed' ? 100 : 0;
+          const isDone = entry.state === 'completed' || (entry.ok && !entry.state);
+          const isFailed = entry.state === 'interrupted' || entry.state === 'cancelled' || entry.ok === false;
+          const percent = total ? Math.min(100, Math.round((received / total) * 100)) : isDone ? 100 : 0;
+
+          const fileExt = (entry.filename || '').split('.').pop()?.toLowerCase();
+          const fileIconName = ['pdf', 'doc', 'txt'].includes(fileExt) ? 'page' : ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileExt) ? 'camera' : 'download';
+
+          const hintParts = [];
+          if (isDone) hintParts.push(t('downloads.done'));
+          else if (isFailed) hintParts.push(t('downloads.filterFailed'));
+          else hintParts.push(entry.state || 'Downloading');
+
+          if (total) hintParts.push(`${formatBytes(received)} / ${formatBytes(total)}`);
+          else if (received) hintParts.push(formatBytes(received));
+
+          if (entry.timestamp) hintParts.push(formatTime(entry.timestamp));
+
+          const controls = el('div', { class: 'optionControl', style: { display: 'flex', gap: '4px' } });
+
+          if (isDone && entry.savePath) {
+            controls.append(
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                html: icon('page'),
+                title: t('downloads.openFile'),
+                onclick: () => api().downloads.openFile(entry.savePath),
+              }),
+            );
+          }
+
+          if (entry.savePath) {
+            controls.append(
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                html: icon('external'),
+                title: t('downloads.showInFolder'),
+                onclick: () => api().app.revealFile(entry.savePath),
+              }),
+            );
+          }
+
+          if (entry.url) {
+            controls.append(
+              el('button', {
+                class: 'iconButton small',
+                type: 'button',
+                html: icon('copy'),
+                title: t('downloads.copyLink'),
+                onclick: () => {
+                  copyToClipboard(entry.url);
+                  toast(t('toast.linkCopied'), 'info');
+                },
+              }),
+            );
+          }
+
+          controls.append(
+            el('button', {
+              class: 'iconButton small',
+              type: 'button',
+              html: icon('trash'),
+              title: t('action.remove'),
+              onclick: async () => {
+                await api().downloads.removeItem(entry.id);
+                downloads.delete(entry.id);
+                toast(t('toast.downloadRemoved'), 'info');
+                paint();
+              },
+            }),
+          );
+
           list.append(
             el('div', { class: 'option' }, [
-              el('div', { class: 'optionText' }, [
-                el('div', { class: 'optionLabel', text: entry.filename }),
-                el('div', { class: 'optionHint', text: `${entry.state}${total ? ` — ${formatBytes(received)} / ${formatBytes(total)}` : ''}` }),
+              el('div', { class: 'rowIcon', html: icon(fileIconName) }),
+              el('div', { class: 'optionText', style: { flex: '1', minWidth: '0' } }, [
+                el('div', { class: 'optionLabel', text: entry.filename || 'Download' }),
+                el('div', { class: 'optionHint', text: hintParts.join(' — ') }),
                 el('div', { class: 'downloadBar' }, [el('div', { class: 'downloadBarFill', style: { width: `${percent}%` } })]),
               ]),
-              el('div', { class: 'optionControl' }, [
-                el('button', { class: 'iconButton small', type: 'button', html: icon('external'), title: t('action.showFolder'), onclick: () => api().app.revealFile(entry.savePath) }),
-                el('button', { class: 'iconButton small', type: 'button', html: icon('trash'), title: t('action.dismiss'), onclick: () => {
-                  downloads.delete(entry.id);
-                  paint();
-                } }),
-              ]),
+              controls,
             ]),
           );
         }
       };
 
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        paint();
+      });
+
+      paint();
+      return container;
+    },
+  };
+}
+
+export function openCookieInspector(targetUrl) {
+  openModal({
+    title: t('siteInfo.cookiesModalTitle'),
+    iconName: 'cookie',
+    nav: [cookieInspectorPage(targetUrl)],
+  });
+}
+
+function cookieInspectorPage(targetUrl) {
+  return {
+    id: 'cookies',
+    icon: 'cookie',
+    labelKey: 'siteInfo.cookiesHeader',
+    render: () => {
+      const container = el('div');
+      const host = hostOf(targetUrl) || targetUrl;
+      container.append(head(t('siteInfo.cookiesModalTitle'), t('siteInfo.cookiesModalDesc', { host })));
+
+      const toolbar = el('div', { class: 'actionRow cookiesToolbar', style: { display: 'flex', gap: '8px', marginBottom: '14px', alignItems: 'center' } });
+      const searchInput = el('input', {
+        class: 'input cookiesSearchInput',
+        type: 'text',
+        placeholder: t('siteInfo.filterCookies'),
+        style: { flex: '1' },
+      });
+      const clearBtn = el('button', {
+        class: 'button',
+        type: 'button',
+        onclick: async () => {
+          await api().site.clearCookies(targetUrl);
+          toast(t('toast.allCookiesCleared'), 'success');
+          paint();
+        },
+      }, [el('span', { html: icon('trash') }), ` ${t('siteInfo.clearSiteCookies')}`]);
+
+      toolbar.append(searchInput, clearBtn);
+      container.append(toolbar);
+
+      const list = el('div', { class: 'card cookiesList' });
       container.append(list);
+
+      let allCookies = [];
+      let query = '';
+
+      const paint = async () => {
+        allCookies = await api().site.getCookies(targetUrl);
+        renderList();
+      };
+
+      const renderList = () => {
+        clear(list);
+        const filtered = allCookies.filter((c) => {
+          if (!query) return true;
+          return (c.name || '').toLowerCase().includes(query) || (c.domain && c.domain.toLowerCase().includes(query));
+        });
+
+        if (!filtered.length) {
+          list.append(el('div', { class: 'empty', text: t('siteInfo.noCookies') }));
+          return;
+        }
+
+        for (const cookie of filtered) {
+          let revealed = false;
+          const valueText = el('span', { class: 'cookieValueMasked', text: '••••••••••••••••' });
+          const toggleRevealBtn = el('button', {
+            class: 'iconButton small',
+            type: 'button',
+            html: icon('eye'),
+            title: t('siteInfo.copyValue'),
+            onclick: () => {
+              revealed = !revealed;
+              valueText.textContent = revealed ? cookie.value : '••••••••••••••••';
+              toggleRevealBtn.innerHTML = icon(revealed ? 'eyeOff' : 'eye');
+            },
+          });
+
+          const copyBtn = el('button', {
+            class: 'iconButton small',
+            type: 'button',
+            html: icon('copy'),
+            title: t('siteInfo.copyValue'),
+            onclick: () => {
+              copyToClipboard(cookie.value);
+              toast(t('toast.cookieValueCopied'), 'info');
+            },
+          });
+
+          const deleteBtn = el('button', {
+            class: 'iconButton small',
+            type: 'button',
+            html: icon('trash'),
+            title: t('siteInfo.deleteCookie'),
+            onclick: async () => {
+              await api().site.deleteCookie({ url: targetUrl, name: cookie.name, domain: cookie.domain, path: cookie.path });
+              allCookies = allCookies.filter((c) => !(c.name === cookie.name && c.domain === cookie.domain && c.path === cookie.path));
+              toast(t('toast.cookieDeleted'), 'info');
+              renderList();
+            },
+          });
+
+          const badges = [
+            el('span', { class: 'statusTag', text: cookie.domain }),
+            el('span', { class: 'statusTag', text: cookie.path }),
+          ];
+          if (cookie.secure) badges.push(el('span', { class: 'statusTag active', text: t('siteInfo.cookieSecure') }));
+          if (cookie.httpOnly) badges.push(el('span', { class: 'statusTag', text: t('siteInfo.cookieHttpOnly') }));
+          if (cookie.expirationDate) badges.push(el('span', { class: 'statusTag', text: `${t('siteInfo.cookieExpires')}: ${cookie.expirationDate}` }));
+
+          const row = el('div', { class: 'option cookieRow', style: { display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px 14px' } }, [
+            el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }, [
+              el('strong', { class: 'cookieName', text: cookie.name }),
+              el('div', { class: 'actionRow' }, [toggleRevealBtn, copyBtn, deleteBtn]),
+            ]),
+            el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--textDim)', wordBreak: 'break-all' } }, [
+              el('span', { text: `${t('siteInfo.cookieValue')}: ` }),
+              valueText,
+            ]),
+            el('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' } }, badges),
+          ]);
+          list.append(row);
+        }
+      };
+
+      searchInput.addEventListener('input', (e) => {
+        query = e.target.value.toLowerCase().trim();
+        renderList();
+      });
+
       paint();
       return container;
     },
