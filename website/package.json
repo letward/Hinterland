@@ -2,5 +2,8 @@
   "name": "hinterland-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Hinterland marketing/download website (Vercel)"
+  "description": "Hinterland marketing/download website (Vercel)",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
 }
