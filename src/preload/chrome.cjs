@@ -20,6 +20,7 @@ const EVENTS = [
   'update:progress',
   'update:downloaded',
   'passwords:promptSave',
+  'account:status',
 ];
 
 function listen(channel, handler) {
@@ -260,6 +261,15 @@ const api = {
     exportVault: () => ipcRenderer.invoke('passwords:exportVault'),
     importVault: (items) => ipcRenderer.invoke('passwords:importVault', items),
     updateSettings: (patch) => ipcRenderer.invoke('passwords:updateSettings', patch),
+  },
+
+  account: {
+    getStatus: () => ipcRenderer.invoke('account:getStatus'),
+    signUp: (opts) => ipcRenderer.invoke('account:signUp', opts),
+    signIn: (opts) => ipcRenderer.invoke('account:signIn', opts),
+    signOut: () => ipcRenderer.invoke('account:signOut'),
+    syncNow: (opts) => ipcRenderer.invoke('account:syncNow', opts),
+    updateConfig: (patch) => ipcRenderer.invoke('account:updateConfig', patch),
   },
 };
 

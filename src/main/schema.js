@@ -63,6 +63,13 @@ export const SECTIONS = [
   { id: 'shortcuts', titleKey: 'settings.section.shortcuts', descKey: 'settings.shortcuts.desc', icon: 'keyboard' },
   { id: 'advanced', titleKey: 'settings.section.advanced', descKey: 'settings.advanced.hardwareAccelerationDesc', icon: 'sliders' },
   { id: 'data', titleKey: 'settings.section.data', descKey: 'settings.data.bookmarksDesc', icon: 'archive' },
+  { id: 'account', titleKey: 'settings.section.account', descKey: 'settings.account.desc', icon: 'user' },
+];
+
+const syncProviders = [
+  { value: 'hinterland', labelKey: 'settings.account.providerHinterland' },
+  { value: 'supabase', labelKey: 'settings.account.providerSupabase' },
+  { value: 'custom', labelKey: 'settings.account.providerCustom' },
 ];
 
 const option = (key, type, fallback, extra = {}) => ({
@@ -836,6 +843,53 @@ export const SCHEMA = [
     section: 'extensions',
     itemSchema: { name: 'text', url: 'text' },
     itemLabelKey: 'settings.store.registryItem',
+  }),
+
+  /* ---------------------------------------------------------------- account & sync */
+  option('account.autoSync', 'bool', true, {
+    labelKey: 'settings.account.autoSync',
+    descKey: 'settings.account.autoSyncDesc',
+    section: 'account',
+  }),
+  option('account.provider', 'select', 'hinterland', {
+    labelKey: 'settings.account.provider',
+    descKey: 'settings.account.providerDesc',
+    section: 'account',
+    options: syncProviders,
+  }),
+  option('account.syncBookmarks', 'bool', true, {
+    labelKey: 'settings.account.syncBookmarks',
+    descKey: 'settings.account.syncBookmarksDesc',
+    section: 'account',
+  }),
+  option('account.syncSettings', 'bool', true, {
+    labelKey: 'settings.account.syncSettings',
+    descKey: 'settings.account.syncSettingsDesc',
+    section: 'account',
+  }),
+  option('account.serverUrl', 'text', '', {
+    labelKey: 'settings.account.serverUrl',
+    descKey: 'settings.account.serverUrlDesc',
+    placeholder: 'https://hinterland-browser.vercel.app/api/sync',
+    section: 'account',
+  }),
+  option('account.supabaseUrl', 'text', '', {
+    labelKey: 'settings.account.supabaseUrl',
+    descKey: 'settings.account.supabaseUrlDesc',
+    placeholder: 'https://your-project.supabase.co',
+    section: 'account',
+  }),
+  option('account.supabaseAnonKey', 'text', '', {
+    labelKey: 'settings.account.supabaseAnonKey',
+    descKey: 'settings.account.supabaseAnonKeyDesc',
+    placeholder: 'eyJhbGciOi...',
+    section: 'account',
+  }),
+  option('account.session', 'object', null, {
+    internal: true,
+  }),
+  option('account.lastSyncTime', 'text', '', {
+    internal: true,
   }),
 ];
 

@@ -59,6 +59,7 @@
     "store": "Hinter Store",
     "storeDesc": "Themes, extensions & creator",
     "openStore": "Open Hinter Store",
+    "account": "Hinterland Account & Sync",
     "downloads": "Downloads",
     "shortcuts": "Shortcuts",
     "settings": "Settings",
@@ -180,7 +181,9 @@
     "stashOtherTabs": "Stash inactive background tabs",
     "togglePiP": "Toggle Picture-in-Picture",
     "inspectCookies": "Inspect site cookies & storage",
-    "toggleShield": "Toggle privacy shield for site"
+    "toggleShield": "Toggle privacy shield for site",
+    "account": "Open Account & Cloud Sync",
+    "syncNow": "Sync Bookmarks and Settings now"
   },
   "confirm": {
     "closeTitle": "Close tab",
@@ -293,7 +296,8 @@
       "notes": "Notes & Scratchpad",
       "tabStash": "Open Tab Stash",
       "togglePiP": "Toggle Picture-in-Picture",
-      "mediaControls": "Media controller"
+      "mediaControls": "Media controller",
+      "account": "Hinterland Account & Sync"
     }
   },
   "extensions": {
@@ -398,7 +402,13 @@
     "allCookiesCleared": "All cookies cleared for this site",
     "cookieValueCopied": "Cookie value copied to clipboard",
     "downloadHistoryCleared": "Download history cleared",
-    "downloadRemoved": "Download removed from history"
+    "downloadRemoved": "Download removed from history",
+    "signedIn": "Signed in successfully",
+    "signedUp": "Account created and signed in",
+    "signedOut": "Signed out",
+    "syncSuccess": "Bookmarks and settings synced",
+    "syncFailed": "Cloud sync failed",
+    "settingsSaved": "Settings saved"
   },
   "greeting": {
     "morning": "Good morning",
@@ -485,7 +495,8 @@
       "extensions": "Extensions",
       "shortcuts": "Shortcuts",
       "advanced": "Advanced",
-      "data": "Data"
+      "data": "Data",
+      "account": "Account & Sync"
     },
     "theme": {
       "system": "Follow the system",
@@ -823,6 +834,26 @@
       "communityRegistries": "Community registries",
       "communityRegistriesDesc": "External registries and feeds for community themes and extensions.",
       "registryItem": "Registry"
+    },
+    "account": {
+      "desc": "Synchronize your bookmarks and settings seamlessly across devices using free serverless cloud storage (Vercel & Supabase).",
+      "autoSync": "Automatic sync",
+      "autoSyncDesc": "Automatically synchronize bookmarks and settings when changes occur.",
+      "provider": "Sync provider",
+      "providerDesc": "Choose your cloud sync service provider.",
+      "providerHinterland": "Hinterland Cloud (Free, Zero Setup)",
+      "providerSupabase": "Personal Supabase (Free Forever)",
+      "providerCustom": "Custom Serverless API",
+      "syncBookmarks": "Sync bookmarks",
+      "syncBookmarksDesc": "Keep your bookmarks synchronized across all browsers.",
+      "syncSettings": "Sync settings & preferences",
+      "syncSettingsDesc": "Synchronize themes, appearance, privacy shields, and shortcuts.",
+      "serverUrl": "Custom server endpoint",
+      "serverUrlDesc": "Optional custom Vercel / serverless sync API URL.",
+      "supabaseUrl": "Supabase project URL",
+      "supabaseUrlDesc": "The URL of your personal Supabase project (https://<project-ref>.supabase.co).",
+      "supabaseAnonKey": "Supabase anon public key",
+      "supabaseAnonKeyDesc": "The public anon API key from your Supabase project settings."
     }
   },
   "panel": {
@@ -1074,5 +1105,49 @@
     "copyImage": "Copy image",
     "copyLink": "Copy link",
     "downloadPng": "Download PNG"
+  },
+  "account": {
+    "title": "Account & Cloud Sync",
+    "tabStatus": "Account & Status",
+    "tabSettings": "Sync Preferences",
+    "tabProviders": "Cloud Provider",
+    "heroTitle": "Hinterland Cloud Account",
+    "heroSubtitle": "Sync your bookmarks and browser settings seamlessly across all devices using free serverless tools (Vercel & Supabase).",
+    "signIn": "Sign in",
+    "signUp": "Create free account",
+    "email": "Email address",
+    "password": "Password",
+    "syncPassphrase": "End-to-End Encryption Passphrase (Optional)",
+    "syncPassphraseHint": "Optional passphrase for zero-knowledge client-side encryption",
+    "e2eeActive": "E2EE Active",
+    "connected": "Connected",
+    "providerHinterland": "Hinterland Cloud (Free)",
+    "providerSupabase": "Supabase (Direct)",
+    "providerCustom": "Custom Backend",
+    "lastSynced": "Last synced",
+    "neverSynced": "Never synced yet",
+    "syncNow": "Sync Now",
+    "uploadToCloud": "Upload to Cloud",
+    "downloadFromCloud": "Download from Cloud",
+    "signOut": "Sign out",
+    "statusIdle": "Idle",
+    "statusSyncing": "Syncing...",
+    "statusSynced": "Up to date",
+    "statusError": "Error",
+    "autoSync": "Automatic synchronization",
+    "autoSyncDesc": "Sync changes instantly in background when bookmarks or settings change",
+    "syncBookmarks": "Sync Bookmarks",
+    "syncBookmarksDesc": "Synchronize all stored bookmarks",
+    "syncSettings": "Sync Settings",
+    "syncSettingsDesc": "Synchronize preferences, themes, shortcuts, and privacy toggles",
+    "supabaseUrl": "Supabase Project URL",
+    "supabaseUrlDesc": "Your Supabase project endpoint (e.g. https://xyzcompany.supabase.co)",
+    "supabaseAnonKey": "Supabase Anon Key",
+    "supabaseAnonKeyDesc": "The anon public API key for your Supabase project",
+    "saveProviderSettings": "Save Provider Settings",
+    "providerInfo": "Connect Hinterland to free cloud backends like Supabase or Vercel serverless functions with zero maintenance.",
+    "bookmarksSynced": "Bookmarks",
+    "settingsSynced": "Browser Settings & Themes",
+    "openPanel": "Open Account Panel"
   }
 }

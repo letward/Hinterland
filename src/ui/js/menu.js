@@ -120,6 +120,12 @@ export function openMainMenu() {
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
         }),
         row({
+          iconName: 'user',
+          title: t('menu.account'),
+          subtitle: 'Ctrl+Shift+A',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'account' } })),
+        }),
+        row({
           iconName: 'trash',
           title: t('menu.clearBrowsingData'),
           subtitle: 'Ctrl+Shift+Del',
@@ -615,6 +621,12 @@ export function openTabstripMenu() {
           title: t('menu.passwords'),
           subtitle: 'Ctrl+Alt+P',
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
+        }),
+        row({
+          iconName: 'user',
+          title: t('menu.account'),
+          subtitle: 'Ctrl+Shift+A',
+          onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'account' } })),
         }),
         row({
           iconName: 'archive',

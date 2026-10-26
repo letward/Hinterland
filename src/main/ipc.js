@@ -6,6 +6,7 @@ import { settings } from './settings.js';
 import { exportSchema } from './schema.js';
 import { translations, availableLanguages, resolveLanguage, translate } from './i18n.js';
 import { passwords } from './passwords.js';
+import { syncService } from './sync.js';
 import { normalizeDomain } from '../extensions/hinterlandPass/crypto.js';
 import { tabs } from './tabs.js';
 import { surface } from './windows.js';
@@ -1416,6 +1417,39 @@ handle('dialog:confirm', async ({ title, message, detail, confirmLabel, cancelLa
     if (!tab) return { ok: false, error: 'No active tab' };
     const ok = await passwords.autofillTab(tab, payload || {});
     return { ok };
+  });
+
+  /* ------------------------------------------------------------- account & sync */
+  handle('account:getStatus', () => {
+    return syncService.getStatus();
+  });
+
+  handle('account:signUp', async (opts) => {
+    try {
+      return await syncService.signUp(opts || {});
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
+  handle('account:signIn', async (opts) => {
+    try {
+      return await syncService.signIn(opts || {});
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
+  handle('account:signOut', async () => {
+    return await syncService.signOut();
+  });
+
+  handle('account:syncNow', async (opts) => {
+    return await syncService.syncNow(opts || {});
+  });
+
+  handle('account:updateConfig', async (patch) => {
+    return await syncService.updateConfig(patch || {});
   });
 
   /* ------------------------------ credentials submitted from web content view */

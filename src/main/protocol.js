@@ -19,6 +19,8 @@ const PAGE_ROOTS = {
   settings: UI_ROOT,
   store: UI_ROOT,
   passwords: UI_ROOT,
+  account: UI_ROOT,
+  sync: UI_ROOT,
 };
 
 const UI_SECURITY = [

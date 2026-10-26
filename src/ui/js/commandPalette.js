@@ -341,6 +341,25 @@ export function openCommandPalette() {
             run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'passwords' } })),
           },
           {
+            id: 'account',
+            title: t('commandPalette.account'),
+            category: t('commandPalette.categoryNavigation'),
+            shortcut: 'Ctrl+Shift+A',
+            icon: 'user',
+            run: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'account' } })),
+          },
+          {
+            id: 'syncNow',
+            title: t('commandPalette.syncNow'),
+            category: t('commandPalette.categoryCommand'),
+            icon: 'cloud',
+            run: async () => {
+              const res = await api().account.syncNow();
+              if (res?.ok) toast(t('toast.syncSuccess'), 'success');
+              else toast(t('toast.syncFailed'), 'error');
+            },
+          },
+          {
             id: 'clearData',
             title: t('commandPalette.clearData'),
             category: t('commandPalette.categoryCommand'),

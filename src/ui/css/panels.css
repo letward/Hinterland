@@ -1881,6 +1881,173 @@
   border-color: var(--accent);
 }
 
+/* ----------------------------------------------------------------- Account & Sync */
+.accountHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px 20px;
+}
+
+.accountHeroIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radiusLarge, 14px);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surfaceAlt));
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.accountHeroIcon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.accountHero h2 {
+  margin: 0 0 6px 0;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.accountProfileCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--surfaceAlt);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius, 10px);
+  margin-bottom: 16px;
+}
+
+.accountAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accentContrast, #fff);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.accountProfileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.accountProfileEmail {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountProfileBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.accountBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: var(--surfaceHover);
+  color: var(--textDim);
+}
+
+.accountBadge.active {
+  background: color-mix(in srgb, #22c55e 18%, var(--surfaceAlt));
+  color: #16a34a;
+}
+
+.accountPulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.accountSyncBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.accountSyncItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius, 8px);
+}
+
+.accountSyncItemTitle {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.accountSyncItemTitle svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.accountModeSwitch {
+  display: flex;
+  gap: 4px;
+  background: var(--surfaceAlt);
+  padding: 3px;
+  border-radius: var(--radius, 8px);
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.accountModeBtn {
+  flex: 1;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-radius: calc(var(--radius, 8px) - 2px);
+  color: var(--textDim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.accountModeBtn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+
 
 
 

@@ -4,6 +4,27 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.19.0] - 2026-10-26
+
+### Added
+- **Account System & Free Cloud Sync (Supabase & Vercel)**:
+  - **Core Sync Engine (`src/main/sync.js`)**: Real-time cross-device synchronization of bookmarks (`data.bookmarks`) and user preferences (themes, appearance, privacy shields, density, start mode, reading list, notes, shortcuts).
+  - **Zero-Knowledge Client-Side End-to-End Encryption (E2EE)**: Optional user passphrase derives an authenticated AES-256-GCM encryption key via PBKDF2 (100,000 iterations of SHA-256) client-side before upload, ensuring zero-knowledge privacy.
+  - **Free Cloud Backend Support**:
+    - **Personal Supabase (Direct)**: Connects directly to any free Supabase project via GoTrue Auth and user metadata/PostgREST with zero SQL setup or table migrations required.
+    - **Hinterland Cloud (Vercel Serverless API `website/api/sync.js`)**: Out-of-the-box serverless sync endpoint supporting signup, login, pull, push, and intelligent two-way merge with rate limiting.
+  - **Dedicated Account & Sync Modal Panel (`openAccount` in `src/ui/js/panels.js`)**:
+    - **Status & Auth Card**: Seamless switching between Sign In and Free Account registration, profile hero with user avatar, connection status, last sync timestamp, and manual actions ("Sync Now", "Upload to Cloud", "Download from Cloud", "Sign Out").
+    - **Sync Preferences Tab**: Granular control over Automatic Sync, Bookmarks sync, Settings sync, and E2EE sync passphrase configuration.
+    - **Cloud Provider Tab**: Provider selector supporting default Hinterland Cloud or custom Supabase Project URL and public anon key with live credential saving.
+  - **Quality-of-Life & Browser Integration**:
+    - Quick "Sync Now" trigger embedded directly into Bookmarks panel (`openBookmarks`) action bar.
+    - Dedicated Account section in Settings (`settings.section.account`) with quick panel launcher and instant sync action.
+    - Integrated into Main Menu (`menu.account`), Command Palette (`commandPalette.account`, `commandPalette.syncNow`), and address bar navigation (`hinterland://account/`, `hinterland://sync/`).
+    - Real-time status event broadcasting (`account:status`) and desktop toasts on sync success/failure.
+  - **Automated Account & Cloud Sync Test Suite (`sdk/test/accountSync.test.mjs`)**:
+    - 15 automated unit and integration tests covering bookmark normalization, conflict merge, syncable settings extraction, AES-256-GCM E2EE round-trip, Vercel serverless API handlers, rate limiting, and client lifecycle state.
+
 ## [1.18.0] - 2026-10-26
 
 ### Added

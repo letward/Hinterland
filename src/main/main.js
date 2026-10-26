@@ -15,6 +15,7 @@ import { applyContentSettings } from './content.js';
 import { installShortcuts } from './shortcuts.js';
 import { installIpc, askPermission, askCloseTab, startupUrl } from './ipc.js';
 import { translate, resolveLanguage } from './i18n.js';
+import { syncService } from './sync.js';
 
 const isDevelopment = !app.isPackaged || process.argv.includes('--dev');
 let started = false;
@@ -93,6 +94,7 @@ async function start() {
   await extensions.loadAll();
 
   installIpc();
+  syncService.start();
   wireSettings();
   wireTabs();
 
@@ -102,6 +104,8 @@ async function start() {
 }
 
 function wireSettings() {
+  syncService.on('status', (payload) => surface.send('account:status', payload));
+  syncService.on('toast', (data) => surface.send('toast', data));
   settings.on('change', ({ key }) => {
     surface.send('settings:changed', { key, values: settings.all() });
     applyContentSettings(tabs.list);

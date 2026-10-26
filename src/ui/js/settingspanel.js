@@ -435,6 +435,19 @@ function sectionFooter(definition) {
       el('button', { class: 'button', type: 'button', onclick: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'about' } })) }, [t('action.about')]),
     );
   }
+  if (definition.id === 'account') {
+    wrapper.append(
+      el('button', { class: 'button primary', type: 'button', onclick: () => {
+        closeModal();
+        window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'account' } }));
+      } }, [t('account.openPanel')]),
+      el('button', { class: 'button', type: 'button', onclick: async () => {
+        const res = await api().account.syncNow();
+        if (res?.ok) toast(t('toast.syncSuccess'), 'success');
+        else toast(t('toast.syncFailed'), 'error');
+      } }, [t('account.syncNow')]),
+    );
+  }
   if (definition.id === 'appearance') {
     wrapper.append(
       el('button', { class: 'button primary', type: 'button', onclick: () => {

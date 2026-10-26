@@ -59,6 +59,7 @@
     "store": "Hinter Store",
     "storeDesc": "Designs, Erweiterungen & Studio",
     "openStore": "Hinter Store öffnen",
+    "account": "Hinterland Konto & Synchronisierung",
     "downloads": "Downloads",
     "shortcuts": "Tastenkürzel",
     "settings": "Einstellungen",
@@ -180,7 +181,9 @@
     "stashOtherTabs": "Inaktive Hintergrund-Tabs sichern",
     "togglePiP": "Bild-in-Bild umschalten",
     "inspectCookies": "Website-Cookies & Daten prüfen",
-    "toggleShield": "Schutzschild für Website umschalten"
+    "toggleShield": "Schutzschild für Website umschalten",
+    "account": "Konto & Cloud-Synchronisierung öffnen",
+    "syncNow": "Lesezeichen und Einstellungen jetzt synchronisieren"
   },
   "confirm": {
     "closeTitle": "Tab schließen",
@@ -293,7 +296,8 @@
       "notes": "Notizen & Entwürfe",
       "tabStash": "Tab-Stash öffnen",
       "togglePiP": "Bild-in-Bild umschalten",
-      "mediaControls": "Mediensteuerung"
+      "mediaControls": "Mediensteuerung",
+      "account": "Hinterland Konto & Synchronisierung"
     }
   },
   "extensions": {
@@ -398,7 +402,13 @@
     "allCookiesCleared": "Alle Cookies für diese Website gelöscht",
     "cookieValueCopied": "Cookie-Wert in Zwischenablage kopiert",
     "downloadHistoryCleared": "Download-Verlauf geleert",
-    "downloadRemoved": "Download aus Verlauf entfernt"
+    "downloadRemoved": "Download aus Verlauf entfernt",
+    "signedIn": "Erfolgreich angemeldet",
+    "signedUp": "Konto erstellt und angemeldet",
+    "signedOut": "Abgemeldet",
+    "syncSuccess": "Lesezeichen und Einstellungen synchronisiert",
+    "syncFailed": "Cloud-Synchronisierung fehlgeschlagen",
+    "settingsSaved": "Einstellungen gespeichert"
   },
   "greeting": {
     "morning": "Guten Morgen",
@@ -485,7 +495,8 @@
       "extensions": "Erweiterungen",
       "shortcuts": "Tastenkürzel",
       "advanced": "Erweitert",
-      "data": "Daten"
+      "data": "Daten",
+      "account": "Konto & Synchronisierung"
     },
     "theme": {
       "system": "Wie das System",
@@ -823,6 +834,26 @@
       "communityRegistries": "Community-Register",
       "communityRegistriesDesc": "Externe Register und Feeds für Community-Themes und Erweiterungen.",
       "registryItem": "Register"
+    },
+    "account": {
+      "desc": "Synchronisiere Lesezeichen und Einstellungen nahtlos auf allen Geräten mit kostenlosen serverlosen Cloud-Diensten (Vercel & Supabase).",
+      "autoSync": "Automatische Synchronisierung",
+      "autoSyncDesc": "Lesezeichen und Einstellungen bei Änderungen automatisch synchronisieren.",
+      "provider": "Sync-Anbieter",
+      "providerDesc": "Wähle deinen Cloud-Synchronisierungsanbieter.",
+      "providerHinterland": "Hinterland Cloud (Kostenlos, ohne Einrichtung)",
+      "providerSupabase": "Eigenes Supabase (Dauerhaft kostenlos)",
+      "providerCustom": "Benutzerdefinierte Serverless-API",
+      "syncBookmarks": "Lesezeichen synchronisieren",
+      "syncBookmarksDesc": "Halte deine Lesezeichen auf allen Browsern synchron.",
+      "syncSettings": "Einstellungen & Designs synchronisieren",
+      "syncSettingsDesc": "Designs, Darstellung, Schutzschilde und Tastenkürzel synchronisieren.",
+      "serverUrl": "Benutzerdefinierter Server-Endpunkt",
+      "serverUrlDesc": "Optionale benutzerdefinierte Vercel- / Serverless-Sync-API-URL.",
+      "supabaseUrl": "Supabase-Projekt-URL",
+      "supabaseUrlDesc": "Die URL deines persönlichen Supabase-Projekts (https://<project-ref>.supabase.co).",
+      "supabaseAnonKey": "Öffentlicher Supabase Anon-Schlüssel",
+      "supabaseAnonKeyDesc": "Der öffentliche Anon-API-Schlüssel aus deinen Supabase-Projekteinstellungen."
     }
   },
   "panel": {
@@ -1074,5 +1105,49 @@
     "copyImage": "Bild kopieren",
     "copyLink": "Link kopieren",
     "downloadPng": "PNG herunterladen"
+  },
+  "account": {
+    "title": "Konto & Cloud-Synchronisierung",
+    "tabStatus": "Konto & Status",
+    "tabSettings": "Synchronisierungs-Einstellungen",
+    "tabProviders": "Cloud-Anbieter",
+    "heroTitle": "Hinterland Cloud-Konto",
+    "heroSubtitle": "Synchronisiere Lesezeichen und Browsereinstellungen nahtlos auf allen Geräten mit kostenlosen serverlosen Tools (Vercel & Supabase).",
+    "signIn": "Anmelden",
+    "signUp": "Kostenloses Konto erstellen",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "syncPassphrase": "Ende-zu-Ende-Verschlüsselungs-Passphrase (Optional)",
+    "syncPassphraseHint": "Optionale Passphrase für clientseitige Zero-Knowledge-Verschlüsselung",
+    "e2eeActive": "E2EE Aktiv",
+    "connected": "Verbunden",
+    "providerHinterland": "Hinterland Cloud (Kostenlos)",
+    "providerSupabase": "Supabase (Direkt)",
+    "providerCustom": "Benutzerdefiniertes Backend",
+    "lastSynced": "Zuletzt synchronisiert",
+    "neverSynced": "Noch nie synchronisiert",
+    "syncNow": "Jetzt synchronisieren",
+    "uploadToCloud": "In die Cloud hochladen",
+    "downloadFromCloud": "Aus der Cloud herunterladen",
+    "signOut": "Abmelden",
+    "statusIdle": "Bereit",
+    "statusSyncing": "Synchronisiere...",
+    "statusSynced": "Auf dem neuesten Stand",
+    "statusError": "Fehler",
+    "autoSync": "Automatische Synchronisierung",
+    "autoSyncDesc": "Änderungen bei Lesezeichen oder Einstellungen sofort im Hintergrund synchronisieren",
+    "syncBookmarks": "Lesezeichen synchronisieren",
+    "syncBookmarksDesc": "Alle gespeicherten Lesezeichen synchronisieren",
+    "syncSettings": "Einstellungen synchronisieren",
+    "syncSettingsDesc": "Präferenzen, Designs, Tastenkürzel und Datenschutzeinstellungen synchronisieren",
+    "supabaseUrl": "Supabase-Projekt-URL",
+    "supabaseUrlDesc": "Deine Supabase-Projektadresse (z. B. https://xyz.supabase.co)",
+    "supabaseAnonKey": "Öffentlicher Supabase Anon-Schlüssel",
+    "supabaseAnonKeyDesc": "Der öffentliche Anon-API-Schlüssel deines Supabase-Projekts",
+    "saveProviderSettings": "Anbieter-Einstellungen speichern",
+    "providerInfo": "Verbinde Hinterland mit kostenlosen Cloud-Diensten wie Supabase oder Vercel Serverless ohne Wartungsaufwand.",
+    "bookmarksSynced": "Lesezeichen",
+    "settingsSynced": "Browsereinstellungen & Designs",
+    "openPanel": "Konto-Bereich öffnen"
   }
 }

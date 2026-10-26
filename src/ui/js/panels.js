@@ -413,6 +413,18 @@ function bookmarksPage() {
           items.sort((a, b) => (a.title || a.url || '').localeCompare(b.title || b.url || ''));
           await save(items);
         } }, [el('span', { html: icon('list') }), ` ${t('bookmarks.sort')}`]),
+        el('button', { class: 'button', type: 'button', onclick: async () => {
+          const res = await api().account.syncNow();
+          if (res?.ok) {
+            toast(t('toast.syncSuccess'), 'success');
+            paint(currentFilter);
+          } else if (res?.error === 'notLoggedIn') {
+            closeModal();
+            openAccount();
+          } else {
+            toast(t('toast.syncFailed'), 'error');
+          }
+        } }, [el('span', { html: icon('cloud') }), ` ${t('account.syncNow')}`]),
       ]);
 
       container.append(actions, field, list);
@@ -2778,5 +2790,431 @@ function renderChangePasswordView(container, onDone) {
   container.append(form);
 }
 
+
+/* ------------------------------------------------------------- account & sync */
+
+export function openAccount(initialTab = 'account-status') {
+  const activeId = initialTab.startsWith('account-') ? initialTab : `account-${initialTab}`;
+  openModal({
+    title: t('account.title'),
+    iconName: 'user',
+    activeId,
+    nav: [
+      accountStatusPage(),
+      accountSyncSettingsPage(),
+      accountProvidersPage(),
+    ],
+  });
+}
+
+function accountStatusPage() {
+  return {
+    id: 'account-status',
+    icon: 'user',
+    labelKey: 'account.tabStatus',
+    render: () => {
+      const container = el('div');
+      const paint = async () => {
+        clear(container);
+        const status = await api().account.getStatus();
+        if (status.isLoggedIn) {
+          renderAccountConnected(container, status, paint);
+        } else {
+          renderAccountAuth(container, status, paint);
+        }
+      };
+      paint();
+      return container;
+    },
+  };
+}
+
+function renderAccountConnected(container, status, refresh) {
+  const user = status.user || {};
+  const email = user.email || 'user';
+  const initial = email[0].toUpperCase();
+
+  const providerLabel = status.provider === 'supabase'
+    ? t('account.providerSupabase')
+    : t('account.providerHinterland');
+
+  const profileCard = el('div', { class: 'accountProfileCard' }, [
+    el('div', { class: 'accountAvatar', text: initial }),
+    el('div', { class: 'accountProfileMeta' }, [
+      el('div', { class: 'accountProfileEmail', text: email }),
+      el('div', { class: 'accountProfileBadges' }, [
+        el('span', { class: 'accountBadge active' }, [
+          el('span', { class: 'accountPulseDot' }),
+          t('account.connected'),
+        ]),
+        el('span', { class: 'accountBadge', text: providerLabel }),
+        status.hasPassphrase
+          ? el('span', { class: 'accountBadge', text: t('account.e2eeActive') })
+          : null,
+      ].filter(Boolean)),
+    ]),
+    el('button', {
+      class: 'button small',
+      type: 'button',
+      onclick: async () => {
+        await api().account.signOut();
+        toast(t('toast.signedOut'), 'info');
+        refresh();
+      },
+    }, [t('account.signOut')]),
+  ]);
+
+  const lastSyncStr = status.lastSyncedAt
+    ? new Date(status.lastSyncedAt).toLocaleString()
+    : t('account.neverSynced');
+
+  const bookmarksCount = (get('data.bookmarks', []) ?? []).length;
+
+  const syncBox = el('div', { class: 'accountSyncBox' }, [
+    el('div', { class: 'accountSyncItem' }, [
+      el('div', { class: 'accountSyncItemTitle' }, [
+        el('span', { html: icon('clock') }),
+        el('span', { text: `${t('account.lastSynced')}: ${lastSyncStr}` }),
+      ]),
+      el('span', { class: 'accountBadge', text: t(`account.status${status.status.charAt(0).toUpperCase() + status.status.slice(1)}`) }),
+    ]),
+    el('div', { class: 'accountSyncItem' }, [
+      el('div', { class: 'accountSyncItemTitle' }, [
+        el('span', { html: icon('bookmark') }),
+        el('span', { text: `${t('account.bookmarksSynced')} (${bookmarksCount})` }),
+      ]),
+      el('span', { class: 'badge', text: '✓' }),
+    ]),
+    el('div', { class: 'accountSyncItem' }, [
+      el('div', { class: 'accountSyncItemTitle' }, [
+        el('span', { html: icon('gear') }),
+        el('span', { text: t('account.settingsSynced') }),
+      ]),
+      el('span', { class: 'badge', text: '✓' }),
+    ]),
+  ]);
+
+  const syncBtn = el('button', {
+    class: 'button primary',
+    type: 'button',
+    onclick: async () => {
+      syncBtn.disabled = true;
+      syncBtn.classList.add('loading');
+      try {
+        const res = await api().account.syncNow();
+        if (res?.ok) {
+          toast(t('toast.syncSuccess'), 'success');
+        } else {
+          toast(t('toast.syncFailed'), 'error');
+        }
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.classList.remove('loading');
+        refresh();
+      }
+    },
+  }, [el('span', { html: icon('cloud') }), ` ${t('account.syncNow')}`]);
+
+  const uploadBtn = el('button', {
+    class: 'button',
+    type: 'button',
+    onclick: async () => {
+      const res = await api().account.syncNow({ direction: 'push' });
+      if (res?.ok) toast(t('toast.syncSuccess'), 'success');
+      else toast(t('toast.syncFailed'), 'error');
+      refresh();
+    },
+  }, [el('span', { html: icon('upload') }), ` ${t('account.uploadToCloud')}`]);
+
+  const downloadBtn = el('button', {
+    class: 'button',
+    type: 'button',
+    onclick: async () => {
+      const res = await api().account.syncNow({ direction: 'pull' });
+      if (res?.ok) toast(t('toast.syncSuccess'), 'success');
+      else toast(t('toast.syncFailed'), 'error');
+      refresh();
+    },
+  }, [el('span', { html: icon('download') }), ` ${t('account.downloadFromCloud')}`]);
+
+  const actions = el('div', { class: 'actionRow', style: { gap: '10px', marginTop: '14px', flexWrap: 'wrap' } }, [
+    syncBtn,
+    uploadBtn,
+    downloadBtn,
+  ]);
+
+  container.append(profileCard, syncBox, actions);
+}
+
+function renderAccountAuth(container, status, refresh) {
+  let isSignUp = false;
+
+  const hero = el('div', { class: 'accountHero' }, [
+    el('div', { class: 'accountHeroIcon', html: icon('cloud') }),
+    el('h2', { text: t('account.heroTitle') }),
+    el('p', { class: 'pageDesc', style: { marginBottom: '16px' }, text: t('account.heroSubtitle') }),
+  ]);
+
+  const modeSwitch = el('div', { class: 'accountModeSwitch' });
+  const signInTab = el('button', { class: 'accountModeBtn active', type: 'button', text: t('account.signIn') });
+  const signUpTab = el('button', { class: 'accountModeBtn', type: 'button', text: t('account.signUp') });
+
+  modeSwitch.append(signInTab, signUpTab);
+
+  const emailInput = el('input', { class: 'textInput', type: 'email', required: true, placeholder: 'name@example.com' });
+  const passInput = el('input', { class: 'textInput', type: 'password', required: true, minlength: '6', placeholder: '••••••••' });
+  const passWrap = el('div', { class: 'passwordsInputWrap' }, [passInput]);
+
+  const e2eeInput = el('input', { class: 'textInput', type: 'password', placeholder: t('account.syncPassphraseHint') });
+  const e2eeWrap = el('div', { class: 'passwordsField', style: { marginTop: '4px' } }, [
+    el('label', { text: t('account.syncPassphrase') }),
+    e2eeInput,
+  ]);
+
+  const errorMsg = el('div', { class: 'form-error', style: { color: 'var(--danger, #ef4444)', fontSize: '12px', minHeight: '16px' } });
+
+  const submitBtn = el('button', { class: 'button primary', type: 'submit', text: t('account.signIn') });
+
+  const form = el('form', { class: 'passwordsForm' }, [
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('account.email') }),
+      emailInput,
+    ]),
+    el('div', { class: 'passwordsField' }, [
+      el('label', { text: t('account.password') }),
+      passWrap,
+    ]),
+    e2eeWrap,
+    errorMsg,
+    submitBtn,
+  ]);
+
+  signInTab.addEventListener('click', () => {
+    isSignUp = false;
+    signInTab.classList.add('active');
+    signUpTab.classList.remove('active');
+    submitBtn.textContent = t('account.signIn');
+    errorMsg.textContent = '';
+  });
+
+  signUpTab.addEventListener('click', () => {
+    isSignUp = true;
+    signUpTab.classList.add('active');
+    signInTab.classList.remove('active');
+    submitBtn.textContent = t('account.signUp');
+    errorMsg.textContent = '';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = '';
+    submitBtn.disabled = true;
+
+    try {
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+      const syncPassphrase = e2eeInput.value || undefined;
+
+      if (isSignUp) {
+        const res = await api().account.signUp({ email, password, syncPassphrase });
+        if (res?.ok) {
+          toast(t('toast.signedUp'), 'success');
+          refresh();
+        } else {
+          errorMsg.textContent = res?.error || 'Registration failed';
+        }
+      } else {
+        const res = await api().account.signIn({ email, password, syncPassphrase });
+        if (res?.ok) {
+          toast(t('toast.signedIn'), 'success');
+          refresh();
+        } else {
+          errorMsg.textContent = res?.error || 'Authentication failed';
+        }
+      }
+    } catch (err) {
+      errorMsg.textContent = err.message;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  container.append(hero, modeSwitch, form);
+}
+
+function accountSyncSettingsPage() {
+  return {
+    id: 'account-sync',
+    icon: 'sliders',
+    labelKey: 'account.tabSettings',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('account.tabSettings'), t('account.autoSyncDesc')));
+
+      const list = el('div', { class: 'card' });
+
+      (async () => {
+        const status = await api().account.getStatus();
+
+        // Auto Sync Toggle
+        const autoSyncSwitch = el('button', {
+          class: 'switch',
+          type: 'button',
+          role: 'switch',
+          'aria-checked': String(Boolean(status.autoSync)),
+        });
+        autoSyncSwitch.addEventListener('click', async () => {
+          const next = autoSyncSwitch.getAttribute('aria-checked') !== 'true';
+          autoSyncSwitch.setAttribute('aria-checked', String(next));
+          await api().account.updateConfig({ autoSync: next });
+        });
+        list.append(
+          el('div', { class: 'option' }, [
+            el('div', { class: 'optionText' }, [
+              el('div', { class: 'optionLabel', text: t('account.autoSync') }),
+              el('div', { class: 'optionHint', text: t('account.autoSyncDesc') }),
+            ]),
+            el('div', { class: 'optionControl' }, [autoSyncSwitch]),
+          ]),
+        );
+
+        // Sync Bookmarks Toggle
+        const bookmarksSwitch = el('button', {
+          class: 'switch',
+          type: 'button',
+          role: 'switch',
+          'aria-checked': String(Boolean(status.syncBookmarks)),
+        });
+        bookmarksSwitch.addEventListener('click', async () => {
+          const next = bookmarksSwitch.getAttribute('aria-checked') !== 'true';
+          bookmarksSwitch.setAttribute('aria-checked', String(next));
+          await api().account.updateConfig({ syncBookmarks: next });
+        });
+        list.append(
+          el('div', { class: 'option' }, [
+            el('div', { class: 'optionText' }, [
+              el('div', { class: 'optionLabel', text: t('account.syncBookmarks') }),
+              el('div', { class: 'optionHint', text: t('account.syncBookmarksDesc') }),
+            ]),
+            el('div', { class: 'optionControl' }, [bookmarksSwitch]),
+          ]),
+        );
+
+        // Sync Settings Toggle
+        const settingsSwitch = el('button', {
+          class: 'switch',
+          type: 'button',
+          role: 'switch',
+          'aria-checked': String(Boolean(status.syncSettings)),
+        });
+        settingsSwitch.addEventListener('click', async () => {
+          const next = settingsSwitch.getAttribute('aria-checked') !== 'true';
+          settingsSwitch.setAttribute('aria-checked', String(next));
+          await api().account.updateConfig({ syncSettings: next });
+        });
+        list.append(
+          el('div', { class: 'option' }, [
+            el('div', { class: 'optionText' }, [
+              el('div', { class: 'optionLabel', text: t('account.syncSettings') }),
+              el('div', { class: 'optionHint', text: t('account.syncSettingsDesc') }),
+            ]),
+            el('div', { class: 'optionControl' }, [settingsSwitch]),
+          ]),
+        );
+      })();
+
+      container.append(list);
+      return container;
+    },
+  };
+}
+
+function accountProvidersPage() {
+  return {
+    id: 'account-providers',
+    icon: 'globe',
+    labelKey: 'account.tabProviders',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('account.tabProviders'), t('account.providerInfo')));
+
+      const card = el('div', { class: 'card', style: { padding: '16px' } });
+
+      (async () => {
+        const status = await api().account.getStatus();
+
+        const providerSelect = el('select', { class: 'select' }, [
+          el('option', { value: 'hinterland', text: t('account.providerHinterland') }),
+          el('option', { value: 'supabase', text: t('account.providerSupabase') }),
+        ]);
+        providerSelect.value = status.provider || 'hinterland';
+
+        const supabaseUrlInput = el('input', {
+          class: 'textInput wide',
+          type: 'url',
+          placeholder: 'https://your-project.supabase.co',
+          value: status.supabaseUrl || '',
+        });
+
+        const supabaseKeyInput = el('input', {
+          class: 'textInput wide',
+          type: 'text',
+          placeholder: 'eyJhbGciOi...',
+          value: get('account.supabaseAnonKey', '') || '',
+        });
+
+        const supabaseSection = el('div', {
+          style: {
+            display: providerSelect.value === 'supabase' ? 'flex' : 'none',
+            flexDirection: 'column',
+            gap: '12px',
+            marginTop: '12px',
+          },
+        }, [
+          el('div', { class: 'passwordsField' }, [
+            el('label', { text: t('account.supabaseUrl') }),
+            supabaseUrlInput,
+            el('div', { class: 'optionHint', text: t('account.supabaseUrlDesc') }),
+          ]),
+          el('div', { class: 'passwordsField' }, [
+            el('label', { text: t('account.supabaseAnonKey') }),
+            supabaseKeyInput,
+            el('div', { class: 'optionHint', text: t('account.supabaseAnonKeyDesc') }),
+          ]),
+        ]);
+
+        providerSelect.addEventListener('change', () => {
+          supabaseSection.style.display = providerSelect.value === 'supabase' ? 'flex' : 'none';
+        });
+
+        const saveBtn = el('button', {
+          class: 'button primary',
+          type: 'button',
+          style: { marginTop: '16px' },
+          onclick: async () => {
+            await api().account.updateConfig({
+              provider: providerSelect.value,
+              supabaseUrl: supabaseUrlInput.value.trim(),
+              supabaseAnonKey: supabaseKeyInput.value.trim(),
+            });
+            toast(t('toast.settingsSaved'), 'success');
+          },
+        }, [t('account.saveProviderSettings')]);
+
+        card.append(
+          el('div', { class: 'passwordsField' }, [
+            el('label', { text: t('account.tabProviders') }),
+            providerSelect,
+          ]),
+          supabaseSection,
+          saveBtn,
+        );
+      })();
+
+      container.append(card);
+      return container;
+    },
+  };
+}
 
 export { openQrCode } from './qrcode.js';
