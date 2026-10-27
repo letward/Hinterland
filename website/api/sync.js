@@ -104,7 +104,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       service: 'hinterland-sync',
-      version: '1.19.0',
+      version: '1.20.0',
       provider: SUPABASE_URL ? 'supabase-proxy' : 'serverless',
       time: new Date().toISOString(),
     });

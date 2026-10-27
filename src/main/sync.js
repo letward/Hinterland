@@ -484,7 +484,7 @@ export class SyncService extends EventEmitter {
     // Try reading existing data first from user_metadata (zero SQL setup required)
     let remoteData = null;
     const userRes = await this.fetch(`${url}/auth/v1/user`, {
-      headers: { apikey: key, Authorization: `Bearer ${session.token}` },
+      headers: { apikey: key, Authorization: 'Bearer ' + session.token },
     });
 
     if (userRes.ok) {
@@ -516,7 +516,7 @@ export class SyncService extends EventEmitter {
       method: 'PUT',
       headers: {
         apikey: key,
-        Authorization: `Bearer ${session.token}`,
+        Authorization: 'Bearer ' + session.token,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -581,7 +581,7 @@ export class SyncService extends EventEmitter {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.token}`,
+        Authorization: 'Bearer ' + session.token,
       },
       body: JSON.stringify({
         action: 'sync',

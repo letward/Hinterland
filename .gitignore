@@ -19,3 +19,8 @@ session.json
 # Python
 __pycache__/
 *.pyc
+
+# Agent tooling
+.agents/
+.claude/
+skills-lock.json

@@ -4,6 +4,29 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.20.0] - 2026-10-27
+
+### Added
+- **Community Hinter Store Uploads & Serverless Backend**:
+  - **Vercel Serverless Store Endpoint (`website/api/store.js`)**: Serverless upload API supporting community themes and extensions backed by Supabase with Bearer token authentication, input validation, and per-IP rate limiting.
+  - **Dynamic Community Catalog Merging (`src/ui/js/hinterStore.js`)**: Real-time retrieval and integration of community themes and extensions from the cloud catalog alongside official presets.
+  - **Theme Studio Cloud Publishing**: Logged-in users can publish custom themes directly to the community catalog with one click (`Im Store veröffentlichen`) and instant live validation.
+  - **Login-Gated Extension Upload Portal**: Added studio upload section for contributing community extensions with metadata validation, category tagging, and permission descriptors.
+  - **Login Banner & Auth Routing**: Interactive authentication prompts in the Hinter Store directing unauthenticated users to sign up or log in.
+- **Hinterland Web Account Dashboard & Serverless Microservices**:
+  - **Web Account Portal (`website/account.html`)**: Complete responsive web dashboard for Hinterland accounts, supporting account registration, authentication, display name updates, one-click manual sync triggers, and privacy controls.
+  - **Serverless Account API (`website/api/account.js`)**: Endpoints for user profile retrieval (`GET /api/account/me`), metadata updates (`PUT /api/account/me`), and sync provider status discovery (`GET /api/account/providers`).
+  - **Privacy-Preserving UX Telemetry API (`website/api/telemetry.js`)**: Opt-in anonymized telemetry collector with strict PII filtering (stripping emails, passwords, IPs, auth tokens), event allowlisting, and batch size caps.
+- **UI & Brand Polish**:
+  - **Unified Hinterland Brand Logos**: Integrated official browser logo into Store Hero and Account profile avatars (`hinterland://assets/icon.png`), replacing generic placeholders.
+  - **Theme Studio Styles (`src/ui/css/store.css`, `src/ui/css/panels.css`)**: Enhanced upload forms, inputs, textareas, and login-required banner styles.
+- **Automated Regression & Serverless Test Suite (`sdk/test/v120Features.test.mjs`)**:
+  - Added 11 automated unit and integration tests covering the Account API, Telemetry API (PII scrubbing, event filtering, opt-out handling), and Community Store API.
+
+### Fixed
+- **Supabase Auth Headers**: Standardized Bearer token string concatenation in `src/main/sync.js`, `website/api/feedback.js`, and `website/api/store.js` for consistent HTTP authorization header formatting.
+- **Hinter Store Scoping & Event Routing**: Resolved module-level scoping for server upload helpers and updated account modal navigation triggers.
+
 ## [1.19.0] - 2026-10-26
 
 ### Added

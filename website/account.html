@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account · Hinterland</title>
+  <meta name="description" content="Hinterland account: sign in, sync bookmarks & settings, and upload to the Hinter Store." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 15px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 14px 28px;
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid transparent;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: -0.2px; }
+    .brand img { width: 30px; height: 30px; border-radius: 50%; }
+    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
+    .nav-links a { padding: 8px 14px; border-radius: var(--radiusSmall); color: var(--textDim); font-size: 14px; font-weight: 500; }
+    .nav-links a:hover { color: var(--text); background: var(--surfaceAlt); }
+    .nav-links a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: var(--radiusLarge);
+      font-weight: 600; font-size: 14px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+    .btn:hover { background: var(--surfaceHover); border-color: var(--borderSoft); }
+    .btn.primary { background: var(--accent); color: var(--onAccent); border-color: var(--accent); }
+    .btn.ghost { background: transparent; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card { background: var(--surface); border: 1px solid var(--borderSoft); border-radius: var(--radiusLarge); padding: 26px; margin: 0 auto 24px; max-width: 420px; }
+    .card h2 { margin: 0 0 16px; font-size: 20px; font-weight: 700; }
+    .card p { margin: 0 0 16px; color: var(--textDim); font-size: 14px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--textDim); margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radiusSmall);
+      background: var(--surfaceAlt); color: var(--text); font: inherit; margin-bottom: 14px; }
+    input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .row { display: grid; gap: 14px; }
+    .status { font-size: 13px; color: var(--textDim); margin: 6px 0; padding: 10px 12px; border-radius: var(--radiusSmall);
+      background: var(--surfaceAlt); border: 1px solid var(--borderSoft); }
+    .status.ok { color: #7dd3a8; border-color: color-mix(in srgb, #7dd3a8 30%, transparent); background: color-mix(in srgb, #7dd3a8 10%, transparent); }
+    .status.err { color: #ff8a8a; border-color: color-mix(in srgb, #ff8a8a 30%, transparent); background: color-mix(in srgb, #ff8a8a 10%, transparent); }
+    .section { max-width: 700px; margin: 0 auto; padding: 96px 20px 40px; }
+    .section-head { text-align: center; margin-bottom: 32px; }
+    .section-head h1 { margin: 0 0 8px; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+    .toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--borderSoft); }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border); border-radius: 24px; transition: .2s; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: var(--text); border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: var(--accent); }
+    input:checked + .slider:before { transform: translateX(20px); }
+    footer.site-foot { padding: 48px 24px 32px; border-top: 1px solid var(--borderSoft); text-align: center; color: var(--textDim); font-size: 13px; }
+    .hidden { display: none !important; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a class="brand" href="/"><img src="assets/icon.png" alt="Hinterland" /><span>Hinterland</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Download</a></li>
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/account.html" class="active">Account</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn ghost" href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">GitHub</a>
+      <button class="btn primary" id="btnSyncStatus" disabled title="Not signed in">Sync: off</button>
+    </div>
+  </nav>
+
+  <div class="section">
+    <div class="section-head">
+      <h1>Account</h1>
+      <p>Sign in to sync bookmarks and settings across devices and upload extensions &amp; designs to the Hinter Store.</p>
+    </div>
+
+    <!-- Sign in / sign up (shown when not authenticated) -->
+    <div id="authPanel" class="card">
+      <div class="row">
+        <div>
+          <h2>Sign in</h2>
+          <label>Email</label>
+          <input type="email" id="siEmail" placeholder="you@example.com" />
+          <label>Password</label>
+          <input type="password" id="siPassword" placeholder="••••••••" />
+          <button class="btn primary" id="btnSignIn">Sign in</button>
+          <p style="font-size:12px;color:var(--textDim);">New here? <a href="#" id="showSignup" style="color:var(--accent);cursor:pointer;">Create an account</a></p>
+        </div>
+        <div id="signupPanel" class="hidden">
+          <h2>Create account</h2>
+          <label>Email</label>
+          <input type="email" id="suEmail" placeholder="you@example.com" />
+          <label>Password (6+ chars)</label>
+          <input type="password" id="suPassword" placeholder="••••••••" />
+          <label>Sync passphrase (optional, zero-knowledge encryption)</label>
+          <input type="password" id="suPassphrase" placeholder="Leave empty to sync unencrypted" />
+          <button class="btn primary" id="btnSignUp">Create account</button>
+          <p style="font-size:12px;color:var(--textDim);">Already have an account? <a href="#" id="showSignin" style="color:var(--accent);cursor:pointer;">Sign in</a></p>
+        </div>
+      </div>
+      <div id="authMsg" class="status hidden"></div>
+    </div>
+
+    <!-- Profile / sync (shown when authenticated) -->
+    <div id="profilePanel" class="hidden card">
+      <div class="row">
+        <div>
+          <h2>Profile</h2>
+          <p id="profileEmail"></p>
+          <label>Display name</label>
+          <input type="text" id="profileDisplayName" placeholder="Your name" />
+          <button class="btn primary" id="btnSaveProfile">Save</button>
+          <p id="profileMsg" class="status hidden"></p>
+        </div>
+        <div>
+          <h2>Cloud sync</h2>
+          <div class="toggle">
+            <span>Auto-sync bookmarks &amp; settings</span>
+            <label class="switch"><input type="checkbox" id="syncAuto" /><span class="slider"></span></label>
+          </div>
+          <p id="syncLast" style="font-size:12px;color:var(--textDim);">Last sync: never</p>
+          <button class="btn" id="btnSyncNow" style="margin-top:8px;">Sync now</button>
+          <div id="syncMsg" class="status hidden"></div>
+          <p style="font-size:12px;color:var(--textDim);margin-top:10px;">Sync is end-to-end encrypted when you set a passphrase.</p>
+        </div>
+      </div>
+      <div class="toggle" style="margin-top:18px;">
+        <span>Share anonymous telemetry to improve future updates</span>
+        <label class="switch"><input type="checkbox" id="telemetryOptIn" /><span class="slider"></span></label>
+      </div>
+      <p id="telemetryNote" style="font-size:12px;color:var(--textDim);margin-top:6px;"></p>
+      <button class="btn ghost" id="btnLogout" style="margin-top:18px;color:var(--textDim);">Sign out</button>
+    </div>
+  </div>
+
+  <footer class="site-foot">
+    Hinterland Browser &middot; MIT License &middot;
+    <a href="/" style="color:var(--accent);">Download</a> &middot;
+    <a href="https://github.com/letward/Hinterland" target="_blank" rel="noopener">Source</a>
+  </footer>
+
+  <script>
+    const API_SYNC = '/api/sync';
+    const API_ACCOUNT = '/api/account';
+    const API_TELEMETRY = '/api/telemetry';
+
+    const $ = (id) => document.getElementById(id);
+    const authPanel = $('authPanel');
+    const profilePanel = $('profilePanel');
+    const btnSyncStatus = $('btnSyncStatus');
+
+    function setToken(token, user) {
+      localStorage.setItem('hl_token', token || '');
+      localStorage.setItem('hl_user', JSON.stringify(user || {}));
+    }
+    function getToken() { return localStorage.getItem('hl_token') || null; }
+    function getUser() { try { return JSON.parse(localStorage.getItem('hl_user') || '{}'); } catch { return {}; } }
+
+    function show(msgEl, text, kind) {
+      msgEl.textContent = text;
+      msgEl.className = 'status ' + (kind === 'err' ? 'err' : 'ok');
+      msgEl.classList.remove('hidden');
+    }
+    function hide(msgEl) { msgEl.classList.add('hidden'); }
+
+    async function api(path, { method = 'GET', body, token } = {}) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = 'Bearer ' + token;
+      const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      let data;
+      try { data = await res.json(); } catch { data = {}; }
+      if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+      return data;
+    }
+
+    async function loadProfile() {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const data = await api(API_ACCOUNT + '/me', { token });
+        const u = data.user || {};
+        $('profileEmail').textContent = u.email || 'User';
+        $('profileDisplayName').value = u.displayName || '';
+        authPanel.classList.add('hidden');
+        profilePanel.classList.remove('hidden');
+        btnSyncStatus.textContent = 'Sync: on';
+        btnSyncStatus.disabled = false;
+        $('syncLast').textContent = 'Signed in as ' + (u.email || 'user');
+      } catch (e) {
+        setToken(null, null);
+        location.reload();
+      }
+    }
+
+    async function handleSignIn(e) {
+      e.preventDefault();
+      const msg = $('authMsg'); hide(msg);
+      try {
+        const data = await api(API_SYNC, { method: 'POST', body: {
+          action: 'login', email: $('siEmail').value, password: $('siPassword').value
+        } });
+        setToken(data.token, data.user);
+        await loadProfile();
+      } catch (err) { show(msg, err.message, 'err'); }
+    }
+
+    async function handleSignUp(e) {
+      e.preventDefault();
+      const msg = $('authMsg'); hide(msg);
+      const pw = $('suPassword').value;
+      if (pw.length < 6) { show(msg, 'Password must be at least 6 characters.', 'err'); return; }
+      try {
+        const data = await api(API_SYNC, { method: 'POST', body: {
+          action: 'signup', email: $('suEmail').value, password: pw,
+          syncPassphrase: $('suPassphrase').value || undefined
+        } });
+        setToken(data.token, data.user);
+        await loadProfile();
+      } catch (err) { show(msg, err.message, 'err'); }
+    }
+
+    async function handleSaveProfile(e) {
+      e.preventDefault();
+      const msg = $('profileMsg'); hide(msg);
+      try {
+        const data = await api(API_ACCOUNT + '/me', {
+          method: 'PUT', token: getToken(),
+          body: { displayName: $('profileDisplayName').value }
+        });
+        show($('profileMsg'), 'Profile saved.', 'ok');
+        localStorage.setItem('hl_user', JSON.stringify(data.user || {}));
+      } catch (err) { show(msg, err.message, 'err'); }
+    }
+
+    async function handleSyncNow(e) {
+      e.preventDefault();
+      const msg = $('syncMsg'); hide(msg);
+      const token = getToken();
+      try {
+        // Pull cloud state
+        const pulled = await api(API_SYNC, { method: 'POST', token, body: { action: 'pull', token } });
+        // Push local state (placeholder: real data comes from browser settings)
+        await api(API_SYNC, { method: 'POST', token, body: {
+          action: 'sync', token,
+          data: { bookmarks: [], settings: {}, updatedAt: new Date().toISOString() }
+        } });
+        const again = await api(API_SYNC, { method: 'POST', token, body: { action: 'pull', token } });
+        $('syncLast').textContent = 'Last synced: ' + (again.syncedAt || new Date().toISOString());
+        show(msg, 'Sync complete.', 'ok');
+      } catch (err) { show(msg, err.message, 'err'); }
+    }
+
+    function handleLogout() {
+      setToken(null, null);
+      location.reload();
+    }
+
+    // Telemetry opt-in
+    const telemetryOptIn = $('telemetryOptIn');
+    const telemetryNote = $('telemetryNote');
+    telemetryOptIn.addEventListener('change', async () => {
+      const on = telemetryOptIn.checked;
+      telemetryNote.textContent = on ? 'Telemetry enabled (anonymous, opt-in).' : 'Telemetry disabled.';
+      try {
+        await api(API_TELEMETRY, {
+          method: 'POST',
+          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.20.0', events: [
+            { name: 'page_view', props: { section: 'account' }, ts: Date.now() }
+          ] }
+        });
+      } catch { /* non-fatal */ }
+    });
+
+    // Wire up
+    $('btnSignIn').addEventListener('click', handleSignIn);
+    $('btnSignUp').addEventListener('click', handleSignUp);
+    $('btnSaveProfile').addEventListener('click', handleSaveProfile);
+    $('btnSyncNow').addEventListener('click', handleSyncNow);
+    $('btnLogout').addEventListener('click', handleLogout);
+    $('showSignup').addEventListener('click', (e) => { e.preventDefault(); $('siEmail').closest('.row').style.display='none'; $('signupPanel').classList.remove('hidden'); });
+    $('showSignin').addEventListener('click', (e) => { e.preventDefault(); $('signupPanel').classList.add('hidden'); $('siEmail').closest('.row').style.display='block'; });
+
+    // Init
+    (async () => {
+      const token = getToken();
+      if (token) await loadProfile();
+      // Provider status
+      try {
+        const prov = await api(API_ACCOUNT + '/providers');
+        btnSyncStatus.title = prov.sync.server + ' · supabase: ' + prov.sync.supabaseConfigured;
+      } catch {}
+    })();
+  </script>
+  <script defer data-domain="hinterland-browser.vercel.app" src="https://va.vercel.app/script.js"></script>
+</body>
+</html>

@@ -4,10 +4,65 @@ import { t, currentLanguage } from './i18n.js';
 import { toast } from './toast.js';
 import { openModal, closeModal } from './modal.js';
 import { applyTheme } from './theme.js';
+import { get } from './store.js';
 
 const api = () => window.hinterland;
 
 const STORE_SERVER_URL = 'https://hinterland-browser.vercel.app/api/store';
+
+/* --------------------------------------------------- server upload helpers */
+function getSessionToken() {
+  const session = get('account.session');
+  return session?.token || null;
+}
+
+function isLoggedIn() {
+  return Boolean(getSessionToken());
+}
+
+async function uploadTheme(theme) {
+  const token = getSessionToken();
+  if (!token) return { ok: false, error: 'notLoggedIn' };
+  const res = await fetch(STORE_SERVER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    },
+    body: JSON.stringify({ kind: 'theme', ...theme }),
+  });
+  return await res.json();
+}
+
+async function uploadExtension(ext) {
+  const token = getSessionToken();
+  if (!token) return { ok: false, error: 'notLoggedIn' };
+  const res = await fetch(STORE_SERVER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token,
+    },
+    body: JSON.stringify({ kind: 'extension', ...ext }),
+  });
+  return await res.json();
+}
+
+function loginRequiredBanner() {
+  return el('div', { class: 'storeEmpty storeLoginRequired' }, [
+    el('div', { class: 'storeEmptyIcon', html: icon('user') }),
+    el('h3', { class: 'storeEmptyTitle', text: 'Konto erforderlich' }),
+    el('p', { class: 'storeEmptyText', text: 'Melde dich an, um Designs zu veröffentlichen und Erweiterungen in den Hinter Store hochzuladen.' }),
+    el('button', {
+      class: 'button primary',
+      type: 'button',
+      onclick: () => {
+        closeModal();
+        window.dispatchEvent(new CustomEvent('hinterland:openaccount'));
+      },
+    }, [el('span', { html: icon('cloud') }), ' Jetzt registrieren']),
+  ]);
+}
 
 export function renderHinterStore(initialTab = 'all') {
   const container = el('div', { class: 'storeRoot' });
@@ -176,60 +231,6 @@ export function renderHinterStore(initialTab = 'all') {
         ];
       }
     }
-  }
-
-  /* --------------------------------------------------- server upload helpers */
-  function getSessionToken() {
-    const session = get('account.session');
-    return session?.token || null;
-  }
-
-  function isLoggedIn() {
-    return Boolean(getSessionToken());
-  }
-
-  async function uploadTheme(theme) {
-    const token = getSessionToken();
-    if (!token) return { ok: false, error: 'notLoggedIn' };
-    const res = await fetch(STORE_SERVER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token,
-      },
-      body: JSON.stringify({ kind: 'theme', ...theme }),
-    });
-    return await res.json();
-  }
-
-  async function uploadExtension(ext) {
-    const token = getSessionToken();
-    if (!token) return { ok: false, error: 'notLoggedIn' };
-    const res = await fetch(STORE_SERVER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token,
-      },
-      body: JSON.stringify({ kind: 'extension', ...ext }),
-    });
-    return await res.json();
-  }
-
-  function loginRequiredBanner() {
-    return el('div', { class: 'storeEmpty storeLoginRequired' }, [
-      el('div', { class: 'storeEmptyIcon', html: icon('user') }),
-      el('h3', { class: 'storeEmptyTitle', text: 'Konto erforderlich' }),
-      el('p', { class: 'storeEmptyText', text: 'Melde dich an, um Designs zu veröffentlichen und Erweiterungen in den Hinter Store hochzuladen.' }),
-      el('button', {
-        class: 'button primary',
-        type: 'button',
-        onclick: () => {
-          closeModal();
-          openAccount();
-        },
-      }, [el('span', { html: icon('cloud') }), ' Jetzt registrieren']),
-    ]);
   }
 
   function renderContent() {
@@ -1261,7 +1262,7 @@ function renderStudio(catalogData, onRefresh) {
         } else if (res?.error === 'notLoggedIn') {
           toast('Bitte zuerst anmelden.', 'error');
           closeModal();
-          openAccount();
+          window.dispatchEvent(new CustomEvent('hinterland:openaccount'));
         } else {
           toast(res?.error || 'Veröffentlichung fehlgeschlagen', 'error');
         }
