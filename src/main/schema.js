@@ -891,6 +891,18 @@ export const SCHEMA = [
   option('account.lastSyncTime', 'text', '', {
     internal: true,
   }),
+  option('account.deviceId', 'text', '', {
+    internal: true,
+  }),
+  option('account.deviceName', 'text', '', {
+    internal: true,
+  }),
+  option('account.avatar', 'text', 'brand', {
+    internal: true,
+  }),
+  option('account.knownDevices', 'list', [], {
+    internal: true,
+  }),
 ];
 
 export function buildDefaults() {

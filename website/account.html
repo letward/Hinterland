@@ -276,7 +276,7 @@
       try {
         await api(API_TELEMETRY, {
           method: 'POST',
-          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.20.0', events: [
+          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.21.0', events: [
             { name: 'page_view', props: { section: 'account' }, ts: Date.now() }
           ] }
         });

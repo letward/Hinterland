@@ -150,6 +150,7 @@ export class SyncService extends EventEmitter {
     this.debounceTimer = null;
     this.intervalTimer = null;
     this.started = false;
+    this.isSyncing = false;
   }
 
   start() {
@@ -159,11 +160,12 @@ export class SyncService extends EventEmitter {
 
     // Listen to local setting & bookmark mutations
     settings.on('change', ({ key }) => {
+      if (this.isSyncing) return;
       if (!this.isLoggedIn()) return;
       if (!settings.value('account.autoSync')) return;
 
       if (key === 'data.bookmarks' || SYNCABLE_SETTINGS.includes(key)) {
-        this.scheduleDebouncedSync(4000);
+        this.scheduleDebouncedSync(1500);
       }
     });
 
@@ -179,15 +181,107 @@ export class SyncService extends EventEmitter {
     if (this.isLoggedIn() && settings.value('account.autoSync')) {
       setTimeout(() => {
         this.syncNow({ silent: true }).catch(() => {});
-      }, 3000);
+      }, 2500);
     }
   }
 
-  scheduleDebouncedSync(delayMs = 4000) {
+  scheduleDebouncedSync(delayMs = 1500) {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => {
       this.syncNow({ silent: true }).catch(() => {});
     }, delayMs);
+  }
+
+  getDevices() {
+    const defaultName = process.platform === 'win32'
+      ? 'Windows Desktop'
+      : process.platform === 'darwin' ? 'macOS Desktop' : 'Linux Desktop';
+    const myDevice = {
+      id: settings.value('account.deviceId') || 'dev-current',
+      name: settings.value('account.deviceName') || defaultName,
+      platform: process.platform,
+      os: process.platform,
+      browserVersion: '1.21.0',
+      lastActive: this.lastSyncedAt || new Date().toISOString(),
+      current: true,
+      isCurrent: true,
+      status: 'active',
+    };
+    const known = settings.value('account.knownDevices') || [];
+    return [myDevice, ...known.filter((d) => d.id !== myDevice.id)];
+  }
+
+  getSyncStats() {
+    const bookmarks = settings.value('data.bookmarks') || [];
+    const syncable = extractSyncableSettings(settings.all());
+    const known = settings.value('account.knownDevices') || [];
+    return {
+      bookmarkCount: bookmarks.length,
+      bookmarksCount: bookmarks.length,
+      settingsCount: Object.keys(syncable).length,
+      syncableSettingsCount: Object.keys(syncable).length,
+      deviceCount: known.length + 1,
+      e2eeActive: Boolean(this.syncPassphrase),
+      lastSyncTime: settings.value('account.lastSyncTime') || this.lastSyncedAt || null,
+      lastSyncedAt: settings.value('account.lastSyncTime') || this.lastSyncedAt || null,
+      provider: settings.value('account.provider') || 'hinterland',
+      autoSync: settings.value('account.autoSync') ?? true,
+      status: this.isLoggedIn() ? 'synced' : this.status,
+    };
+  }
+
+  pairDevice(codeOrOpts) {
+    if (typeof codeOrOpts === 'object' && codeOrOpts?.code) {
+      const code = String(codeOrOpts.code).trim().toUpperCase();
+      if (!/^HL-[A-Z0-9]{4,8}$/i.test(code) && !/^HL-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(code)) {
+        return { ok: false, error: 'invalidCode' };
+      }
+      const known = settings.value('account.knownDevices') || [];
+      const newDevice = {
+        id: 'dev-' + crypto.randomBytes(3).toString('hex'),
+        name: codeOrOpts.name || 'Paired Device',
+        platform: 'unknown',
+        os: 'unknown',
+        browserVersion: '1.21.0',
+        lastActive: new Date().toISOString(),
+        pairedCode: code,
+        current: false,
+        isCurrent: false,
+        status: 'paired',
+      };
+      settings.set('account.knownDevices', [...known, newDevice]);
+      return { ok: true, device: newDevice };
+    }
+
+    const code = 'HL-' + crypto.randomBytes(3).toString('hex').toUpperCase();
+    const token = this.getSession()?.token || '';
+    return {
+      ok: true,
+      code,
+      expiresAt: new Date(Date.now() + 10 * 60_000).toISOString(),
+      pairingPayload: JSON.stringify({ code, token: token.slice(0, 16) + '...' }),
+    };
+  }
+
+  async syncBookmarks(newBookmarks) {
+    if (Array.isArray(newBookmarks)) {
+      settings.set('data.bookmarks', newBookmarks);
+      this.scheduleDebouncedSync(1500);
+      return { ok: true, scheduled: true };
+    }
+    return await this.syncNow({ direction: 'both', silent: false });
+  }
+
+  destroy() {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    if (this.intervalTimer) {
+      clearInterval(this.intervalTimer);
+      this.intervalTimer = null;
+    }
+    this.removeAllListeners();
   }
 
   getSession() {
@@ -350,6 +444,7 @@ export class SyncService extends EventEmitter {
     const session = this.getSession();
     this.status = 'syncing';
     this.lastError = null;
+    this.isSyncing = true;
     this.broadcastStatus();
 
     try {
@@ -379,6 +474,7 @@ export class SyncService extends EventEmitter {
       if (syncBookmarksEnabled && Array.isArray(cloudData?.bookmarks)) {
         mergedBookmarks = mergeBookmarks(localBookmarks, cloudData.bookmarks);
         settings.set('data.bookmarks', mergedBookmarks, { silent: true });
+        this.emit('bookmarksUpdated', mergedBookmarks);
       }
 
       if (syncSettingsEnabled && cloudData?.settings && typeof cloudData.settings === 'object') {
@@ -411,6 +507,8 @@ export class SyncService extends EventEmitter {
         this.emit('toast', { message: 'toast.syncFailed', kind: 'error' });
       }
       return { ok: false, error: this.lastError };
+    } finally {
+      this.isSyncing = false;
     }
   }
 

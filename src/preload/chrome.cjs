@@ -270,6 +270,10 @@ const api = {
     signOut: () => ipcRenderer.invoke('account:signOut'),
     syncNow: (opts) => ipcRenderer.invoke('account:syncNow', opts),
     updateConfig: (patch) => ipcRenderer.invoke('account:updateConfig', patch),
+    getDevices: () => ipcRenderer.invoke('account:getDevices'),
+    getSyncStats: () => ipcRenderer.invoke('account:getSyncStats'),
+    pairDevice: () => ipcRenderer.invoke('account:pairDevice'),
+    syncBookmarks: () => ipcRenderer.invoke('account:syncBookmarks'),
   },
 };
 

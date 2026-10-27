@@ -855,6 +855,44 @@
   min-height: 80px;
 }
 
+.permissionChips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.permissionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  background: var(--surfaceAlt);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall);
+  font-size: 0.78rem;
+  color: var(--textDim);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.permissionChip input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.permissionChip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.permissionChip.active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surfaceAlt));
+  border-color: var(--accent);
+  color: var(--text);
+}
+
 /* ------------------------------------------------------------- Weekly Pick Banner */
 
 .storeWeeklyPick {

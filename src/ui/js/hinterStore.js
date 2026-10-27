@@ -51,8 +51,8 @@ async function uploadExtension(ext) {
 function loginRequiredBanner() {
   return el('div', { class: 'storeEmpty storeLoginRequired' }, [
     el('div', { class: 'storeEmptyIcon', html: icon('user') }),
-    el('h3', { class: 'storeEmptyTitle', text: 'Konto erforderlich' }),
-    el('p', { class: 'storeEmptyText', text: 'Melde dich an, um Designs zu veröffentlichen und Erweiterungen in den Hinter Store hochzuladen.' }),
+    el('h3', { class: 'storeEmptyTitle', text: t('store.loginRequired') }),
+    el('p', { class: 'storeEmptyText', text: t('store.loginRequiredDesc') }),
     el('button', {
       class: 'button primary',
       type: 'button',
@@ -60,7 +60,7 @@ function loginRequiredBanner() {
         closeModal();
         window.dispatchEvent(new CustomEvent('hinterland:openaccount'));
       },
-    }, [el('span', { html: icon('cloud') }), ' Jetzt registrieren']),
+    }, [el('span', { html: icon('cloud') }), ' ' + t('store.signInOrRegister')]),
   ]);
 }
 
@@ -1312,49 +1312,165 @@ function renderStudio(catalogData, onRefresh) {
 
   // Extension Upload Section (login-gated)
   if (isLoggedIn()) {
+    const extIdInput = el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. ad-blocker-pro' });
+    const extNameInput = el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. Ad Blocker Pro' });
+    const extVerInput = el('input', { class: 'formInput', type: 'text', value: '1.0.0', placeholder: '1.0.0' });
+    const currentUser = (typeof localStorage !== 'undefined' && localStorage.getItem('hinterland_sync_user')) || '';
+    const extAuthorInput = el('input', { class: 'formInput', type: 'text', value: currentUser, placeholder: t('store.extensionAuthor') });
+    const extDescInput = el('textarea', { class: 'formInput', rows: 3, placeholder: t('store.extensionDesc') });
+    const extCatSelect = el('select', { class: 'storeSelect' }, [
+      el('option', { value: 'utilities', text: 'Dienstprogramme' }),
+      el('option', { value: 'productivity', text: 'Produktivität' }),
+      el('option', { value: 'security', text: 'Sicherheit' }),
+      el('option', { value: 'appearance', text: 'Erscheinungsbild' }),
+      el('option', { value: 'developer', text: 'Entwicklung' }),
+    ]);
+
+    const PERMISSION_OPTIONS = [
+      { id: 'activeTab', label: 'activeTab' },
+      { id: 'storage', label: 'storage' },
+      { id: 'tabs', label: 'tabs' },
+      { id: 'contextMenus', label: 'contextMenus' },
+      { id: 'alarms', label: 'alarms' },
+      { id: 'notifications', label: 'notifications' },
+    ];
+    const selectedPermissions = new Set(['activeTab', 'storage']);
+    const permChips = el('div', { class: 'permissionChips' }, PERMISSION_OPTIONS.map((opt) => {
+      const cb = el('input', {
+        type: 'checkbox',
+        checked: selectedPermissions.has(opt.id),
+      });
+      const chip = el('label', {
+        class: `permissionChip ${selectedPermissions.has(opt.id) ? 'active' : ''}`,
+      }, [
+        cb,
+        opt.label,
+      ]);
+      cb.onchange = () => {
+        if (cb.checked) {
+          selectedPermissions.add(opt.id);
+          chip.classList.add('active');
+        } else {
+          selectedPermissions.delete(opt.id);
+          chip.classList.remove('active');
+        }
+      };
+      return chip;
+    }));
+
+    const extCodeInput = el('textarea', {
+      class: 'formInput',
+      rows: 4,
+      style: { fontFamily: 'Consolas, monospace', fontSize: '0.85rem' },
+      placeholder: '// content-script.js oder Hintergrund-Code\nconsole.log("Erweiterung gestartet");',
+    });
+
+    const uploadBtn = el('button', {
+      class: 'button primary',
+      type: 'button',
+      onclick: async () => {
+        const id = extIdInput.value.trim().toLowerCase();
+        const name = extNameInput.value.trim();
+        const version = extVerInput.value.trim() || '1.0.0';
+        const author = extAuthorInput.value.trim() || 'Community Developer';
+        const description = extDescInput.value.trim();
+        const category = extCatSelect.value;
+        const code = extCodeInput.value.trim();
+
+        if (!id || !/^[a-z0-9_-]+$/.test(id)) {
+          toast('Ungültige ID. Bitte nur Kleinbuchstaben, Zahlen, Bindestriche oder Unterstriche verwenden.', 'error');
+          extIdInput.focus();
+          return;
+        }
+        if (name.length < 3) {
+          toast('Name muss mindestens 3 Zeichen lang sein.', 'error');
+          extNameInput.focus();
+          return;
+        }
+        if (description.length < 5) {
+          toast('Beschreibung muss mindestens 5 Zeichen lang sein.', 'error');
+          extDescInput.focus();
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        try {
+          const res = await uploadExtension({
+            id,
+            name,
+            version,
+            author,
+            description,
+            category,
+            permissions: Array.from(selectedPermissions),
+            code: code || undefined,
+            icon: 'puzzle',
+          });
+          if (res?.ok) {
+            toast(t('store.extensionUploaded'), 'success');
+            extIdInput.value = '';
+            extNameInput.value = '';
+            extDescInput.value = '';
+            extCodeInput.value = '';
+            onRefresh?.();
+          } else if (res?.error === 'notLoggedIn') {
+            toast(t('store.loginRequired'), 'error');
+            closeModal();
+            window.dispatchEvent(new CustomEvent('hinterland:openaccount'));
+          } else {
+            toast(res?.error || 'Upload fehlgeschlagen', 'error');
+          }
+        } catch (err) {
+          toast('Upload-Fehler: ' + err.message, 'error');
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      },
+    }, [el('span', { html: icon('cloud') }), ' ' + t('store.publishToStore')]);
+
     const extUploadSection = el('div', {
       class: 'studioForm',
       style: { marginTop: '20px' },
     }, [
       el('h3', { style: { margin: 0, fontSize: '1rem', fontWeight: 700 } }, [
         el('span', { html: icon('puzzle'), style: { marginRight: '8px' } }),
-        'Erweiterung hochladen',
+        t('store.uploadExtension'),
       ]),
-      el('p', { class: 'optionHint', text: 'Lade deine eigene Erweiterung in den Hinter Store hoch. Ein Konto ist erforderlich.' }),
+      el('p', { class: 'optionHint', text: t('store.uploadExtensionDesc') }),
       el('div', { class: 'formField' }, [
-        el('label', { class: 'formLabel', text: 'Erweiterungs-ID' }),
-        el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. meine-erweiterung' }),
-      ]),
-      el('div', { class: 'formField' }, [
-        el('label', { class: 'formLabel', text: 'Name' }),
-        el('input', { class: 'formInput', type: 'text', placeholder: 'z. B. Meine Erweiterung' }),
+        el('label', { class: 'formLabel', text: t('store.extensionId') }),
+        extIdInput,
       ]),
       el('div', { class: 'formField' }, [
-        el('label', { class: 'formLabel', text: 'Autor' }),
-        el('input', { class: 'formInput', type: 'text', placeholder: 'Dein Name' }),
+        el('label', { class: 'formLabel', text: t('store.extensionName') }),
+        extNameInput,
       ]),
       el('div', { class: 'formField' }, [
-        el('label', { class: 'formLabel', text: 'Beschreibung' }),
-        el('textarea', { class: 'formInput', rows: 3, placeholder: 'Was macht diese Erweiterung?' }),
+        el('label', { class: 'formLabel', text: t('store.extensionVersion') }),
+        extVerInput,
       ]),
       el('div', { class: 'formField' }, [
-        el('label', { class: 'formLabel', text: 'Kategorie' }),
-        el('select', { class: 'storeSelect' }, [
-          el('option', { value: 'utilities', text: 'Dienstprogramme' }),
-          el('option', { value: 'productivity', text: 'Produktivität' }),
-          el('option', { value: 'security', text: 'Sicherheit' }),
-          el('option', { value: 'appearance', text: 'Erscheinungsbild' }),
-          el('option', { value: 'developer', text: 'Entwicklung' }),
-        ]),
+        el('label', { class: 'formLabel', text: t('store.extensionAuthor') }),
+        extAuthorInput,
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: t('store.extensionDesc') }),
+        extDescInput,
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: t('store.extensionCategory') }),
+        extCatSelect,
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: t('store.extensionPermissions') }),
+        permChips,
+      ]),
+      el('div', { class: 'formField' }, [
+        el('label', { class: 'formLabel', text: 'Quellcode / Content Script (optional)' }),
+        extCodeInput,
       ]),
       el('div', { class: 'actionRow' }, [
-        el('button', {
-          class: 'button primary',
-          type: 'button',
-          onclick: async () => {
-            toast('Extension-Upload über Dateiauswahl demnächst verfügbar. Nutze derzeit den Theme-Store für Designs.', 'info');
-          },
-        }, [el('span', { html: icon('cloud') }), ' Hochladen']),
+        uploadBtn,
       ]),
     ]);
     container.append(extUploadSection);

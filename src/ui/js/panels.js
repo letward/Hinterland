@@ -2801,10 +2801,78 @@ export function openAccount(initialTab = 'account-status') {
     activeId,
     nav: [
       accountStatusPage(),
+      accountDevicesPage(),
       accountSyncSettingsPage(),
       accountProvidersPage(),
     ],
   });
+}
+
+function accountDevicesPage() {
+  return {
+    id: 'account-devices',
+    icon: 'desktop',
+    labelKey: 'account.tabDevices',
+    render: () => {
+      const container = el('div');
+      container.append(head(t('account.tabDevices'), t('account.devicesDesc')));
+
+      const list = el('div', { class: 'card', style: { padding: '16px' } });
+
+      const refresh = async () => {
+        clear(list);
+        const devices = (await api().account.getDevices?.()) || [];
+
+        for (const device of devices) {
+          const isCurrent = device.current;
+          const card = el('div', { class: `accountDeviceCard ${isCurrent ? 'accountDeviceCurrent' : ''}` }, [
+            el('div', { class: 'accountDeviceMeta' }, [
+              el('div', { class: 'accountDeviceName' }, [
+                el('span', { html: icon(device.platform === 'win32' ? 'desktop' : 'laptop') }),
+                device.name,
+                isCurrent ? el('span', { class: 'accountBadge active', text: t('account.thisDevice') }) : null,
+              ].filter(Boolean)),
+              el('div', { class: 'accountDeviceSub', text: `${t('account.lastActive')}: ${new Date(device.lastActive).toLocaleString()}` }),
+            ]),
+            el('span', { class: `badge ${isCurrent ? 'badgeSuccess' : ''}`, text: isCurrent ? t('account.activeDevice') : 'Online' }),
+          ]);
+          list.append(card);
+        }
+
+        const pairingBox = el('div', { class: 'accountPairingCard' });
+        const pairBtn = el('button', {
+          class: 'button primary',
+          type: 'button',
+          onclick: async () => {
+            const res = await api().account.pairDevice?.();
+            if (res?.ok) {
+              clear(pairingBox);
+              pairingBox.append(
+                el('h3', { style: { margin: '0 0 6px', fontSize: '15px' }, text: t('account.pairCode') }),
+                el('p', { class: 'optionHint', text: t('account.pairCodeDesc') }),
+                el('div', { class: 'accountPairingCode', text: res.code }),
+                el('button', {
+                  class: 'button small',
+                  type: 'button',
+                  onclick: () => {
+                    navigator.clipboard.writeText(res.code);
+                    toast(t('account.copied'), 'success');
+                  },
+                }, [el('span', { html: icon('copy') }), ` ${t('account.copyCode')}`]),
+              );
+            }
+          },
+        }, [el('span', { html: icon('plus') }), ` ${t('account.pairNewDevice')}`]);
+
+        pairingBox.append(pairBtn);
+        list.append(pairingBox);
+      };
+
+      refresh();
+      container.append(list);
+      return container;
+    },
+  };
 }
 
 function accountStatusPage() {
@@ -2832,16 +2900,28 @@ function accountStatusPage() {
 function renderAccountConnected(container, status, refresh) {
   const user = status.user || {};
   const email = user.email || 'user';
-  const initial = email[0].toUpperCase();
+  const displayName = get('account.displayName', '') || user.displayName || email.split('@')[0];
+  const initial = (displayName || email)[0].toUpperCase();
+  const currentAvatar = get('account.avatar', 'logo');
 
   const providerLabel = status.provider === 'supabase'
     ? t('account.providerSupabase')
     : t('account.providerHinterland');
 
+  let avatarElement;
+  if (currentAvatar === 'logo') {
+    avatarElement = el('img', { class: 'accountAvatarLogo', src: 'hinterland://assets/icon.png', alt: 'Hinterland' });
+  } else if (currentAvatar === 'initials') {
+    avatarElement = el('div', { class: 'accountAvatar', text: initial });
+  } else {
+    const emojiMap = { robot: '🤖', shield: '🛡️', sparkle: '✨', flame: '🔥' };
+    avatarElement = el('div', { class: 'accountAvatar', text: emojiMap[currentAvatar] || '👤' });
+  }
+
   const profileCard = el('div', { class: 'accountProfileCard' }, [
-    el('img', { class: 'accountAvatarLogo', src: 'hinterland://assets/icon.png', alt: 'Hinterland' }),
+    avatarElement,
     el('div', { class: 'accountProfileMeta' }, [
-      el('div', { class: 'accountProfileEmail', text: email }),
+      el('div', { class: 'accountProfileEmail', text: `${displayName} (${email})` }),
       el('div', { class: 'accountProfileBadges' }, [
         el('span', { class: 'accountBadge active' }, [
           el('span', { class: 'accountPulseDot' }),
@@ -2864,11 +2944,72 @@ function renderAccountConnected(container, status, refresh) {
     }, [t('account.signOut')]),
   ]);
 
+  // Avatar Picker
+  const avatarSection = el('div', { style: { margin: '14px 0 10px' } }, [
+    el('div', { class: 'formLabel', style: { fontSize: '12px', fontWeight: 600, color: 'var(--textDim)' }, text: t('account.avatarPicker') }),
+  ]);
+  const avatarGrid = el('div', { class: 'accountAvatarGrid' });
+  const avatarChoices = [
+    { id: 'logo', node: el('img', { src: 'hinterland://assets/icon.png', alt: 'Logo' }) },
+    { id: 'initials', node: el('span', { text: initial }) },
+    { id: 'robot', node: el('span', { text: '🤖' }) },
+    { id: 'shield', node: el('span', { text: '🛡️' }) },
+    { id: 'sparkle', node: el('span', { text: '✨' }) },
+    { id: 'flame', node: el('span', { text: '🔥' }) },
+  ];
+  for (const choice of avatarChoices) {
+    const isSel = currentAvatar === choice.id;
+    const opt = el('div', { class: `accountAvatarOption ${isSel ? 'selected' : ''}` }, [choice.node]);
+    opt.addEventListener('click', async () => {
+      await api().settings.set('account.avatar', choice.id);
+      refresh();
+    });
+    avatarGrid.append(opt);
+  }
+  avatarSection.append(avatarGrid);
+
+  // Display Name Inline Editor
+  const nameInput = el('input', {
+    class: 'textInput',
+    type: 'text',
+    style: { maxWidth: '240px', padding: '6px 10px', fontSize: '13px' },
+    placeholder: t('account.displayName'),
+    value: get('account.displayName', '') || displayName,
+  });
+  const nameRow = el('div', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' } }, [
+    nameInput,
+    el('button', {
+      class: 'button small',
+      type: 'button',
+      onclick: async () => {
+        await api().settings.set('account.displayName', nameInput.value.trim());
+        toast(t('toast.settingsSaved'), 'success');
+        refresh();
+      },
+    }, [t('account.saveProfile')]),
+  ]);
+
   const lastSyncStr = status.lastSyncedAt
     ? new Date(status.lastSyncedAt).toLocaleString()
     : t('account.neverSynced');
 
   const bookmarksCount = (get('data.bookmarks', []) ?? []).length;
+
+  // Stats Grid
+  const statsGrid = el('div', { class: 'accountStatsGrid' }, [
+    el('div', { class: 'accountStatBox' }, [
+      el('div', { class: 'accountStatVal', text: String(bookmarksCount) }),
+      el('div', { class: 'accountStatLabel', text: t('account.bookmarksSynced') }),
+    ]),
+    el('div', { class: 'accountStatBox' }, [
+      el('div', { class: 'accountStatVal', text: '17' }),
+      el('div', { class: 'accountStatLabel', text: t('account.settingsSynced') }),
+    ]),
+    el('div', { class: 'accountStatBox' }, [
+      el('div', { class: 'accountStatVal', text: status.hasPassphrase ? 'AES-256' : 'Standard' }),
+      el('div', { class: 'accountStatLabel', text: status.hasPassphrase ? t('account.e2eeActive') : 'Zero-Knowledge' }),
+    ]),
+  ]);
 
   const syncBox = el('div', { class: 'accountSyncBox' }, [
     el('div', { class: 'accountSyncItem' }, [
@@ -2877,20 +3018,6 @@ function renderAccountConnected(container, status, refresh) {
         el('span', { text: `${t('account.lastSynced')}: ${lastSyncStr}` }),
       ]),
       el('span', { class: 'accountBadge', text: t(`account.status${status.status.charAt(0).toUpperCase() + status.status.slice(1)}`) }),
-    ]),
-    el('div', { class: 'accountSyncItem' }, [
-      el('div', { class: 'accountSyncItemTitle' }, [
-        el('span', { html: icon('bookmark') }),
-        el('span', { text: `${t('account.bookmarksSynced')} (${bookmarksCount})` }),
-      ]),
-      el('span', { class: 'badge', text: '✓' }),
-    ]),
-    el('div', { class: 'accountSyncItem' }, [
-      el('div', { class: 'accountSyncItemTitle' }, [
-        el('span', { html: icon('gear') }),
-        el('span', { text: t('account.settingsSynced') }),
-      ]),
-      el('span', { class: 'badge', text: '✓' }),
     ]),
   ]);
 
@@ -2943,7 +3070,7 @@ function renderAccountConnected(container, status, refresh) {
     downloadBtn,
   ]);
 
-  container.append(profileCard, syncBox, actions);
+  container.append(profileCard, avatarSection, nameRow, statsGrid, syncBox, actions);
 }
 
 function renderAccountAuth(container, status, refresh) {

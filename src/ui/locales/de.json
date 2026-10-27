@@ -214,7 +214,11 @@
     "importHtml": "Lesezeichen importieren (HTML)",
     "sort": "Nach Name sortieren (A-Z)",
     "noMatch": "Keine Lesezeichen entsprechen Ihrer Suche.",
-    "savedSession": "Gespeicherte Sitzung"
+    "savedSession": "Gespeicherte Sitzung",
+    "cloudSync": "Cloud-Synchronisierung",
+    "syncNow": "Jetzt synchronisieren",
+    "synced": "Mit Cloud synchronisiert",
+    "lastSynced": "Zuletzt synchronisiert"
   },
   "history": {
     "title": "Verlauf",
@@ -1030,7 +1034,22 @@
     "description": "Beschreibung",
     "createAndSave": "Design erstellen & anwenden",
     "importTheme": "Community-Design importieren",
-    "importSuccess": "Community-Design erfolgreich importiert und aktiviert"
+    "importSuccess": "Community-Design erfolgreich importiert und aktiviert",
+    "uploadExtension": "Erweiterung hochladen",
+    "uploadExtensionDesc": "Lade deine eigene Erweiterung in den Community Hinter Store hoch. Ein Konto ist erforderlich.",
+    "extensionId": "Erweiterungs-ID",
+    "extensionName": "Name",
+    "extensionAuthor": "Autor",
+    "extensionDesc": "Beschreibung",
+    "extensionCategory": "Kategorie",
+    "extensionPermissions": "Berechtigungen",
+    "extensionIcon": "Symbol",
+    "extensionVersion": "Version",
+    "publishToStore": "Im Store veröffentlichen",
+    "extensionUploaded": "Erweiterung an den Hinter Store veröffentlicht!",
+    "loginRequired": "Konto erforderlich",
+    "loginRequiredDesc": "Melde dich an, um Designs zu veröffentlichen und Erweiterungen in den Hinter Store hochzuladen.",
+    "signInOrRegister": "Jetzt registrieren"
   },
   "clearData": {
     "title": "Browserdaten löschen",
@@ -1148,6 +1167,23 @@
     "providerInfo": "Verbinde Hinterland mit kostenlosen Cloud-Diensten wie Supabase oder Vercel Serverless ohne Wartungsaufwand.",
     "bookmarksSynced": "Lesezeichen",
     "settingsSynced": "Browsereinstellungen & Designs",
-    "openPanel": "Konto-Bereich öffnen"
+    "openPanel": "Konto-Bereich öffnen",
+    "tabDevices": "Verbundene Geräte",
+    "devicesDesc": "Verwalte alle mit diesem Hinterland-Konto synchronisierten Geräte.",
+    "thisDevice": "Dieses Gerät",
+    "pairNewDevice": "Neues Gerät verbinden",
+    "pairCode": "Kopplungscode",
+    "pairCodeDesc": "Gib diesen Code auf deinem anderen Gerät ein, um es sofort zu verbinden.",
+    "syncStatsTitle": "Cloud-Speicher & Nutzung",
+    "cloudUsage": "Zero-Knowledge Cloud-Sicherung",
+    "avatarPicker": "Avatar wählen",
+    "displayName": "Anzeigename",
+    "saveProfile": "Profil speichern",
+    "notLoggedIn": "Nicht angemeldet",
+    "accountTooltip": "Hinterland Konto & Synchronisierung",
+    "activeDevice": "Aktiv",
+    "lastActive": "Zuletzt aktiv",
+    "copyCode": "Code kopieren",
+    "copied": "Kopiert!"
   }
 }

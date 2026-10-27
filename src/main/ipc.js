@@ -1452,6 +1452,22 @@ handle('dialog:confirm', async ({ title, message, detail, confirmLabel, cancelLa
     return await syncService.updateConfig(patch || {});
   });
 
+  handle('account:getDevices', () => {
+    return syncService.getDevices();
+  });
+
+  handle('account:getSyncStats', () => {
+    return syncService.getSyncStats();
+  });
+
+  handle('account:pairDevice', () => {
+    return syncService.pairDevice();
+  });
+
+  handle('account:syncBookmarks', async () => {
+    return await syncService.syncBookmarks();
+  });
+
   /* ------------------------------ credentials submitted from web content view */
   ipcMain.on('tab:credentialsSubmitted', (_event, creds) => {
     if (!creds || typeof creds !== 'object') return;

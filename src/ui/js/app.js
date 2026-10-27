@@ -119,6 +119,10 @@ function bind() {
     storeBtn.innerHTML = icon('store');
     storeBtn.addEventListener('click', () => openStore());
   }
+  const accountBtn = $('#accountButton');
+  if (accountBtn) {
+    accountBtn.addEventListener('click', () => openAccount());
+  }
   $('#menuButton').innerHTML = icon('menu');
 
   for (const button of document.querySelectorAll('.windowButton')) {
@@ -299,6 +303,11 @@ function wireEvents() {
     applyTheme();
     applyTranslations(document);
     syncToolbar();
+    syncBookmarksBar();
+  });
+
+  listen('account:status', (payload) => {
+    syncAccountButton(payload);
   });
 
   listen('download:new', onDownloadNew);
@@ -564,6 +573,40 @@ function syncToolbar() {
     mediaBtn.hidden = !anyAudible;
     if (anyAudible) mediaBtn.classList.add('hasAudible');
     else mediaBtn.classList.remove('hasAudible');
+  }
+
+  syncAccountButton();
+}
+
+function syncAccountButton(status = null) {
+  const btn = $('#accountButton');
+  if (!btn) return;
+  const session = get('account.session');
+  const isLoggedIn = Boolean(session?.token && session?.user);
+  btn.innerHTML = '';
+
+  if (isLoggedIn) {
+    const email = session.user.email || '';
+    const name = session.user.displayName || email.split('@')[0] || 'User';
+    const initial = name[0]?.toUpperCase() || 'U';
+    const avatar = get('account.avatar') || 'logo';
+
+    let avatarEl;
+    if (avatar === 'logo') {
+      avatarEl = el('img', { class: 'accountToolbarAvatar', src: 'hinterland://assets/icon.png', alt: name });
+    } else {
+      avatarEl = el('span', { class: 'accountToolbarInitials', text: initial });
+    }
+
+    const syncDot = el('span', { class: 'accountSyncDot' });
+    btn.append(avatarEl, syncDot);
+    btn.title = `${name} (${email})\n${t('account.connected')}`;
+    btn.classList.toggle('isSyncing', status?.status === 'syncing');
+    btn.classList.toggle('isError', status?.status === 'error');
+  } else {
+    btn.innerHTML = icon('user');
+    btn.title = t('account.notLoggedIn');
+    btn.classList.remove('isSyncing', 'isError');
   }
 }
 

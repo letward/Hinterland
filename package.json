@@ -1,7 +1,7 @@
 {
   "name": "hinterland",
   "productName": "Hinterland",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "description": "Ein schneller, sicherer und frei anpassbarer Browser. A fast, secure and freely customisable browser.",
   "main": "src/main/main.js",
   "type": "module",

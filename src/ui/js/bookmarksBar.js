@@ -160,6 +160,16 @@ function openBarContextMenu(x, y) {
             window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'bookmarks' } }));
           },
         }),
+        row({
+          iconName: 'cloud',
+          title: t('account.syncNow'),
+          onSelect: async () => {
+            closePopup();
+            const res = await api().account.syncNow();
+            if (res?.ok) toast(t('toast.syncSuccess'), 'success');
+            else toast(t('toast.syncFailed'), 'error');
+          },
+        }),
         separator(),
         row({
           iconName: 'close',

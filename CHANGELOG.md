@@ -4,6 +4,32 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.21.0] - 2026-10-27
+
+### Added
+- **Major Account Hub & Real-Time Sync Overhaul**:
+  - **Account Toolbar Quick Launcher (`#accountButton` in `src/ui/index.html`, `src/ui/js/app.js`)**: Dedicated profile avatar button in the main window toolbar displaying user initials or selected custom avatar with a real-time status indicator dot (`.accountSyncDot`) and animated sync pulse (`@keyframes accountSyncPulse`).
+  - **Account Hub Multi-Tab Modal (`openAccount` in `src/ui/js/panels.js`)**:
+    - **Status & Profile Tab**: Interactive avatar customizer with preset icon choices (Brand Logo, Initials, 🤖 Bot, 🛡️ Shield, ✨ Sparkles, 🔥 Flame), inline display name editor, live sync statistics grid (bookmarks count, settings count, device count, E2EE status, and last synced timestamp).
+    - **Connected Devices Tab (`accountDevicesPage`)**: Lists all authorized and active synced devices with OS, browser version, and last active timestamp; includes a pairing code generator for securely linking new mobile/desktop devices (`HL-XXXX-XXXX`).
+    - **Sync Settings & Provider Tabs**: Granular toggles for auto-sync, bookmark sync, settings sync, and zero-knowledge encryption passphrase.
+  - **Real-Time Debounced Bookmark Synchronization Engine (`src/main/sync.js`, `src/main/main.js`)**:
+    - Instant debounced sync (1500ms) on bookmark changes without requiring manual refresh or window reload.
+    - Prevents echo sync loops using re-entrancy flags (`isSyncing`).
+    - Direct integration with bookmarks bar context menu ("Cloud-Synchronisierung / Jetzt synchronisieren").
+    - Synchronized updates broadcast seamlessly across windows via `bookmarksUpdated` and `settings:changed`.
+- **Hinter Store Community Upload Gating & Extension Creator**:
+  - **Mandatory Account Authentication for Uploads**: Hinter Store requires an authenticated account to publish themes or upload extensions, protecting the community catalog from spam and unverified submissions.
+  - **Community Extension Upload Studio (`src/ui/js/hinterStore.js`)**:
+    - Full form for publishing community extensions: Extension ID, Name, Version, Author (pre-filled), Description, Category picker, Permission chips (`activeTab`, `storage`, `tabs`, `contextMenus`, `alarms`, `notifications`), and optional custom JavaScript / content script code.
+    - Interactive permission chips styling (`src/ui/css/store.css`) with active state toggling.
+    - Validation of ID formatting, title lengths, and descriptions prior to upload.
+  - **In-Memory & Resilient Serverless Store Backend (`website/api/store.js`)**:
+    - Dual backend mode: Supabase storage with in-memory fallback for local preview, offline, and unit test execution without requiring external database provisioning.
+    - Full support for both `kind: 'theme'` and `kind: 'extension'` with user association and timestamps.
+- **Automated Regression & Feature Test Suite (`sdk/test/v121Features.test.mjs`)**:
+  - 15 comprehensive unit and integration tests covering community theme and extension uploads, authentication gating, device pairing code validation and registration, real-time sync stats, debounced bookmark updates, and avatar initials generation.
+
 ## [1.20.0] - 2026-10-27
 
 ### Added

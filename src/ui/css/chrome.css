@@ -535,6 +535,59 @@ html[data-closeButton="always"] .tabClose {
   height: 28px;
 }
 
+/* Account toolbar profile button & sync indicator */
+.accountButton {
+  position: relative;
+}
+
+.accountButton .accountToolbarAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.accountButton .accountToolbarInitials {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--onAccent, #fff);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  text-transform: uppercase;
+}
+
+.accountButton .accountSyncDot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 1.5px solid var(--surface, #12141a);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.accountButton.isSyncing .accountSyncDot {
+  background: var(--accent, #4f7cff);
+  animation: accountSyncPulse 0.9s infinite alternate;
+}
+
+.accountButton.isError .accountSyncDot {
+  background: #ef4444;
+}
+
+@keyframes accountSyncPulse {
+  from { transform: scale(0.8); opacity: 0.5; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
 .iconButton.small svg {
   width: 15px;
   height: 15px;

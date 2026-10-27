@@ -106,6 +106,7 @@ async function start() {
 function wireSettings() {
   syncService.on('status', (payload) => surface.send('account:status', payload));
   syncService.on('toast', (data) => surface.send('toast', data));
+  syncService.on('bookmarksUpdated', () => surface.send('settings:changed', { key: 'data.bookmarks', values: settings.all() }));
   settings.on('change', ({ key }) => {
     surface.send('settings:changed', { key, values: settings.all() });
     applyContentSettings(tabs.list);

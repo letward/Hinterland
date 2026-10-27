@@ -214,7 +214,11 @@
     "importHtml": "Import bookmarks (HTML)",
     "sort": "Sort by name (A-Z)",
     "noMatch": "No bookmarks match your search.",
-    "savedSession": "Saved session"
+    "savedSession": "Saved session",
+    "cloudSync": "Cloud sync",
+    "syncNow": "Sync now",
+    "synced": "Synced with cloud",
+    "lastSynced": "Last synced"
   },
   "history": {
     "title": "History",
@@ -1030,7 +1034,22 @@
     "description": "Description",
     "createAndSave": "Create & apply theme",
     "importTheme": "Import community theme",
-    "importSuccess": "Community theme successfully imported and activated"
+    "importSuccess": "Community theme successfully imported and activated",
+    "uploadExtension": "Upload extension",
+    "uploadExtensionDesc": "Upload your own extension to the community Hinter Store. An account is required.",
+    "extensionId": "Extension ID",
+    "extensionName": "Name",
+    "extensionAuthor": "Author",
+    "extensionDesc": "Description",
+    "extensionCategory": "Category",
+    "extensionPermissions": "Permissions",
+    "extensionIcon": "Icon",
+    "extensionVersion": "Version",
+    "publishToStore": "Publish to Store",
+    "extensionUploaded": "Extension published to Hinter Store!",
+    "loginRequired": "Account required",
+    "loginRequiredDesc": "Sign in to publish designs and upload extensions to the Hinter Store.",
+    "signInOrRegister": "Register now"
   },
   "clearData": {
     "title": "Clear browsing data",
@@ -1148,6 +1167,23 @@
     "providerInfo": "Connect Hinterland to free cloud backends like Supabase or Vercel serverless functions with zero maintenance.",
     "bookmarksSynced": "Bookmarks",
     "settingsSynced": "Browser Settings & Themes",
-    "openPanel": "Open Account Panel"
+    "openPanel": "Open Account Panel",
+    "tabDevices": "Connected Devices",
+    "devicesDesc": "Manage all devices synchronized with this Hinterland account.",
+    "thisDevice": "This device",
+    "pairNewDevice": "Pair new device",
+    "pairCode": "Pairing code",
+    "pairCodeDesc": "Enter this code on your other device to connect instantly.",
+    "syncStatsTitle": "Cloud storage & quota",
+    "cloudUsage": "Zero-knowledge cloud backup",
+    "avatarPicker": "Choose avatar",
+    "displayName": "Display name",
+    "saveProfile": "Save profile",
+    "notLoggedIn": "Not signed in",
+    "accountTooltip": "Hinterland Account & Sync",
+    "activeDevice": "Active",
+    "lastActive": "Last active",
+    "copyCode": "Copy code",
+    "copied": "Copied!"
   }
 }

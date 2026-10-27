@@ -2056,6 +2056,135 @@
   box-shadow: var(--shadow);
 }
 
+/* ------------------------------------------------------------- Avatar Customizer */
+.accountAvatarGrid {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0 16px;
+  flex-wrap: wrap;
+}
+
+.accountAvatarOption {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--borderSoft);
+  background: var(--surfaceAlt);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.accountAvatarOption:hover {
+  transform: scale(1.08);
+  border-color: var(--accent);
+}
+
+.accountAvatarOption.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.accountAvatarOption img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ------------------------------------------------------------- Connected Devices */
+.accountDeviceCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radius, 8px);
+  margin-bottom: 10px;
+  transition: border-color 0.15s ease;
+}
+
+.accountDeviceCard:hover {
+  border-color: var(--borderHover, var(--border));
+}
+
+.accountDeviceCard.accountDeviceCurrent {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--borderSoft));
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+
+.accountDeviceMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accountDeviceName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accountDeviceSub {
+  font-size: 11.5px;
+  color: var(--textDim);
+}
+
+/* ------------------------------------------------------------- Fast Pairing Card */
+.accountPairingCard {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius, 8px);
+  padding: 16px;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.accountPairingCode {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  font-family: monospace;
+  color: var(--accent);
+  margin: 10px 0;
+  user-select: all;
+}
+
+/* ------------------------------------------------------------- Sync Stats Grid */
+.accountStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.accountStatBox {
+  padding: 12px;
+  background: var(--surfaceAlt);
+  border: 1px solid var(--borderSoft);
+  border-radius: var(--radiusSmall, 6px);
+  text-align: center;
+}
+
+.accountStatVal {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.accountStatLabel {
+  font-size: 11px;
+  color: var(--textDim);
+}
+
+
 
 
 
