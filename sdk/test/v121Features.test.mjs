@@ -6,6 +6,11 @@ import { settings } from '../../src/main/settings.js';
 
 const require = createRequire(import.meta.url);
 const storeHandler = require('../../website/api/store.js');
+const { accountsById, sessionsByToken } = require('../../website/api/_account.js');
+
+// Register mock session for store tests
+accountsById.set('test-user-id', { id: 'test-user-id', email: 'test@example.com' });
+sessionsByToken.set('valid-test-token-123456', { id: 'test-user-id', email: 'test@example.com' });
 
 function mockRes() {
   const res = {

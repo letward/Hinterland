@@ -4,6 +4,34 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.22.0] - 2026-10-28
+
+### Added
+- **Real Account System & Authentication Infrastructure**:
+  - **Shared Account Core (`website/api/_account.js`)**:
+    - Centralized account state and session management layer with Supabase GoTrue integration and resilient in-memory fallback for local dev and preview environments.
+    - Password hashing using `crypto.scryptSync` with random salt generation and constant-time equality comparisons (`timingSafeEqual`) to protect against timing attacks.
+    - Single-use, time-limited verification codes (10-minute TTL) for email confirmations, phone verifications, and security events.
+  - **Multi-Factor Authentication (TOTP 2FA) & Recovery Codes**:
+    - Full RFC 6238 Time-based One-Time Password (TOTP) engine supporting standard authenticator apps (Google Authenticator, Authy, 1Password) with Base32 decoding, HMAC-SHA1 signature verification, and time-drift tolerance window.
+    - Automatic generation of 8 cryptographically random alphanumeric backup recovery codes upon 2FA enrollment.
+  - **Serverless Account API Endpoints (`website/api/account.js`)**:
+    - Registration flow with mandatory email verification code gating (`POST /api/account/register`).
+    - Login flow supporting dual-factor verification with challenge responses when 2FA is active (`POST /api/account/login`).
+    - Endpoints for TOTP setup (`POST /api/account/totp/setup`), verification (`POST /api/account/totp/verify`), and session revocation (`POST /api/account/logout`).
+    - Authenticated profile inspection and display name updates (`GET / PUT /api/account/me`).
+    - Store download entitlement verification and consumption (`GET /api/account/download/entitlement`, `POST /api/account/download/consume`) gated on verified email status.
+  - **Web Account Dashboard Polish (`website/account.html`)**:
+    - Complete UI flow for registration, verification code entry, 2FA setup with authenticator URI generation, recovery code vault display, and store download entitlement status.
+  - **Automated Regression & Security Test Suite (`sdk/test/v122Features.test.mjs`, `sdk/test/v121Features.test.mjs`)**:
+    - Added 14 automated unit tests covering scrypt hashing, verification code lifecycles, TOTP generation & drift validation, recovery code generation, and Account API endpoints.
+
+### Fixed
+- **Hinter Store & Cloud Sync Hardening (`website/api/store.js`, `website/api/sync.js`, `website/api/telemetry.js`)**:
+  - Enforced active session verification for community theme and extension uploads in `website/api/store.js`.
+  - Hardened Supabase authorization headers and environment variable fallbacks across serverless endpoints.
+  - Synchronized `website/api/sync.js` to shared account state.
+
 ## [1.21.0] - 2026-10-27
 
 ### Added
