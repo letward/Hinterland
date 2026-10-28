@@ -19,15 +19,15 @@
       <div class="tabstrip" id="tabstrip" role="tablist">
         <div class="titlebarGrip"></div>
         <div class="tabs" id="tabs"></div>
-        <button class="tabAction newTab" id="newTab" title="Neuer Tab" aria-label="Neuer Tab"></button>
+        <button class="tabAction newTab" id="newTab" type="button" title="Neuer Tab" aria-label="Neuer Tab"></button>
         <div class="windowButtons" id="windowButtons">
-          <button class="windowButton" data-window="minimize" title="Minimieren" aria-label="Minimieren">
+          <button class="windowButton" data-window="minimize" type="button" title="Minimieren" aria-label="Minimieren">
             <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8" /></svg>
           </button>
-          <button class="windowButton" data-window="maximize" title="Maximieren" aria-label="Maximieren">
+          <button class="windowButton" data-window="maximize" type="button" title="Maximieren" aria-label="Maximieren">
             <svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1.2" /></svg>
           </button>
-          <button class="windowButton windowButtonDanger" data-window="close" title="Schließen" aria-label="Schließen">
+          <button class="windowButton windowButtonDanger" data-window="close" type="button" title="Schließen" aria-label="Schließen">
             <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" /></svg>
           </button>
         </div>
@@ -35,10 +35,10 @@
 
       <div class="toolbar" id="toolbar">
         <div class="navGroup">
-          <button class="iconButton" id="back" title="Zurück" aria-label="Zurück"></button>
-          <button class="iconButton" id="forward" title="Vorwärts" aria-label="Vorwärts"></button>
-          <button class="iconButton" id="reload" title="Neu laden" aria-label="Neu laden"></button>
-          <button class="iconButton" id="home" title="Startseite" aria-label="Startseite"></button>
+          <button class="iconButton" id="back" type="button" title="Zurück" aria-label="Zurück"></button>
+          <button class="iconButton" id="forward" type="button" title="Vorwärts" aria-label="Vorwärts"></button>
+          <button class="iconButton" id="reload" type="button" title="Neu laden" aria-label="Neu laden"></button>
+          <button class="iconButton" id="home" type="button" title="Startseite" aria-label="Startseite"></button>
         </div>
 
         <form class="omni" id="omni" autocomplete="off">
@@ -60,13 +60,13 @@
         </form>
 
         <div class="toolGroup">
-          <button class="iconButton" id="mediaButton" title="Mediensteuerung" aria-label="Mediensteuerung" hidden></button>
-          <button class="iconButton" id="storeButton" title="Hinter Store" aria-label="Hinter Store"></button>
-          <button class="iconButton accountButton" id="accountButton" title="Hinterland Konto &amp; Sync" aria-label="Hinterland Konto &amp; Sync"></button>
-          <button class="iconButton" id="findButton" title="Suchen" aria-label="Suchen"></button>
-          <button class="iconButton" id="downloadsButton" title="Downloads" aria-label="Downloads"></button>
-          <button class="iconButton" id="extensionsButton" title="Erweiterungen" aria-label="Erweiterungen"></button>
-          <button class="iconButton" id="menuButton" title="Menü" aria-label="Menü"></button>
+          <button class="iconButton" id="mediaButton" type="button" title="Mediensteuerung" aria-label="Mediensteuerung" hidden></button>
+          <button class="iconButton" id="storeButton" type="button" title="Hinter Store" aria-label="Hinter Store"></button>
+          <button class="iconButton accountButton" id="accountButton" type="button" title="Hinterland Konto &amp; Sync" aria-label="Hinterland Konto &amp; Sync"></button>
+          <button class="iconButton" id="findButton" type="button" title="Suchen" aria-label="Suchen"></button>
+          <button class="iconButton" id="downloadsButton" type="button" title="Downloads" aria-label="Downloads"></button>
+          <button class="iconButton" id="extensionsButton" type="button" title="Erweiterungen" aria-label="Erweiterungen"></button>
+          <button class="iconButton" id="menuButton" type="button" title="Menü" aria-label="Menü"></button>
         </div>
       </div>
 
@@ -77,9 +77,9 @@
         <span class="findIcon" id="findIcon"></span>
         <input class="findInput" id="findInput" type="text" placeholder="In Seite suchen" aria-label="In Seite suchen" />
         <span class="findCount" id="findCount">0/0</span>
-        <button class="iconButton small" id="findPrev" title="Vorheriger Treffer" aria-label="Vorheriger Treffer"></button>
-        <button class="iconButton small" id="findNext" title="Nächster Treffer" aria-label="Nächster Treffer"></button>
-        <button class="iconButton small" id="findClose" title="Schließen" aria-label="Schließen"></button>
+        <button class="iconButton small" id="findPrev" type="button" title="Vorheriger Treffer" aria-label="Vorheriger Treffer"></button>
+        <button class="iconButton small" id="findNext" type="button" title="Nächster Treffer" aria-label="Nächster Treffer"></button>
+        <button class="iconButton small" id="findClose" type="button" title="Schließen" aria-label="Schließen"></button>
       </div>
 
       <div class="downloadShelf" id="downloadShelf" hidden></div>

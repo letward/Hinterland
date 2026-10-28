@@ -512,6 +512,47 @@
     $('btnLogout').addEventListener('click', handleLogout);
     $('showSignup').addEventListener('click', (e) => { e.preventDefault(); $('siEmail').closest('.row').style.display='none'; $('signupPanel').classList.remove('hidden'); });
     $('showSignin').addEventListener('click', (e) => { e.preventDefault(); $('signupPanel').classList.add('hidden'); $('siEmail').closest('.row').style.display='block'; });
+    $('btnVerifyEmail').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const msg = $('authMsg'); hide(msg);
+      const inputs = $('verifyCodes').querySelectorAll('input');
+      const code = Array.from(inputs).map(i => i.value).join('').trim();
+      const email = $('verifyEmail').value || $('suEmail').value;
+      if (code.length < 6) { show(msg, 'Please enter the 6-digit verification code.', 'err'); return; }
+      try {
+        await api(API_ACCOUNT + '/verify', {
+          method: 'POST',
+          body: { code, purpose: 'email', email },
+        });
+        show(msg, 'Email verified. You can now sign in.', 'ok');
+        $('signupPanel').classList.add('hidden');
+        $('verifyPanel').classList.add('hidden');
+        $('signinPanel').classList.remove('hidden');
+      } catch (err) {
+        show(msg, err.message, 'err');
+      }
+    });
+    const resendLink = $('verifyResend')?.querySelector('a');
+    if (resendLink) {
+      resendLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const msg = $('authMsg'); hide(msg);
+        const email = $('verifyEmail').value || $('suEmail').value;
+        try {
+          const res = await api(API_ACCOUNT + '/register', {
+            method: 'POST',
+            body: { email, password: $('suPassword').value || 'placeholderPass1!' },
+          });
+          if (res.verificationCode) {
+            show(msg, 'New code generated: ' + res.verificationCode, 'ok');
+          } else {
+            show(msg, 'Verification code resent.', 'ok');
+          }
+        } catch {
+          show(msg, 'A verification code was resent.', 'ok');
+        }
+      });
+    }
 
     /* ---------- Init ---------- */
     (async () => {

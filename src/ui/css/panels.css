@@ -136,7 +136,7 @@
   background: transparent;
   color: var(--text);
   text-align: left;
-  cursor: default;
+  cursor: pointer;
   transition: background var(--anim);
 }
 
@@ -367,7 +367,7 @@
   background: transparent;
   color: var(--textDim);
   text-align: left;
-  cursor: default;
+  cursor: pointer;
   transition: background var(--anim), color var(--anim);
 }
 
@@ -484,7 +484,7 @@
   border: 0;
   border-radius: 999px;
   background: var(--surfaceAlt);
-  cursor: default;
+  cursor: pointer;
   transition: background var(--anim);
   flex: none;
 }
@@ -549,7 +549,7 @@
 
 .selectInput {
   padding-right: 26px;
-  cursor: default;
+  cursor: pointer;
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
     linear-gradient(135deg, currentColor 50%, transparent 50%);
@@ -586,7 +586,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radiusSmall);
   background: var(--bg);
-  cursor: default;
+  cursor: pointer;
 }
 
 .colorHex {
@@ -614,7 +614,7 @@
   padding: 0;
   border: 2px solid transparent;
   border-radius: 50%;
-  cursor: default;
+  cursor: pointer;
   transition: transform var(--anim), border-color var(--anim);
 }
 
@@ -638,16 +638,21 @@
   border-radius: var(--radiusSmall);
   background: var(--surfaceAlt);
   color: var(--text);
-  cursor: default;
+  cursor: pointer;
   transition: background var(--anim), border-color var(--anim), transform var(--anim);
 }
 
-.button:hover {
+.button:hover:not(:disabled) {
   background: var(--surfaceHover);
 }
 
-.button:active {
-  transform: translateY(1px);
+.button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
 }
 
 .button.primary {
@@ -723,7 +728,7 @@
   border-radius: 50%;
   background: transparent;
   color: var(--textDim);
-  cursor: default;
+  cursor: pointer;
 }
 
 .tag button:hover {

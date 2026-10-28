@@ -39,7 +39,7 @@ html[data-compact="true"] .windowButtons {
   background: transparent;
   color: var(--textDim);
   cursor: pointer;
-  transition: background var(--anim), color var(--anim);
+  transition: background var(--anim), color var(--anim), transform var(--anim);
   z-index: 2;
   position: relative;
   -webkit-app-region: no-drag;
@@ -54,6 +54,10 @@ html[data-compact="true"] .windowButtons {
 .windowButton:hover {
   background: var(--surfaceHover);
   color: var(--text);
+}
+
+.windowButton:active {
+  transform: scale(0.92);
 }
 
 .windowButtonDanger:hover {
@@ -346,13 +350,17 @@ html[data-closeButton="always"] .tabClose {
   color: var(--textDim);
   cursor: pointer;
   flex: none;
-  transition: background var(--anim), color var(--anim);
+  transition: background var(--anim), color var(--anim), transform var(--anim);
   -webkit-app-region: no-drag;
 }
 
 .tabAction:hover {
   background: var(--surfaceHover);
   color: var(--text);
+}
+
+.tabAction:active {
+  transform: scale(0.92);
 }
 
 /* ------------------------------------------------------------------- tab groups */
@@ -511,8 +519,8 @@ html[data-closeButton="always"] .tabClose {
   border-radius: var(--radiusSmall);
   background: transparent;
   color: var(--textDim);
-  cursor: default;
-  transition: background var(--anim), color var(--anim), opacity var(--anim);
+  cursor: pointer;
+  transition: background var(--anim), color var(--anim), opacity var(--anim), transform var(--anim);
 }
 
 .iconButton:hover:not(:disabled) {
@@ -520,9 +528,13 @@ html[data-closeButton="always"] .tabClose {
   color: var(--text);
 }
 
+.iconButton:active:not(:disabled) {
+  transform: scale(0.93);
+}
+
 .iconButton:disabled {
-  opacity: 0.3;
-  pointer-events: none;
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .iconButton.active {

@@ -134,7 +134,7 @@ body.start {
   border-radius: 50%;
   background: var(--accent);
   color: var(--onAccent);
-  cursor: default;
+  cursor: pointer;
   transition: transform 140ms ease, filter 140ms ease;
 }
 
@@ -179,7 +179,7 @@ body.start {
   background: color-mix(in srgb, var(--surface) 62%, transparent);
   color: var(--text);
   text-decoration: none;
-  cursor: default;
+  cursor: pointer;
   transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
   backdrop-filter: blur(var(--blur));
   overflow: hidden;
@@ -255,7 +255,7 @@ body.start {
   border: 0;
   background: transparent;
   color: inherit;
-  cursor: default;
+  cursor: pointer;
   padding: 4px 8px;
   border-radius: var(--radiusSmall);
 }
@@ -335,11 +335,16 @@ body.start {
   border-radius: var(--radiusSmall);
   background: var(--surfaceAlt);
   color: var(--text);
-  cursor: default;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease;
 }
 
 .button:hover {
   background: var(--surfaceHover);
+}
+
+.button:active {
+  transform: translateY(1px);
 }
 
 .button.primary {
@@ -363,13 +368,18 @@ body.start {
   border-radius: var(--radiusSmall);
   background: transparent;
   color: var(--textDim);
-  cursor: default;
+  cursor: pointer;
   flex: none;
+  transition: transform 140ms ease, background 140ms ease;
 }
 
 .iconButton:hover {
   background: var(--surfaceAlt);
   color: var(--text);
+}
+
+.iconButton:active {
+  transform: scale(0.94);
 }
 
 .iconButton svg {

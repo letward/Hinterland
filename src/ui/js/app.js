@@ -169,7 +169,7 @@ function bind() {
     openOmniMenu();
   });
   $('#omni').addEventListener('click', (event) => {
-    if (event.target.closest('.omniInput')) return;
+    if (event.target.closest('.omniInput, button')) return;
     focusOmnibox(false);
   });
 
