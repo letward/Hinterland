@@ -85,8 +85,8 @@ module.exports = async function handler(req, res) {
       // Do not leak upstream details.
       return res.status(502).json({ error: 'Service temporarily unavailable.' });
     }
-    const data = await r.json();
-    return res.status(201).json({ ok: true, issue: data.html_url, number: data.number });
+    await r.json();
+    return res.status(201).json({ ok: true });
   } catch (e) {
     return res.status(500).json({ error: 'Service temporarily unavailable.' });
   }

@@ -78,10 +78,10 @@ async function resolveUser(token) {
 function userProfile(user) {
   const profile = profilesByUserId.get(user.id) || {};
   return {
+    ...profile,
     id: user.id,
     email: user.email,
     provider: SUPABASE_URL && SUPABASE_ANON_KEY ? 'supabase' : 'hinterland',
-    ...profile,
   };
 }
 
