@@ -947,6 +947,7 @@ function aboutPage() {
       container.append(
         el('div', { class: 'actionRow', style: { marginTop: '22px' } }, [
           el('button', { class: 'button', type: 'button', onclick: () => api().tabs.create({ url: 'https://hinterland-browser.vercel.app' }) }, [t('about.website')]),
+          el('button', { class: 'button', type: 'button', onclick: () => api().tabs.create({ url: 'https://hinterland-browser.vercel.app/docs/user-guide.html' }) }, [t('about.userGuide')]),
           el('button', { class: 'button', type: 'button', onclick: () => api().app.openFolder('userData') }, [t('about.openFolder')]),
           el('button', { class: 'button', type: 'button', onclick: () => api().app.openFolder('downloads') }, [t('about.openDownloads')]),
         ]),

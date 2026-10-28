@@ -151,7 +151,7 @@ describe('Hinterland Account & Cloud Sync Engine', () => {
       assert.equal(res.statusCode, 200);
       assert.equal(res.data.ok, true);
       assert.equal(res.data.service, 'hinterland-sync');
-      assert.equal(res.data.version, '1.22.0');
+      assert.equal(res.data.version, '1.23.0');
     });
 
     it('handles OPTIONS request with CORS headers', async () => {

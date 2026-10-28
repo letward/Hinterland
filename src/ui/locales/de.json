@@ -64,6 +64,7 @@
     "shortcuts": "Tastenkürzel",
     "settings": "Einstellungen",
     "about": "Über",
+    "userGuide": "Benutzerhandbuch",
     "page": "Seite",
     "tab": "Tab",
     "tools": "Werkzeuge",
@@ -337,7 +338,8 @@
     "blocked": "Kürzlich blockierte Anfragen",
     "openFolder": "Datenordner öffnen",
     "openDownloads": "Downloadordner öffnen",
-    "website": "Offizielle Website"
+    "website": "Offizielle Website",
+    "userGuide": "Benutzerhandbuch"
   },
   "toast": {
     "copiedCleanUrl": "Bereinigter Link in die Zwischenablage kopiert",

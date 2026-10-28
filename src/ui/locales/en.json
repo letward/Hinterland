@@ -64,6 +64,7 @@
     "shortcuts": "Shortcuts",
     "settings": "Settings",
     "about": "About",
+    "userGuide": "User Guide",
     "page": "Page",
     "tab": "Tab",
     "tools": "Tools",
@@ -337,7 +338,8 @@
     "blocked": "Recently blocked requests",
     "openFolder": "Open data folder",
     "openDownloads": "Open downloads folder",
-    "website": "Official Website"
+    "website": "Official Website",
+    "userGuide": "User Guide"
   },
   "toast": {
     "copiedCleanUrl": "Clean link copied to clipboard",

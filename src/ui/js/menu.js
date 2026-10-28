@@ -199,6 +199,11 @@ export function openMainMenu() {
           },
         }),
         row({
+          iconName: 'reader',
+          title: t('menu.userGuide'),
+          onSelect: () => api().tabs.create({ url: 'https://hinterland-browser.vercel.app/docs/user-guide.html' }),
+        }),
+        row({
           iconName: 'info',
           title: t('menu.about'),
           onSelect: () => window.dispatchEvent(new CustomEvent('hinterland:openpanel', { detail: { panel: 'about' } })),

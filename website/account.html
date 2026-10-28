@@ -499,7 +499,7 @@
       try {
         await api(API_TELEMETRY, {
           method: 'POST',
-          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.22.0', events: [{ name: 'page_view', props: { section: 'account' }, ts: Date.now() }] },
+          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.23.0', events: [{ name: 'page_view', props: { section: 'account' }, ts: Date.now() }] },
         });
       } catch { /* non-fatal */ }
     });

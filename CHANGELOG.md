@@ -4,6 +4,28 @@ All notable changes to Hinterland are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.23.0] - 2026-10-28
+
+### Added
+- **Official In-App & Web User Guide (`website/docs/user-guide.html`, `src/ui/js/menu.js`, `src/ui/js/panels.js`)**:
+  - Comprehensive, responsive User Guide published under `/docs/user-guide.html` covering browser installation, everyday navigation, tab grouping & stashes, reader mode, privacy controls & permissions, password management, sync, and troubleshooting.
+  - Quick launcher entries added to the browser's Main Menu (`openMainMenu`) and About panel (`aboutPage`) for instant access to documentation.
+  - Added localized strings for `menu.userGuide` and `about.userGuide` in English and German (`src/ui/locales/en.json`, `src/ui/locales/de.json`).
+- **Web Account Portal Verification Flow (`website/account.html`)**:
+  - Implemented interactive email verification code submission and resend handlers (`btnVerifyEmail`, `verifyResend`), enabling users to verify newly registered accounts directly within the web account dashboard.
+- **Automated Regression & Feature Test Suite (`sdk/test/v123Features.test.mjs`)**:
+  - Added automated test suite validating User Guide documentation structure and navigation anchors, API endpoint hardening, interactive UI tokens, and account verification flows.
+
+### Fixed
+- **UI Button Interaction & Tactile Feedback Polish (`src/ui/css/`, `src/ui/index.html`, `src/ui/js/app.js`)**:
+  - Standardized `cursor: pointer` and tactile `:active` state animations (`transform: scale(0.92-0.94)` / `translateY(1px)`) across window buttons, tab action buttons, icon buttons, new tab quick actions, panel triggers, and select dropdowns.
+  - Enforced `type="button"` on find bar controls (`#findPrev`, `#findNext`, `#findClose`) to guard against unintended form submit behaviors.
+  - Enhanced omnibox click delegation in `src/ui/js/app.js` to prevent unwanted URL bar focusing when clicking action buttons.
+  - Added global button base rules in design tokens (`src/ui/css/tokens.css`, `website/tokens.css`) with `-webkit-app-region: no-drag` and `disabled: cursor: not-allowed`.
+- **Website API Endpoint Hardening (`website/api/feedback.js`, `website/vercel.json`)**:
+  - Sanitized feedback submission responses to avoid leaking internal repository issue numbers or upstream URLs.
+  - Added clean route rewriting in `website/vercel.json` for documentation assets.
+
 ## [1.22.0] - 2026-10-28
 
 ### Added
