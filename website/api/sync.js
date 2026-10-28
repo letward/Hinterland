@@ -53,6 +53,23 @@ function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+async function verifySupabaseToken(token) {
+  if (!token || !SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+  try {
+    const response = await fetch(`${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/user`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) return null;
+    const payload = await response.json();
+    return payload.user || null;
+  } catch {
+    return null;
+  }
+}
+
 function normalizeUrl(url) {
   try {
     const parsed = new URL(url);
@@ -119,7 +136,7 @@ module.exports = async function handler(req, res) {
 
   // Extract auth token
   const authHeader = req.headers.authorization || '';
-  const token = body.token || (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
 
   /* ----------------------------------------------------------------- signup */
   if (action === 'signup') {
@@ -215,13 +232,12 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
 
-  const user = tokensToUser.get(token);
-  // If token is unknown and no Supabase is configured, reject
-  if (!user && !SUPABASE_URL) {
-    return res.status(401).json({ ok: false, error: 'sessionExpired' });
-  }
+  const user = SUPABASE_URL && SUPABASE_ANON_KEY
+    ? await verifySupabaseToken(token)
+    : tokensToUser.get(token);
+  if (!user) return res.status(401).json({ ok: false, error: 'sessionExpired' });
 
-  const userId = user?.id || token;
+  const userId = user.id;
 
   if (action === 'pull') {
     const stored = syncDataByUser.get(userId) || { bookmarks: [], settings: {}, updatedAt: null };
