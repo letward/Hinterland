@@ -1,89 +1,35 @@
 /**
  * @fileoverview Hinterland Account API - Vercel Serverless
- * Single source of truth for user profiles on Vercel.
- * Auth state is owned by Supabase (GoTrue) when configured; a small in-memory
- * registry serves as the dev/preview fallback so the endpoints stay functional
- * without any external provisioning.
+ * Real accounts with email + password, email/phone verification, TOTP 2FA,
+ * and store-download entitlements. Auth state owned by Supabase GoTrue when
+ * configured; a shared in-memory layer serves as dev/preview fallback.
  *
  * Endpoints:
- *   GET  /api/account/me          -> { ok, user: { id, email, provider, ...profile } }
- *   PUT  /api/account/me          -> update profile (displayName, etc.)
- *   GET  /api/account/providers   -> configured auth/sync providers status
+ *   POST  /api/account/register   { email, password, phone? } -> { token, user, requiresEmailVerification }
+ *   POST  /api/account/login      { email, password, totp? }  -> { token, user, requiresTotp }
+ *   GET   /api/account/me         -> { ok, user }
+ *   PUT   /api/account/me         -> update profile
+ *   POST  /api/account/verify     { code, purpose ('email'|'phone'|'totp-enable'|'password-reset') }
+ *   POST  /api/account/totp/setup -> { secret, uri, recoveryCodes }
+ *   POST  /api/account/totp/verify { token } -> { ok, verified }
+ *   POST  /api/account/logout     -> { ok }
+ *   GET   /api/account/download/entitlement -> { ok, remaining }
+ *   POST  /api/account/download/consume   -> { ok, remaining }
+ *   GET   /api/account/providers  -> provider status
  */
 
 const crypto = require('node:crypto');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// In-memory fallback (per serverless instance). Real state lives in Supabase auth.users.
-const usersByEmail = new Map();   // email -> { id, email, salt, hash, created }
-const tokensToUser = new Map();   // token -> { id, email }
-const profilesByUserId = new Map(); // userId -> { displayName, ... }
-
-function isEmail(v) {
-  return typeof v === 'string' && /^[^\s@]+@[^\s@]+$/.test(v.trim());
-}
-
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-function hashPassword(password, salt) {
-  return crypto.scryptSync(password, salt, 64).toString('hex');
-}
-
-function verifyPassword(password, salt, storedHash) {
-  const hash = hashPassword(password, salt);
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(storedHash, 'hex'));
-}
-
-function baseUrl() {
-  return (SUPABASE_URL || '').replace(/\/+$/, '');
-}
-
-/* ------------------------------------------------------------- auth helpers */
-
-async function verifySupabaseToken(token) {
-  if (!token) return null;
-  try {
-    const res = await fetch(`${baseUrl()}/auth/v1/user`, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: 'Bearer ' + token,
-      },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.user || null;
-  } catch {
-    return null;
-  }
-}
-
-function extractToken(req) {
-  const auth = req.headers.authorization || '';
-  if (auth.startsWith('Bearer ')) return auth.slice(7);
-  return null;
-}
-
-async function resolveUser(token) {
-  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    return await verifySupabaseToken(token);
-  }
-  return tokensToUser.get(token) || null;
-}
-
-function userProfile(user) {
-  const profile = profilesByUserId.get(user.id) || {};
-  return {
-    id: user.id,
-    email: user.email,
-    provider: SUPABASE_URL && SUPABASE_ANON_KEY ? 'supabase' : 'hinterland',
-    ...profile,
-  };
-}
+const {
+  HAS_SUPABASE, baseUrl, isEmail, isPhone, hashPassword, timingSafeEqual,
+  accountsByEmail, accountsById, sessionsByToken, verifyCodes, downloadsByUser,
+  supabaseFetch, supabaseAuthFetch,
+  createAccount, verifyPasswordAccount, createSession, getSession, destroySession,
+  resolveSupabaseUser, mapAccountToProfile,
+  createVerificationCode, consumeVerificationCode,
+  totpGenerate, totpVerify, generateRecoveryCodes,
+  incrementDownload, getDownloadCount, providersStatus,
+} = require('./_account');
 
 /* ------------------------------------------------------------- rate limit */
 
@@ -112,11 +58,34 @@ function json(res, status, payload) {
   return res.status(status).json(payload);
 }
 
+/* ------------------------------------------------------------- auth helpers */
+
+function extractToken(req) {
+  const auth = req.headers.authorization || '';
+  if (auth.startsWith('Bearer ')) return auth.slice(7);
+  return null;
+}
+
+async function resolveUser(token) {
+  if (!token) return null;
+  if (HAS_SUPABASE) {
+    const user = await resolveSupabaseUser(token);
+    if (user) {
+      const local = accountsById.get(user.id) || accountsByEmail.get(user.email);
+      return { ...user, ...(local || {}) };
+    }
+    return null;
+  }
+  const s = getSession(token);
+  if (!s) return null;
+  return accountsById.get(s.id) || null;
+}
+
 /* ------------------------------------------------------------- handler */
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
@@ -130,23 +99,119 @@ module.exports = async function handler(req, res) {
   const url = req.url.split('?')[0];
   const path = url.replace(/\/+$/, '');
 
-  /* ------------------------------------------------------ GET /api/account/me */
-  if (req.method === 'GET' && path.endsWith('/account/me')) {
-    const token = extractToken(req);
-    const user = await resolveUser(token);
-    if (!user) {
-      return json(res, 401, { ok: false, error: 'notLoggedIn' });
+  /* --------------------------------------------------- POST /api/account/register */
+  if (req.method === 'POST' && path === '/api/account/register') {
+    const body = req.body || {};
+    const email = String(body.email || '').trim().toLowerCase();
+    const password = String(body.password || '');
+    const phone = String(body.phone || '').trim() || undefined;
+
+    if (!isEmail(email)) return json(res, 400, { ok: false, error: 'invalidEmail' });
+    if (password.length < 8) return json(res, 400, { ok: false, error: 'passwordTooShort' });
+    if (phone && !isPhone(phone)) return json(res, 400, { ok: false, error: 'invalidPhone' });
+
+    let account;
+    try {
+      account = await createAccount({ email, password, phone });
+    } catch (err) {
+      const code = err.message;
+      if (code === 'userAlreadyExists') return json(res, 409, { ok: false, error: 'userAlreadyExists' });
+      if (code === 'invalidEmail' || code === 'passwordTooShort' || code === 'invalidPhone') {
+        return json(res, 400, { ok: false, error: code });
+      }
+      return json(res, 500, { ok: false, error: 'registrationFailed' });
     }
-    return json(res, 200, { ok: true, user: userProfile(user) });
+
+    if (HAS_SUPABASE) {
+      return json(res, 201, {
+        ok: true,
+        requiresEmailVerification: true,
+        user: { id: account.id, email: account.email, emailVerified: false },
+      });
+    }
+
+    const code = createVerificationCode({ identifier: email, purpose: 'email', ttlMs: 10 * 60_000 });
+    const token = createSession(account);
+    return json(res, 201, {
+      ok: true,
+      requiresEmailVerification: true,
+      verificationCode: code,
+      token,
+      user: mapAccountToProfile(account),
+    });
   }
 
-  /* --------------------------------------------------- PUT /api/account/me */
-  if (req.method === 'PUT' && path.endsWith('/account/me')) {
+  /* ------------------------------------------------------ POST /api/account/login */
+  if (req.method === 'POST' && path === '/api/account/login') {
+    const body = req.body || {};
+    const email = String(body.email || '').trim().toLowerCase();
+    const password = String(body.password || '');
+    const totp = String(body.totp || '').trim();
+
+    if (!isEmail(email) || !password) return json(res, 400, { ok: false, error: 'invalidCredentials' });
+
+    let account;
+    if (HAS_SUPABASE) {
+      try {
+        const resUp = await fetch(`${baseUrl()}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            apikey: process.env.SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await resUp.json();
+        if (!resUp.ok) return json(res, 401, { ok: false, error: 'invalidCredentials' });
+        const supaUser = data.user || {};
+        account = accountsById.get(supaUser.id) || accountsByEmail.get(email) || {
+          id: supaUser.id, email, emailVerified: !!supaUser.email_confirmed_at,
+          phone: null, phoneVerified: false, totpSecret: null, createdAt: new Date().toISOString(),
+        };
+        return json(res, 200, {
+          ok: true,
+          token: data.access_token,
+          requiresTotp: Boolean(account.totpSecret),
+          user: mapAccountToProfile(account),
+        });
+      } catch {
+        return json(res, 401, { ok: false, error: 'invalidCredentials' });
+      }
+    }
+
+    account = await verifyPasswordAccount(email, password);
+    if (!account) return json(res, 401, { ok: false, error: 'invalidCredentials' });
+
+    account.lastSignIn = new Date().toISOString();
+
+    if (account.totpSecret) {
+      if (!totp || !totpVerify(account.totpSecret, totp)) {
+        return json(res, 200, { ok: true, requiresTotp: true, email: account.email });
+      }
+    }
+
+    const token = createSession(account);
+    return json(res, 200, {
+      ok: true,
+      token,
+      requiresTotp: false,
+      user: mapAccountToProfile(account),
+    });
+  }
+
+  /* --------------------------------------------------------- GET /api/account/me */
+  if (req.method === 'GET' && path === '/api/account/me') {
     const token = extractToken(req);
     const user = await resolveUser(token);
-    if (!user) {
-      return json(res, 401, { ok: false, error: 'notLoggedIn' });
-    }
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
+    return json(res, 200, { ok: true, user: mapAccountToProfile(user) });
+  }
+
+  /* ------------------------------------------------------- PUT /api/account/me */
+  if (req.method === 'PUT' && path === '/api/account/me') {
+    const token = extractToken(req);
+    const user = await resolveUser(token);
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
 
     const body = req.body || {};
     const { displayName } = body;
@@ -154,46 +219,136 @@ module.exports = async function handler(req, res) {
       return json(res, 400, { ok: false, error: 'invalidDisplayName' });
     }
 
-    const profile = { ...(profilesByUserId.get(user.id) || {}) };
-    if (displayName !== undefined) profile.displayName = displayName.trim();
-    profilesByUserId.set(user.id, profile);
-
-    // Persist into Supabase user_metadata when available (cross-device SSOT)
-    if (SUPABASE_URL && SUPABASE_ANON_KEY && token) {
+    if (HAS_SUPABASE && token) {
       try {
-        const updKey = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
         await fetch(`${baseUrl()}/auth/v1/user`, {
           method: 'PUT',
           headers: {
-            apikey: updKey,
+            apikey: process.env.SUPABASE_ANON_KEY,
             Authorization: 'Bearer ' + token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ data: { profile } }),
+          body: JSON.stringify({ data: { displayName: displayName || '' } }),
         });
       } catch {
-        // Non-fatal: in-memory profile is still current for this session
+        // non-fatal
       }
     }
 
-    return json(res, 200, { ok: true, user: userProfile(user) });
+    const local = accountsById.get(user.id);
+    if (local && displayName !== undefined) local.displayName = displayName.trim();
+
+    return json(res, 200, { ok: true, user: mapAccountToProfile({ ...user, displayName }) });
+  }
+
+  /* ------------------------------------------------ POST /api/account/verify */
+  if (req.method === 'POST' && path === '/api/account/verify') {
+    const body = req.body || {};
+    const { code, purpose, email, phone } = body;
+    if (!code || !purpose) return json(res, 400, { ok: false, error: 'missingCodeOrPurpose' });
+
+    const identifier = purpose === 'phone' ? (phone || '') : (email || '');
+    if (!identifier) return json(res, 400, { ok: false, error: 'missingIdentifier' });
+
+    const result = consumeVerificationCode(code, { identifier, purpose });
+    if (!result.ok) return json(res, 400, { ok: false, error: result.error });
+
+    const acct = purpose === 'phone'
+      ? [...accountsByEmail.values()].find((a) => a.phone === identifier)
+      : accountsByEmail.get(identifier);
+    if (acct) {
+      if (purpose === 'email') acct.emailVerified = true;
+      if (purpose === 'phone') acct.phoneVerified = true;
+    }
+
+    return json(res, 200, { ok: true, verified: true });
+  }
+
+  /* -------------------------------------------- POST /api/account/totp/setup */
+  if (req.method === 'POST' && path === '/api/account/totp/setup') {
+    const token = extractToken(req);
+    const user = await resolveUser(token);
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
+
+    const acct = accountsById.get(user.id);
+    if (!acct) return json(res, 404, { ok: false, error: 'accountNotFound' });
+    if (acct.totpSecret) return json(res, 409, { ok: false, error: 'totpAlreadyEnabled' });
+
+    const secret = crypto.randomBytes(10).toString('base64').replace(/[+/=]/g, '').slice(0, 32);
+    const issuer = 'Hinterland';
+    const uri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(acct.email)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
+    const recoveryCodes = generateRecoveryCodes();
+
+    sessionsByToken.forEach((s) => { if (s.id === user.id) s._pendingTotp = { secret, recoveryCodes }; });
+
+    return json(res, 200, { ok: true, secret, uri, recoveryCodes });
+  }
+
+  /* ------------------------------------------ POST /api/account/totp/verify */
+  if (req.method === 'POST' && path === '/api/account/totp/verify') {
+    const token = extractToken(req);
+    const user = await resolveUser(token);
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
+
+    const body = req.body || {};
+    const code = String(body.token || '').trim();
+    if (!/^\d{6}$/.test(code)) return json(res, 400, { ok: false, error: 'invalidTotpCode' });
+
+    const acct = accountsById.get(user.id);
+    if (!acct) return json(res, 404, { ok: false, error: 'accountNotFound' });
+
+    let pending = null;
+    sessionsByToken.forEach((s) => { if (s.id === user.id && s._pendingTotp) pending = s._pendingTotp; });
+    if (!pending || !totpVerify(pending.secret, code)) {
+      if (acct.totpSecret && totpVerify(acct.totpSecret, code)) {
+        return json(res, 200, { ok: true, verified: true });
+      }
+      return json(res, 400, { ok: false, error: 'invalidTotpCode' });
+    }
+
+    acct.totpSecret = pending.secret;
+    acct.recoveryCodes = pending.recoveryCodes;
+    sessionsByToken.forEach((s) => { if (s.id === user.id) delete s._pendingTotp; });
+
+    return json(res, 200, { ok: true, verified: true });
+  }
+
+  /* ---------------------------------------------------- POST /api/account/logout */
+  if (req.method === 'POST' && path === '/api/account/logout') {
+    const token = extractToken(req);
+    if (token) destroySession(token);
+    return json(res, 200, { ok: true });
+  }
+
+  /* -------------------------------------- GET /api/account/download/entitlement */
+  if (req.method === 'GET' && path === '/api/account/download/entitlement') {
+    const token = extractToken(req);
+    const user = await resolveUser(token);
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
+    const verified = HAS_SUPABASE
+      ? Boolean(user.email_confirmed_at || user.emailVerified)
+      : Boolean(user.emailVerified);
+    const remaining = verified ? Math.max(0, 50 - getDownloadCount(user.id)) : 0;
+    return json(res, 200, { ok: true, verified, remaining, limit: 50 });
+  }
+
+  /* --------------------------------------- POST /api/account/download/consume */
+  if (req.method === 'POST' && path === '/api/account/download/consume') {
+    const token = extractToken(req);
+    const user = await resolveUser(token);
+    if (!user) return json(res, 401, { ok: false, error: 'notLoggedIn' });
+    const verified = HAS_SUPABASE
+      ? Boolean(user.email_confirmed_at || user.emailVerified)
+      : Boolean(user.emailVerified);
+    if (!verified) return json(res, 403, { ok: false, error: 'emailNotVerified' });
+    const n = incrementDownload(user.id);
+    const remaining = Math.max(0, 50 - n);
+    return json(res, 200, { ok: true, consumed: n, remaining });
   }
 
   /* --------------------------------------- GET /api/account/providers */
-  if (req.method === 'GET' && path.endsWith('/account/providers')) {
-    return json(res, 200, {
-      ok: true,
-      sync: {
-        server: SUPABASE_URL ? 'supabase' : 'hinterland-serverless',
-        supabaseConfigured: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
-      },
-      store: {
-        supabaseConfigured: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
-      },
-      analytics: {
-        vercelAnalytics: true,
-      },
-    });
+  if (req.method === 'GET' && path === '/api/account/providers') {
+    return json(res, 200, { ok: true, ...providersStatus() });
   }
 
   return json(res, 404, { ok: false, error: 'notFound' });

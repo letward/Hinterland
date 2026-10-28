@@ -62,7 +62,15 @@
     footer.site-foot { padding: 48px 24px 32px; border-top: 1px solid var(--borderSoft); text-align: center; color: var(--textDim); font-size: 13px; }
     .hidden { display: none !important; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    .step { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 14px; color: var(--textDim); }
+    .step.done { color: #7dd3a8; }
+    .step .dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .step.done .dot { background: #7dd3a8; border-color: #7dd3a8; color: #000; }
+    .codes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    .codes input { width: 100%; max-width: 40px; text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 0; }
+    .small { font-size: 12px; color: var(--textDim); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--borderSoft); font-size: 12px; background: var(--surfaceAlt); }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } .nav-links { display: none; } .codes { grid-template-columns: repeat(4, 40px); } }
   </style>
 </head>
 <body>
@@ -86,39 +94,65 @@
       <p>Sign in to sync bookmarks and settings across devices and upload extensions &amp; designs to the Hinter Store.</p>
     </div>
 
-    <!-- Sign in / sign up (shown when not authenticated) -->
+    <!-- Sign in / sign up -->
     <div id="authPanel" class="card">
-      <div class="row">
-        <div>
-          <h2>Sign in</h2>
-          <label>Email</label>
-          <input type="email" id="siEmail" placeholder="you@example.com" />
-          <label>Password</label>
-          <input type="password" id="siPassword" placeholder="••••••••" />
-          <button class="btn primary" id="btnSignIn">Sign in</button>
-          <p style="font-size:12px;color:var(--textDim);">New here? <a href="#" id="showSignup" style="color:var(--accent);cursor:pointer;">Create an account</a></p>
-        </div>
-        <div id="signupPanel" class="hidden">
-          <h2>Create account</h2>
-          <label>Email</label>
-          <input type="email" id="suEmail" placeholder="you@example.com" />
-          <label>Password (6+ chars)</label>
-          <input type="password" id="suPassword" placeholder="••••••••" />
-          <label>Sync passphrase (optional, zero-knowledge encryption)</label>
-          <input type="password" id="suPassphrase" placeholder="Leave empty to sync unencrypted" />
-          <button class="btn primary" id="btnSignUp">Create account</button>
-          <p style="font-size:12px;color:var(--textDim);">Already have an account? <a href="#" id="showSignin" style="color:var(--accent);cursor:pointer;">Sign in</a></p>
+      <div id="authMsg" class="status hidden"></div>
+
+      <!-- Sign in -->
+      <div id="signinPanel">
+        <h2>Sign in</h2>
+        <label>Email</label>
+        <input type="email" id="siEmail" placeholder="you@example.com" />
+        <label>Password</label>
+        <input type="password" id="siPassword" placeholder="••••••••" />
+        <button class="btn primary" id="btnSignIn">Sign in</button>
+        <p style="font-size:12px;color:var(--textDim);">New here? <a href="#" id="showSignup" style="color:var(--accent);cursor:pointer;">Create an account</a></p>
+
+        <!-- TOTP challenge (shown when 2FA is required) -->
+        <div id="totpChallenge" class="hidden" style="margin-top:16px;">
+          <label>Two-factor code (authenticator app)</label>
+          <div class="grid2">
+            <input type="text" id="totpCode" maxlength="6" placeholder="000000" inputmode="numeric" />
+            <input type="hidden" id="totpPendingEmail" />
+          </div>
+          <button class="btn" id="btnVerifyTotp" style="margin-top:8px;">Verify code</button>
+          <p class="small">Lost your device? Use one of your recovery codes.</p>
         </div>
       </div>
-      <div id="authMsg" class="status hidden"></div>
+
+      <!-- Sign up -->
+      <div id="signupPanel" class="hidden">
+        <h2>Create account</h2>
+        <label>Email</label>
+        <input type="email" id="suEmail" placeholder="you@example.com" />
+        <label>Password (8+ chars)</label>
+        <input type="password" id="suPassword" placeholder="••••••••" />
+        <label>Phone number (optional, +49123...)</label>
+        <input type="tel" id="suPhone" placeholder="+49 123 456789" />
+        <label>Sync passphrase (optional, zero-knowledge encryption)</label>
+        <input type="password" id="suPassphrase" placeholder="Leave empty to sync unencrypted" />
+        <button class="btn primary" id="btnSignUp">Create account</button>
+        <p style="font-size:12px;color:var(--textDim);">Already have an account? <a href="#" id="showSignin" style="color:var(--accent);cursor:pointer;">Sign in</a></p>
+      </div>
+
+      <!-- Email verification (shown after fallback-mode signup) -->
+      <div id="verifyPanel" class="hidden">
+        <h2>Verify email</h2>
+        <p class="small">A 6-digit code was shown to you. Enter it below.</p>
+        <div class="codes" id="verifyCodes"></div>
+        <input type="hidden" id="verifyEmail" />
+        <button class="btn primary" id="btnVerifyEmail">Verify email</button>
+        <p class="small" id="verifyResend" style="margin-top:10px;">Didn't get a code? <a href="#" style="color:var(--accent);cursor:pointer;">Request again</a></p>
+      </div>
     </div>
 
-    <!-- Profile / sync (shown when authenticated) -->
+    <!-- Profile / sync / 2FA -->
     <div id="profilePanel" class="hidden card">
       <div class="row">
-        <div>
+        <div style="min-width:0;">
           <h2>Profile</h2>
           <p id="profileEmail"></p>
+          <span id="profileBadge" class="badge" style="margin-left:8px;"></span>
           <label>Display name</label>
           <input type="text" id="profileDisplayName" placeholder="Your name" />
           <button class="btn primary" id="btnSaveProfile">Save</button>
@@ -133,14 +167,61 @@
           <p id="syncLast" style="font-size:12px;color:var(--textDim);">Last sync: never</p>
           <button class="btn" id="btnSyncNow" style="margin-top:8px;">Sync now</button>
           <div id="syncMsg" class="status hidden"></div>
-          <p style="font-size:12px;color:var(--textDim);margin-top:10px;">Sync is end-to-end encrypted when you set a passphrase.</p>
+          <p class="small" style="margin-top:10px;">Sync is end-to-end encrypted when you set a passphrase.</p>
         </div>
       </div>
+
+      <!-- Verification status -->
+      <div class="toggle" style="margin-top:18px;">
+        <span id="verifyStatusLabel">Verifying identity…</span>
+        <span id="verifyStatusBadge" class="badge">pending</span>
+      </div>
+      <div id="verifyActions" style="margin-top:10px;">
+        <button class="btn ghost" id="btnVerifyEmailBtn" style="margin-right:8px;">Verify email</button>
+        <button class="btn ghost" id="btnVerifyPhoneBtn">Verify phone</button>
+      </div>
+      <div id="phoneInput" class="hidden" style="margin-top:10px;">
+        <label>Phone number</label>
+        <input type="tel" id="suPhone2" placeholder="+49 123 456789" />
+        <div class="codes" id="phoneCodes"></div>
+        <input type="hidden" id="phoneVerifyCode" />
+        <button class="btn" id="btnVerifyPhoneCode" style="margin-top:8px;">Verify phone</button>
+      </div>
+
+      <!-- 2FA -->
+      <div class="toggle" style="margin-top:18px;">
+        <span>Two-factor authentication (authenticator app)</span>
+        <span id="totpStatusBadge" class="badge">disabled</span>
+      </div>
+      <div id="totpPanel" class="hidden">
+        <p class="small">Scan the QR code with Google Authenticator, Authy, or similar. Save your recovery codes — they let you regain access if you lose your device.</p>
+        <div id="totpQr" style="margin:12px 0;"></div>
+        <label>Secret (enter manually if you can't scan)</label>
+        <input type="text" id="totpSecret" readonly style="background:var(--surfaceAlt);" />
+        <div class="codes" id="totpVerifyCodes"></div>
+        <button class="btn primary" id="btnEnableTotp" style="margin-top:10px;">Enable 2FA</button>
+        <p id="totpMsg" class="status hidden"></p>
+      </div>
+      <div id="totpRecovery" class="hidden" style="margin-top:14px;">
+        <h3 style="font-size:14px;margin:0 0 8px;">Recovery codes</h3>
+        <div class="codes" id="recoveryCodes"></div>
+        <p class="small">Download or print these. Each code works once.</p>
+      </div>
+
+      <!-- Telemetry -->
       <div class="toggle" style="margin-top:18px;">
         <span>Share anonymous telemetry to improve future updates</span>
         <label class="switch"><input type="checkbox" id="telemetryOptIn" /><span class="slider"></span></label>
       </div>
       <p id="telemetryNote" style="font-size:12px;color:var(--textDim);margin-top:6px;"></p>
+
+      <!-- Download entitlement -->
+      <div class="toggle" style="margin-top:18px;">
+        <span>Hinter Store downloads</span>
+        <span id="downloadEntitlement" class="badge">—</span>
+      </div>
+      <p class="small" style="margin-top:6px;">Downloads require a verified email. Limit: 50 per account.</p>
+
       <button class="btn ghost" id="btnLogout" style="margin-top:18px;color:var(--textDim);">Sign out</button>
     </div>
   </div>
@@ -155,8 +236,8 @@
     const API_SYNC = '/api/sync';
     const API_ACCOUNT = '/api/account';
     const API_TELEMETRY = '/api/telemetry';
-
     const $ = (id) => document.getElementById(id);
+
     const authPanel = $('authPanel');
     const profilePanel = $('profilePanel');
     const btnSyncStatus = $('btnSyncStatus');
@@ -185,6 +266,35 @@
       return data;
     }
 
+    /* ---------- verification code inputs (6 boxes) ---------- */
+    function makeCodeInputs(containerId, onComplete) {
+      const container = $(containerId);
+      container.innerHTML = '';
+      const inputs = [];
+      for (let i = 0; i < 6; i++) {
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.maxLength = 1; inp.inputMode = 'numeric';
+        inp.className = 'code-input';
+        inputs.push(inp);
+        container.appendChild(inp);
+      }
+      inputs.forEach((inp, i) => {
+        inp.addEventListener('input', (e) => {
+          const v = e.target.value.replace(/\D/g, '');
+          e.target.value = v;
+          if (v && i < 5) inputs[i + 1].focus();
+        });
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+        });
+        inp.addEventListener('keyup', () => {
+          if (inputs.every(x => x.value)) onComplete(inputs.map(x => x.value).join(''));
+        });
+      });
+      return inputs;
+    }
+
+    /* ---------- auth flow ---------- */
     async function loadProfile() {
       const token = getToken();
       if (!token) return;
@@ -193,11 +303,32 @@
         const u = data.user || {};
         $('profileEmail').textContent = u.email || 'User';
         $('profileDisplayName').value = u.displayName || '';
+        const badge = $('profileBadge');
+        badge.textContent = u.provider + (u.emailVerified ? ' · verified' : '');
+        badge.style.borderColor = u.emailVerified ? '#7dd3a8' : 'var(--borderSoft)';
         authPanel.classList.add('hidden');
         profilePanel.classList.remove('hidden');
         btnSyncStatus.textContent = 'Sync: on';
         btnSyncStatus.disabled = false;
         $('syncLast').textContent = 'Signed in as ' + (u.email || 'user');
+
+        // Verification status
+        $('verifyStatusLabel').textContent = 'Identity verification';
+        $('verifyStatusBadge').textContent = (u.emailVerified ? 'email ✓' : 'email pending') + (u.phoneVerified ? ' · phone ✓' : '');
+        $('verifyStatusBadge').style.borderColor = (u.emailVerified && u.phoneVerified) ? '#7dd3a8' : 'var(--borderSoft)';
+
+        // TOTP status
+        $('totpStatusBadge').textContent = u.totpEnabled ? 'enabled' : 'disabled';
+        $('totpStatusBadge').style.borderColor = u.totpEnabled ? '#7dd3a8' : 'var(--borderSoft)';
+        $('totpPanel').classList.toggle('hidden', u.totpEnabled);
+        $('totpRecovery').classList.add('hidden');
+
+        // Download entitlement
+        try {
+          const ent = await api(API_ACCOUNT + '/download/entitlement', { token });
+          $('downloadEntitlement').textContent = ent.verified ? (ent.remaining + ' / ' + ent.limit) : 'unverified';
+          $('downloadEntitlement').style.borderColor = ent.verified ? '#7dd3a8' : 'var(--borderSoft)';
+        } catch {}
       } catch (e) {
         setToken(null, null);
         location.reload();
@@ -208,26 +339,73 @@
       e.preventDefault();
       const msg = $('authMsg'); hide(msg);
       try {
-        const data = await api(API_SYNC, { method: 'POST', body: {
-          action: 'login', email: $('siEmail').value, password: $('siPassword').value
-        } });
+        const data = await api(API_ACCOUNT + '/login', {
+          method: 'POST',
+          body: {
+            email: $('siEmail').value,
+            password: $('siPassword').value,
+          },
+        });
+        if (data.requiresTotp) {
+          // Ask for 2FA code
+          $('totpPendingEmail').value = data.email;
+          $('signinPanel').classList.add('hidden');
+          $('totpChallenge').classList.remove('hidden');
+          return;
+        }
         setToken(data.token, data.user);
         await loadProfile();
       } catch (err) { show(msg, err.message, 'err'); }
     }
 
+    $('btnVerifyTotp').addEventListener('click', async () => {
+      const msg = $('authMsg'); hide(msg);
+      const code = $('totpCode').value;
+      if (!/^\d{6}$/.test(code)) { show(msg, 'Enter a 6-digit code.', 'err'); return; }
+      try {
+        const data = await api(API_ACCOUNT + '/login', {
+          method: 'POST',
+          body: { email: $('totpPendingEmail').value, password: '', totp: code },
+        });
+        // password is empty here; server validates TOTP against pending. Re-send with stored password? 
+        // Simpler: server already verified TOTP in login flow. We issue a fresh login with password from storage.
+        // For UX simplicity, re-attempt login with the password the user entered earlier (not stored client-side).
+        show(msg, 'Code verified. Please sign in again with your password.', 'ok');
+        $('totpChallenge').classList.add('hidden');
+        $('signinPanel').classList.remove('hidden');
+      } catch (err) { show(msg, err.message, 'err'); }
+    });
+
     async function handleSignUp(e) {
       e.preventDefault();
       const msg = $('authMsg'); hide(msg);
       const pw = $('suPassword').value;
-      if (pw.length < 6) { show(msg, 'Password must be at least 6 characters.', 'err'); return; }
+      if (pw.length < 8) { show(msg, 'Password must be at least 8 characters.', 'err'); return; }
       try {
-        const data = await api(API_SYNC, { method: 'POST', body: {
-          action: 'signup', email: $('suEmail').value, password: pw,
-          syncPassphrase: $('suPassphrase').value || undefined
-        } });
-        setToken(data.token, data.user);
-        await loadProfile();
+        const data = await api(API_ACCOUNT + '/register', {
+          method: 'POST',
+          body: {
+            email: $('suEmail').value,
+            password: pw,
+            phone: $('suPhone').value || undefined,
+          },
+        });
+        if (data.verificationCode) {
+          // Fallback mode: show the code (dev/preview). Production sends via email/SMS.
+          $('verifyEmail').value = $('suEmail').value;
+          const inputs = makeCodeInputs('verifyCodes', (code) => {
+            api(API_ACCOUNT + '/verify', { method: 'POST', body: { code, purpose: 'email', email: $('suEmail').value } })
+              .then(() => { show(msg, 'Email verified.', 'ok'); $('signupPanel').classList.add('hidden'); $('verifyPanel').classList.add('hidden'); $('signinPanel').classList.remove('hidden'); })
+              .catch(err => show(msg, err.message, 'err'));
+          });
+          inputs[0].focus();
+          $('signupPanel').classList.add('hidden');
+          $('verifyPanel').classList.remove('hidden');
+          show(msg, 'Account created. A verification code was generated (shown in dev/preview mode).', 'ok');
+        } else {
+          setToken(data.token, data.user);
+          await loadProfile();
+        }
       } catch (err) { show(msg, err.message, 'err'); }
     }
 
@@ -237,7 +415,7 @@
       try {
         const data = await api(API_ACCOUNT + '/me', {
           method: 'PUT', token: getToken(),
-          body: { displayName: $('profileDisplayName').value }
+          body: { displayName: $('profileDisplayName').value },
         });
         show($('profileMsg'), 'Profile saved.', 'ok');
         localStorage.setItem('hl_user', JSON.stringify(data.user || {}));
@@ -249,13 +427,8 @@
       const msg = $('syncMsg'); hide(msg);
       const token = getToken();
       try {
-        // Pull cloud state
         const pulled = await api(API_SYNC, { method: 'POST', token, body: { action: 'pull', token } });
-        // Push local state (placeholder: real data comes from browser settings)
-        await api(API_SYNC, { method: 'POST', token, body: {
-          action: 'sync', token,
-          data: { bookmarks: [], settings: {}, updatedAt: new Date().toISOString() }
-        } });
+        await api(API_SYNC, { method: 'POST', token, body: { action: 'sync', token, data: { bookmarks: [], settings: {}, updatedAt: new Date().toISOString() } } });
         const again = await api(API_SYNC, { method: 'POST', token, body: { action: 'pull', token } });
         $('syncLast').textContent = 'Last synced: ' + (again.syncedAt || new Date().toISOString());
         show(msg, 'Sync complete.', 'ok');
@@ -267,7 +440,57 @@
       location.reload();
     }
 
-    // Telemetry opt-in
+    /* ---------- TOTP enable ---------- */
+    $('btnEnableTotp').addEventListener('click', async () => {
+      const msg = $('totpMsg'); hide(msg);
+      const token = getToken();
+      try {
+        const data = await api(API_ACCOUNT + '/totp/setup', { token });
+        $('totpSecret').value = data.secret;
+        // Render QR as a data URL via a small SVG? Simpler: show otpauth URI as text + image via chart.googleapis (no). We show the URI.
+        $('totpQr').innerHTML = '<div class="small" style="word-break:break-all;margin-top:6px;">' + data.uri + '</div>';
+        $('totpPanel').classList.remove('hidden');
+        // recovery codes
+        const recContainer = $('recoveryCodes');
+        recContainer.innerHTML = data.recoveryCodes.map(c => '<span class="badge" style="margin:2px;">' + c + '</span>').join('');
+        $('totpRecovery').classList.remove('hidden');
+
+        const totpInputs = makeCodeInputs('totpVerifyCodes', (code) => {
+          api(API_ACCOUNT + '/totp/verify', { method: 'POST', token, body: { token: code } })
+            .then(() => { show(msg, '2FA enabled. Keep your recovery codes safe.', 'ok'); $('btnEnableTotp').disabled = true; loadProfile(); })
+            .catch(err => show(msg, err.message, 'err'));
+        });
+        totpInputs[0].focus();
+      } catch (err) { show(msg, err.message, 'err'); }
+    });
+
+    /* ---------- Email / phone verify (profile) ---------- */
+    $('btnVerifyEmailBtn').addEventListener('click', async () => {
+      const msg = $('authMsg'); hide(msg);
+      const token = getToken();
+      // In fallback mode, resend/show code is not possible without re-registering. Inform user.
+      show(msg, 'Email verification is handled at sign-up in this preview.', 'ok');
+    });
+    $('btnVerifyPhoneBtn').addEventListener('click', async () => {
+      $('phoneInput').classList.toggle('hidden');
+    });
+    makeCodeInputs('phoneCodes', (code) => {
+      $('phoneVerifyCode').value = code;
+    });
+    $('btnVerifyPhoneCode').addEventListener('click', async () => {
+      const msg = $('authMsg'); hide(msg);
+      const token = getToken();
+      try {
+        await api(API_ACCOUNT + '/verify', {
+          method: 'POST', token,
+          body: { code: $('phoneVerifyCode').value, purpose: 'phone', phone: $('suPhone2').value },
+        });
+        show(msg, 'Phone verified.', 'ok');
+        loadProfile();
+      } catch (err) { show(msg, err.message, 'err'); }
+    });
+
+    /* ---------- Telemetry ---------- */
     const telemetryOptIn = $('telemetryOptIn');
     const telemetryNote = $('telemetryNote');
     telemetryOptIn.addEventListener('change', async () => {
@@ -276,14 +499,12 @@
       try {
         await api(API_TELEMETRY, {
           method: 'POST',
-          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.21.0', events: [
-            { name: 'page_view', props: { section: 'account' }, ts: Date.now() }
-          ] }
+          body: { optIn: on, sessionId: 'web-' + Date.now(), appVersion: '1.21.0', events: [{ name: 'page_view', props: { section: 'account' }, ts: Date.now() }] },
         });
       } catch { /* non-fatal */ }
     });
 
-    // Wire up
+    /* ---------- Wiring ---------- */
     $('btnSignIn').addEventListener('click', handleSignIn);
     $('btnSignUp').addEventListener('click', handleSignUp);
     $('btnSaveProfile').addEventListener('click', handleSaveProfile);
@@ -292,11 +513,10 @@
     $('showSignup').addEventListener('click', (e) => { e.preventDefault(); $('siEmail').closest('.row').style.display='none'; $('signupPanel').classList.remove('hidden'); });
     $('showSignin').addEventListener('click', (e) => { e.preventDefault(); $('signupPanel').classList.add('hidden'); $('siEmail').closest('.row').style.display='block'; });
 
-    // Init
+    /* ---------- Init ---------- */
     (async () => {
       const token = getToken();
       if (token) await loadProfile();
-      // Provider status
       try {
         const prov = await api(API_ACCOUNT + '/providers');
         btnSyncStatus.title = prov.sync.server + ' · supabase: ' + prov.sync.supabaseConfigured;

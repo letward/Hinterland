@@ -127,8 +127,8 @@ module.exports = async function handler(req, res) {
       await fetch(`${baseUrl()}/rest/v1/telemetry_events`, {
         method: 'POST',
         headers: {
-          apikey: updKey,
-          Authorization: 'Bearer ' + (SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY),
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: 'Bearer ' + updKey,
           'Content-Type': 'application/json',
           Prefer: 'return=minimal',
         },

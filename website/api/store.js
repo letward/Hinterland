@@ -1,12 +1,24 @@
 /**
  * @fileoverview Hinterland Store Upload API - Vercel Serverless Endpoint
  * Allows logged-in users to post designs (themes) and upload extensions to
- * the Hinter Store. Uses Supabase (free tier) as the backing store with an
- * in-memory fallback for local dev, preview and tests.
- * Free stack: Vercel serverless + Supabase free tier.
+ * the Hinter Store. Uses Supabase as the backing store with an in-memory
+ * fallback for local dev/preview. Auth state is shared with /api/account via
+ * the shared _account.js module.
+ *
+ * Endpoints:
+ *   GET  /api/store         -> list themes + extensions (public)
+ *   POST /api/store         -> upload theme/extension (requires auth)
  */
 
 const crypto = require('node:crypto');
+
+const {
+  HAS_SUPABASE, baseUrl, isEmail, isPhone,
+  accountsById, sessionsByToken,
+  verifyPasswordAccount, createSession, getSession,
+  resolveSupabaseUser, mapAccountToProfile,
+  incrementDownload, getDownloadCount,
+} = require('./_account');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -42,37 +54,20 @@ function extractToken(req) {
   return null;
 }
 
-async function verifySupabaseToken(token) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !token) return null;
-  try {
-    const res = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/user`, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: 'Bearer ' + token,
-      },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.user || null;
-  } catch {
-    return null;
-  }
-}
-
 async function resolveUser(token) {
   if (!token) return null;
-  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    return await verifySupabaseToken(token);
+  if (HAS_SUPABASE) {
+    const user = await resolveSupabaseUser(token);
+    return user || null;
   }
-  // In dev / preview / test environments, accept valid tokens
-  if (typeof token === 'string' && token.length >= 12 && !token.includes('invalid')) {
-    const hash = crypto.createHash('sha256').update(token).digest('hex').slice(0, 16);
-    return {
-      id: `usr_${hash}`,
-      email: `creator-${hash.slice(0, 6)}@hinterland.de`,
-    };
-  }
-  return null;
+  const s = getSession(token);
+  if (!s) return null;
+  return accountsById.get(s.id) || null;
+}
+
+function json(res, status, payload) {
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(status).json(payload);
 }
 
 module.exports = async function handler(req, res) {
@@ -85,21 +80,21 @@ module.exports = async function handler(req, res) {
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (isRateLimited(ip)) {
-    return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
+    return json(res, 429, { ok: false, error: 'Too many requests. Please try again later.' });
   }
 
-  // GET - list community content
+  /* --------------------------------------------------- GET - list content */
   if (req.method === 'GET') {
     let themes = [...memoryThemes];
     let extensions = [...memoryExtensions];
 
-    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    if (HAS_SUPABASE) {
       try {
-        const themesRes = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/store_themes?select=*&order=created_at.desc`, {
-          headers: { apikey: SUPABASE_ANON_KEY },
+        const themesRes = await fetch(`${baseUrl()}/rest/v1/store_themes?select=*&order=created_at.desc`, {
+          headers: { apikey: process.env.SUPABASE_ANON_KEY },
         });
-        const extsRes = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/store_extensions?select=*&order=created_at.desc`, {
-          headers: { apikey: SUPABASE_ANON_KEY },
+        const extsRes = await fetch(`${baseUrl()}/rest/v1/store_extensions?select=*&order=created_at.desc`, {
+          headers: { apikey: process.env.SUPABASE_ANON_KEY },
         });
         if (themesRes.ok) themes = [...themes, ...(await themesRes.json())];
         if (extsRes.ok) extensions = [...extensions, ...(await extsRes.json())];
@@ -108,23 +103,23 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({
+    return json(res, 200, {
       ok: true,
       themes,
       extensions,
-      source: SUPABASE_URL ? 'supabase' : 'memory',
+      source: HAS_SUPABASE ? 'supabase' : 'memory',
     });
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    return json(res, 405, { ok: false, error: 'Method not allowed' });
   }
 
-  // POST - upload theme or extension (requires authentication)
+  /* ------------------------------------------- POST - upload (requires auth) */
   const token = extractToken(req);
   const user = await resolveUser(token);
   if (!user) {
-    return res.status(401).json({ ok: false, error: 'notLoggedIn' });
+    return json(res, 401, { ok: false, error: 'notLoggedIn' });
   }
 
   const body = req.body || {};
@@ -132,7 +127,7 @@ module.exports = async function handler(req, res) {
 
   if (kind === 'theme') {
     if (!data.name || !data.id) {
-      return res.status(400).json({ ok: false, error: 'invalidTheme' });
+      return json(res, 400, { ok: false, error: 'invalidTheme' });
     }
     const theme = {
       id: String(data.id).toLowerCase().replace(/[^a-z0-9_-]/g, '-'),
@@ -159,12 +154,12 @@ module.exports = async function handler(req, res) {
       created_at: new Date().toISOString(),
     };
 
-    if (SUPABASE_URL && SUPABASE_ANON_KEY && token) {
+    if (HAS_SUPABASE && token) {
       try {
-        const insertRes = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/store_themes`, {
+        const insertRes = await fetch(`${baseUrl()}/rest/v1/store_themes`, {
           method: 'POST',
           headers: {
-            apikey: SUPABASE_ANON_KEY,
+            apikey: process.env.SUPABASE_ANON_KEY,
             Authorization: 'Bearer ' + token,
             'Content-Type': 'application/json',
             Prefer: 'return=representation',
@@ -173,7 +168,7 @@ module.exports = async function handler(req, res) {
         });
         if (insertRes.ok) {
           const inserted = await insertRes.json();
-          return res.status(201).json({ ok: true, theme: inserted[0] || theme });
+          return json(res, 201, { ok: true, theme: inserted[0] || theme });
         }
       } catch {
         // Fall back to memory storage on connection error
@@ -181,12 +176,12 @@ module.exports = async function handler(req, res) {
     }
 
     memoryThemes.unshift(theme);
-    return res.status(201).json({ ok: true, theme });
+    return json(res, 201, { ok: true, theme });
   }
 
   if (kind === 'extension') {
     if (!data.id || !data.name) {
-      return res.status(400).json({ ok: false, error: 'invalidExtension' });
+      return json(res, 400, { ok: false, error: 'invalidExtension' });
     }
     const cleanId = String(data.id).toLowerCase().replace(/[^a-z0-9_-]/g, '-');
     const extension = {
@@ -206,12 +201,12 @@ module.exports = async function handler(req, res) {
       created_at: new Date().toISOString(),
     };
 
-    if (SUPABASE_URL && SUPABASE_ANON_KEY && token) {
+    if (HAS_SUPABASE && token) {
       try {
-        const insertRes = await fetch(`${SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/store_extensions`, {
+        const insertRes = await fetch(`${baseUrl()}/rest/v1/store_extensions`, {
           method: 'POST',
           headers: {
-            apikey: SUPABASE_ANON_KEY,
+            apikey: process.env.SUPABASE_ANON_KEY,
             Authorization: 'Bearer ' + token,
             'Content-Type': 'application/json',
             Prefer: 'return=representation',
@@ -220,7 +215,7 @@ module.exports = async function handler(req, res) {
         });
         if (insertRes.ok) {
           const inserted = await insertRes.json();
-          return res.status(201).json({ ok: true, extension: inserted[0] || extension });
+          return json(res, 201, { ok: true, extension: inserted[0] || extension });
         }
       } catch {
         // Fall back to memory storage on connection error
@@ -228,8 +223,8 @@ module.exports = async function handler(req, res) {
     }
 
     memoryExtensions.unshift(extension);
-    return res.status(201).json({ ok: true, extension });
+    return json(res, 201, { ok: true, extension });
   }
 
-  return res.status(400).json({ ok: false, error: 'invalidKind' });
+  return json(res, 400, { ok: false, error: 'invalidKind' });
 };
